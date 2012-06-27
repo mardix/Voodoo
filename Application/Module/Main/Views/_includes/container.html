@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--
+container-simple.html
+A simple container that loads only the body of the site
+-->
+
+<HTML>
+    
+<head>
+    
+    <META NAME="Copyright" CONTENT="{{App.Year}}">
+    <META NAME="revisit-after" CONTENT="1 days">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    
+    {{#App.Page.MetaTags}}
+        {{{.}}}
+    {{/App.Page.MetaTags}}
+
+    
+    {{#App.Page.OpenGraphTags}}
+        {{{.}}}
+    {{/App.Page.OpenGraphTags}}
+    
+    <title>{{App.Page.Title}}</title>
+
+    <!-- Le styles -->
+    <link href="{{App.Path.SharedAssets}}/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 10px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="{{App.Path.SharedAssets}}/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->    
+
+    <script src="{{App.Path.SharedAssets}}/jquery/jquery-1.7.js"></script>
+    <script src="{{App.Path.SharedAssets}}/bootstrap/js/bootstrap.js"></script>
+
+</head>
+
+
+<body>
+
+    <div class="container">
+        
+        <!-- Header -->
+        {{%include _layout/header}}
+        
+        
+        
+        <!-- The Body -->
+        <div class="row">
+
+            <div class="span12">
+                
+                <!-- Errors Will be displayed in herrrrre -->
+                {{%include @PageError}}
+
+                
+                <!-- REQUIRED - 
+                It include the page content. 
+                If omitted, the site will not have any content. 
+                The content is routed based on the controller/view 
+                -->
+                {{%include @PageBody}}
+                
+            </div>
+        </div>
+        
+        
+
+        <!-- Footer -->
+        {{%include _layout/footer}}        
+        
+        
+    </div>
+    
+</body>
+
+
+</HTML>
+
