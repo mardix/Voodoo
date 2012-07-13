@@ -290,10 +290,14 @@ Models, Modules, Controllers, Views, Routes etc.
 To use Magician, you can go to the following files:
 
 -> Command line interface
+
      cd Voodoo/Magician
+
      php cli.php
 
+
 -> Web interface
+
      http://YOUR-SITE.com/Voodoo/Magician
 
 ---
