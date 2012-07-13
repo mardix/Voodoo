@@ -1,0 +1,19 @@
+<!--
+success.html
+This content is loaded when there is a success on the page, such as account updated succefully etc. It is set by $this->setSuccess()
+-->
+
+{{#App.Success}}
+
+        <div class="alert alert-success">
+            
+            <a class="close" data-dismiss="alert" href="#">×</a>
+
+            <ul>
+                {{#Messages}}
+                <li>{{.}}</li>
+                {{/Messages}}
+            </ul>
+        </div>
+
+{{/App.Success}}

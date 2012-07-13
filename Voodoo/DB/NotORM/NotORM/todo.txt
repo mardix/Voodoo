@@ -1,0 +1,3 @@
+multi-column primary key - Structure methods could return array
+Discovery for other drivers
+defer NotORM_Row creation to save memory

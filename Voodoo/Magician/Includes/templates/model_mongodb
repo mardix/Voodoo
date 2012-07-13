@@ -1,0 +1,67 @@
+<?php
+/**
+ * -----------------------------------------------------------------------------
+ * {{PROJECT_NAME}}
+ *
+ * @copyright   (c) {{YEAR}} {{PROJECT_COPYRIGHT}}
+ * @license     {{PROJECT_LICENSE}}
+ *
+ *              (autogen by: {{GENERATOR}})
+ * -----------------------------------------------------------------------------
+ * 
+ * @name        {{MODELNAME}}
+ * @since       {{DATE}}
+ * @desc        
+ *
+ */ 
+//------------------------------------------------------------------------------
+
+namespace {{NAMESPACE}}
+
+use Voodoo\Core;
+
+class {{MODELNAME}} extends \Voodoo\DB\MongoDB{
+    
+    /**
+     * CollectionName
+     * The database will connect to this collection
+     * @var string 
+     */
+    protected $CollectionName = "{{COLLECTIONNAME}}";
+
+    
+    /**
+     * PrimaryKey
+     * This collection's primary key name, by default _id
+     * @var string 
+     */
+    protected $PrimaryKeyName = "{{PRIMARYKEY}}";
+    
+    
+    /**
+     * Create indexes for this collection
+     * @example
+     *  fields = fields to index
+     *  options = options for the index
+     *      name = the name of the index, otherwise it will create a very loooooooooooong name
+     *  array(
+     *      array("fields"=>array("username"),"options"=>array("unique"=>true,"name"=>"uname"),
+     *      array("fields"=>array("a","b","c"),"options"=>array("name"=>"name1")),
+     *      array("fields"=>array("a1","b1","c1"),"options"=>array("name"=>"name2")),
+     *  );
+     *
+     * @var Array
+     * 
+     * To ensure index, just run $this->ensureIndex();
+    */
+    protected $indexes = array(
+        array("fields"=>array(),"options"=>array()),
+    );
+    
+/*******************************************************************************/
+// Enter your methods below
+    
+    
+
+}
+

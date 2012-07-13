@@ -1,0 +1,44 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; {{GENERATOR}} - Application's Global Settings File
+; 
+; Add your global Application settings in this file
+; It will be automatically loaded and data can be accessed via Core\Config::get()
+; Settings in this file will override any settings set in Voodoo/Config/Config.ini
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Since {{DATE}}
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Set The applications settings        
+[Application]
+    Env = "Dev" ; By default it is set to DEV for development, but it can be anything
+    Name = ""
+    Url = ""
+ 
+
+; System settings
+[System]
+    Timezone = "{{System.Timezone}}" ; Set the timezone of your system. ie: America/New_York
+    AdminEmail = "{{System.AdminEmail}}" ; An email that will be used to notify admin of server issue
+    ErrorReporting = E_ALL & ~E_NOTICE ; Error reporting
+    DisplayError = "ON" ;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Project's info
+[Project]
+    Name = "{{Project.Name}}" ; The name of your project 
+    License = "" ; Project's license
+    Copyright = "" ; 
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Voodoo Magician. A tool to quickly create module, models, controllers, views, routes etc. 
+[VoodooMagician]
+    EnableWeb = true ; To allow Voodoo/Magician over the web. Set to false to disable
+    EnableCLI = true ; To allow Voodoo/Magician over CLI. Set to false to disable
+    Password = "{{VoodooMagician.Password}}" ; MD5 Encoded password to access Voodoo/Magician over the web
+

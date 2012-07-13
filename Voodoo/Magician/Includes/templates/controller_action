@@ -1,0 +1,18 @@
+
+
+    /**
+     * {{METHODNAME}}
+     *@action  :action_{{METHODNAME}}
+     *@desc    :{{METHODDESCRIPTION}}
+     */
+    public function action_{{METHODNAME}}(){
+
+        // Set the page title
+        $this->view()->setPageTitle("");
+
+
+    }
+
+
+}
+

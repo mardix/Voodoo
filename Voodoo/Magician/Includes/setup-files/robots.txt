@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /Application/
+Disallow: /AddOn/
+Disallow: /SharedAssets/
+Disallow: /Voodoo/

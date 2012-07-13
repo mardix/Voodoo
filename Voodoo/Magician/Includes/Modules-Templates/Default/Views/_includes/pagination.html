@@ -1,0 +1,16 @@
+
+<!-- pagination.html
+    The pagination template
+    By default it uses Twitter's bootstrap framework pagination
+-->
+
+
+<div class="pagination">
+    <ul>
+        {{#App.Pagination}}
+            <li class="{{#isCurrent}}active{{/isCurrent}}">                
+                <a href="{{Url}}">{{Label}}</a>
+            </li>
+        {{/App.Pagination}}
+    </ul>
+</div>

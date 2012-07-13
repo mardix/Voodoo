@@ -1,0 +1,22 @@
+<!--
+error.html
+This content is loaded when there is a error on the page, such as account failed to update etc. It is set by $this->setError()
+-->
+
+{{#App.Errors}}
+
+        <div class="alert alert-error">
+            
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            
+            <h3 class="alert-heading">Error Found!</h3>
+            <ul>
+                {{#Messages}}
+                <li>{{.}}</li>
+                {{/Messages}}
+            </ul>
+        </div>
+
+{{/App.Errors}}
+
+

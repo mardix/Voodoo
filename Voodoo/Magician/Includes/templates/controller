@@ -1,0 +1,49 @@
+<?php
+/**
+ * -----------------------------------------------------------------------------
+ * {{PROJECT_NAME}}
+ *
+ * @copyright   (c) {{YEAR}}
+ *
+ *              (autogen by: {{GENERATOR}})
+ * -----------------------------------------------------------------------------
+ * 
+ * @name        {{CONTROLLER}}
+ * @since       {{DATE}}
+ * @desc        
+ *
+ */ 
+//------------------------------------------------------------------------------
+
+namespace {{NAMESPACE}};
+
+use Voodoo\Core;
+
+class {{CONTROLLER}} extends Core\Controller{
+
+    /**
+     * __construct is final and can't be overriden by any child class
+     * therefore main is used as an entry point. 
+     * You can add code that will be executed when the controller is loaded.
+     * @return Controller 
+     */
+    protected function main(){
+
+    }
+
+    
+    /**
+     * This is the index action.
+     * It is loaded by default or when  action is missing
+     */
+    public function action_index(){
+        
+        // Set the page title
+        $this->view()->setPageTitle("");
+        
+    }
+    
+
+}
+
+ 
