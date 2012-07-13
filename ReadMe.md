@@ -281,13 +281,20 @@ Run this file:
 
 ---
 
-##5. Usian Magician
+##5. Using Magician
 
 
-Magician is the web or command line application that allows you to create programmatically
+Magician is the web and command line interface that allows you to quickly create
 Models, Modules, Controllers, Views, Routes etc.
 
-[More Doc to be added]
+To use Magician, you can go to the following files:
+
+-> Command line interface
+     cd Voodoo/Magician
+     php cli.php
+
+-> Web interface
+     http://YOUR-SITE.com/Voodoo/Magician
 
 ---
 
