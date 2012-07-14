@@ -88,7 +88,7 @@ class Index extends Core\Controller{
             /**
              * No error found 
              */
-            if(!$this->view()->errorFound()){
+            if(!$this->view()->hasErrors()){
                 
                 // Enter you login logic here
                 
@@ -143,7 +143,7 @@ class Index extends Core\Controller{
             /**
              * No error found 
              */
-            if(!$this->view()->errorFound()){
+            if(!$this->view()->hasErrors()){
                 
                 // Enter you password retrieval logic
                 
