@@ -164,7 +164,7 @@ Oh, two more things,
 
 1. Voodoo routes are case incensitive. So accessing /account/friends and /AcCount/FrieNds will result to the same place
 
-2. Only alphanumeric [AZ-09] characters are accepted. All the other one will be ignored when routing. So /account/fri-ends/ will still result to /account/friends. Same as /about-us/ which result to /aboutus/
+2. Only alphanumeric [AZ-09] characters are accepted. All the other one will be ignored when routing. So /account/fri-ends/ will still result to /account/friends. Same as /about-us/ which result to /aboutus/. So you can cleverly write your SEO friendly url
 
 It's really magic.
 
