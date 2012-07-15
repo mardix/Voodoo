@@ -20,7 +20,7 @@
 namespace Voodoo\Core;
 
 
-class View extends ThickMustache{
+class View extends ThickMustache implements Interfaces\View{
     
     /**
      * The default file extension if no extension is in the filename. Otherwise it will whatever extension the file has

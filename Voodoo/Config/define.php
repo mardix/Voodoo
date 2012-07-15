@@ -5,7 +5,6 @@
  * -----------------------------------------------------------------------------
  * @author      Mardix (http://twitter.com/mardix)
  * @github      https://github.com/VoodooPHP/Voodoo
- * @package     Soup
  * 
  * @copyright   (c) 2012 Mardix (http://github.com/mardix)
  * @license     MIT
@@ -20,8 +19,23 @@ define("VOODOO_NAME","VoodooPHP");
 
 /**
  * Version 
+ * VoodooPHP will be maintained under the Semantic Versioning guidelines as much as possible
+ * Releases will be numberrd withe the following format:
+ * <PHP 5 Minor Version>.<VoodooMajor>.<VoodooMinor>.<VodooPatch>
+ * ie: 3.1.2.4 
+ *      PHP 5 Minor Version = 3
+ *      Voodoo Major = 1
+ *      Voodoo Minor = 2
+ *      Voodoo Patch = 4
+ * 
+ * And constructed withe the following guidelines
+ * If New PHP 5.x version and breaking backward compatibility with previous PHP version bumps to the PHP Minor version and reset VoodooMajor to 1, VoodooMinor to  0, VoodooPatch to 0 (ie, from PHP 5.3 to 5.4 => 4.1.0.0)
+ * If Breaking backward compatibility bumps Voodoo major and reset voodoo minor and patch (ie: 3.1.0.7 => 3.2.0.0)
+ * If New addition without backwards compatibilty bumps Voodoo minor and reset the patch (3.2.2.7 => 3.2.3.0)
+ * If Bug fixes and misc changes bump the Voodoo path version (3.2.3.5 => 3.2.3.6)
+ * 
  */
-define("VOODOO_VERSION","2.0");
+define("VOODOO_VERSION","3.1.x.x");
 
 /**
  * Author 
@@ -137,10 +151,10 @@ define("APPLICATION_PATH",BASE_PATH."/Application");
         
 /*******************************************************************************/    
 /**
-* BaseAssets 
-* Holds global assets that can be used in all Modules
+* SharedAssets 
+* Holds shared assets (js,css etc..) that can be used by all Modules
 */
-define("BASE_ASSETS_PATH",BASE_PATH."/BaseAssets"); 
+define("SHARED_ASSETS_PATH",BASE_PATH."/SharedAssets"); 
   
 
     

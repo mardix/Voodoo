@@ -456,7 +456,18 @@ abstract class Controller{
      * @return Voodoo\Core\Controller
      */
     private function loadView(){
-        $this->View = new View($this->Namespace,$this->getConfig("Views.Container"));
+        
+        $Interface = "\\Voodoo\\Core\\Interfaces\\View";
+        
+        $ClassInjection = $this->getConfig("VoodooDependencies.Controller.View");
+        
+        $DI = new \ReflectionClass($ClassInjection);
+        
+        if(!$DI->implementsInterface($Interface))
+            throw new Exception("{$ClassInjection} Must implement the interface: {$Interface}");
+            
+        $this->View = $DI->newInstanceArgs(array($this->Namespace,$this->getConfig("Views.Container")));
+        
         return
             $this;
     }
@@ -474,39 +485,37 @@ abstract class Controller{
           return
                 false;
 
-
-            /**
-             * Setup vars for the templates 
-             */
-            $viewsAssets = $this->view()->getModulePath()."/_assets";
-            $AssetsDir = $this->getSiteUrl()."/".preg_replace("/^\//","",str_replace(BASE_PATH,"",$viewsAssets));
-            $SharedAssetsDir = $this->getSiteUrl()."/".preg_replace("/^\//","",str_replace(BASE_PATH,"",BASE_PATH."/SharedAssets"));
-
             $this->view()->assign(array(
                 "App"=>array(
                     "Copyright"=>"Copyright &copy; ".date("Y"), // Copyright (c) 2012   
-                    "Year"=>date("Y"), // The current year
+                    "CurrentYear"=>date("Y"), // The current year
+                    // return the full url
                     "Url"=>array(
                         "Root"=>$this->getRootUrl(),
                         "Site"=>$this->getSiteUrl(),
                         "Module"=>$this->getModuleUrl()                        
                     ),
+                    // Return path of entities
                     "Path"=>array(
-                        "SharedAssets"=>$SharedAssetsDir,// SharedAssets the global assets
-                        "Assets"=>$AssetsDir// The Assets directory for the current module
+                        "SharedAssets"=>$this->getViewsSharedAssetsDir(),// SharedAssets the global assets
+                        "Assets"=>$this->getViewsAssetsDir()// The Assets directory for the current module
                     )
                 ),
             ));
 
+
             /**
-            * Add some pre-made template 
-            */
-            $this->view()
-                ->addTemplate("PageSuccess","_includes/success.html") // include the success page
-                ->addTemplate("PageError","_includes/error.html") // include the error page
-                ->addTemplate("PageCaptcha","_includes/captcha.html") // include the captcha
-                ->addTemplate("PagePagination","_includes/pagination.html") // include the pagination page
-                ;             
+             * LoadTemplates
+             * Templates that are set in the config.ini of the module with key/value
+             * These templates will be access with their alias in the view page. ie: {{%include @PageAliasName}} 
+             */
+            $loadTemplates = $this->getConfig("Views.LoadTemplate");
+            if(is_array($loadTemplates)){
+                foreach($loadTemplates as $pageKey=>$pagePath){
+                    $this->view()->addTemplate($pageKey,$pagePath);
+                }
+            }
+         
 
         /**
          * Create the pagination 
@@ -524,7 +533,53 @@ abstract class Controller{
             $this->view()->render();
 
     } 
+
     
+    /**
+     * To create the module's assets dir
+     * Base on the config file
+     * @return string
+     */
+    private function getViewsAssetsDir(){
+        
+        $path = $this->getConfig("Views.AssetsDir");
+        
+            switch(true){
+                // Assets in current Module
+                case preg_match("/^(_[\w]+)/",$path):
+                     $path = "{$this->ModuleName}/Views/{$path}";
+                break;
+                // Assets anywhere with current page. ie: /ModuleName/Views/_assets
+                case preg_match("/^\/\/?/",$path):
+                    $path = preg_replace("/^\/\/?/","",$path);
+                break;
+                // Usually if a URL is provided, and the content will delivered from a different place
+                default:
+                    return $path;
+                break;
+            }
+
+            return 
+                $this->getSiteUrl()."/".preg_replace("/^\//","",str_replace(BASE_PATH,"",APPLICATION_MODULES_PATH."/$path"));
+    }
+    
+    /**
+     * To create the shared assets dir
+     * Base on the config file
+     * @return string
+     */    
+    private function getViewsSharedAssetsDir(){
+        
+        $path = $this->getConfig("Views.SharedAssetsDir");
+        
+        // Shared assets is from URL
+        if(preg_match("/^http(s)?:\/\//",$path))
+                return $path;
+        
+        // Shared assets starts from the root
+        return 
+            $this->getSiteUrl()."/".preg_replace("/^\//","",str_replace(BASE_PATH,"",$path ?: SHARED_ASSETS_PATH));      
+    }
 /*******************************************************************************/
 // MODEL   
 
@@ -566,14 +621,25 @@ abstract class Controller{
     
     /**
      * Load the paginator 
+     * It will load the class dependency which must implement the Pagination
      * @return Controller
      */
     private function loadPaginator(){
         
-        $this->Paginator = new Paginator($this->getRequestURI(),$this->getConfig("Pagination.PagePattern"));
+        $Interface = "\\Voodoo\\Core\\Interfaces\\Pagination";
         
-        $this->Paginator->setItemsPerPage($this->getConfig("Pagination.ItemsPerPage"))
-                        ->setNavigationSize($this->getConfig("Pagination.NavigationSize"));
+        $ClassInjection = $this->getConfig("VoodooDependencies.Controller.Pagination");
+        
+        $DI = new \ReflectionClass($ClassInjection);
+        
+        if(!$DI->implementsInterface($Interface))
+            throw new Exception("{$ClassInjection} Must implement the interface: {$Interface}");
+        
+            
+        $this->Paginator = $DI->newInstanceArgs(array($this->getRequestURI(),$this->getConfig("Views.Pagination.PagePattern")));       
+        
+        $this->Paginator->setItemsPerPage($this->getConfig("Views.Pagination.ItemsPerPage"))
+                        ->setNavigationSize($this->getConfig("Views.Pagination.NavigationSize"));
         return
             $this;
     }
@@ -610,7 +676,7 @@ abstract class Controller{
      * @return string
      */
     public function toDate($datetime,$format=null){
-        return Helpers::formatDate($datetime,$format ?: $this->getConfig("Application.ViewsDateFormat"));
+        return Helpers::formatDate($datetime,$format ?: $this->getConfig("Views.DateFormat"));
     }
     
     

@@ -9,28 +9,73 @@
 ; Since: {{DATE}}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-[Module]
-    Name = "{{MODULENAME}}" 
-    Template = "{{TEMPLATENAME}}"
 
 ; Set The applications settings  for this module     
 [Application]
-    Env = "Dev" ; By default it is set to DEV for development, but it can be anything
-    ViewsDateFormat = "D, M d Y" ; The format of date 
+    ; By default it is set to DEV for development, but it can be anything. It doesn't really have any effects on your application now
+    Env = "DEV"  
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Settings related to view page
+; Views
+; Setting that will be used in your view
 [Views]
-    Container = "_includes/container.html" ; The container to load that will contain the site body
+    ; Date format. There is a shortcut in your controller: Controller::toDate();
+    ; It will be loaded in there by default
+    DateFormat = "D, M d Y" 
+
+    ; Voodoo by default requires your site (if that's what you are doing) to have a container
+    ; The container technically contains the header, footer of your site and a placeholder for the body
+    ; The body will be including upon rendering
+    Container = "_includes/container.html" 
+
+    ; Assets contains all css, js, static files, etc that can be used by the module.
+    ; The path is relative to the Module's Views directory or be a url
+    ; ie: _assets or /OtherModule/Views/_assets or http://a-place-i-host-my-static-files.com
+    ; To access it in your view files use: {{App.Path.AssetsDir}}
+    AssetsDir = "_assets" ; The directory in the current module
+
+    ; SharedAssets contains all css, js, static files, etc that can be shared with other Modules. ie: jQuery, Twitter Bootstrap
+    ; The path is relative to the root or can be a url
+    ; ie: MyOwnPathRelativeToTheRoot or http://a-place-i-host-my-static-files.com
+    ; To access it in your view files use: {{App.Path.SharedAssetsDir}}
+    SharedAssetsDir = "SharedAssets" 
 
 
+    ; Pagination
+    ; Settings for the pagination
 
-; Pagination 
-[Pagination]
-    ItemsPerPage = 10
-    PagePattern = "page/(:num)" ; (:num) must be provided to match the correct page number. :num mean numeric value. default for friendly url = 'page/(:num)'  or normal page 'page=(:num)'
-    NavigationSize = 10 ; The size of the navigation
+    ; Total items per page
+    Pagination[ItemsPerPage] = 10 
 
+    ; (:num) must be provided to match the correct page number. :num mean numeric value. default for friendly url = 'page/(:num)'  or normal page 'page=(:num)'
+    Pagination[PagePattern] = "page/(:num)"  
+
+    ; The size of the navigation bar
+    Pagination[NavigationSize] = 10 
+
+
+    ; LoadTemplate
+    ; Voodoo will automatically load the files and assign them so the can be included with their alias. 
+    ; ie: {{%include @PageSuccess}}, this will include the file _includes/success.html
+    ; Format: LoadTemplate[AliasNameOfTheFileToLoad] = "filename"
+    LoadTemplate[PageSuccess] = "_includes/success.html"
+    LoadTemplate[PageError] = "_includes/error.html"
+    LoadTemplate[PagePagination] = "_includes/pagination.html"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; VoodooDependencies
+; Hold classes name that can be changed on the fly.
+; Very good if you want to use or test a different library
+; It is per module based, so each of your module can have their dependency
+; Classes must be PSR-0 compliant, and properly namespaced
+[VoodooDependencies]
+    ; Dependencies required in the Voodoo\Core\Controller
+
+    ; The view class that is being used. It must implement \Voodoo\Core\Interfaces\View 
+    Controller[View] = "\\Voodoo\\Core\\View" 
+
+    ; The pagination class that is being used. It must implement \Voodoo\Core\Interfaces\Pagination
+    Controller[Pagination] = "\\Voodoo\\Core\\Paginator" 
