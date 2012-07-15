@@ -54,7 +54,7 @@ Go to [VoodooPHP.org](http://voodoophp.org) for the complete documentation
 
 
 Voodoo is a slim yet powerful Modular MVC PHP 5.3 framework, that helps
-developers and designers rapidly and efficiently create and deploy ready to work  robust application. Voodoo can be used to develop full fledge applications, RESTful app and API, or command line application. Voodoo makes you the Magician. You become the Magician.
+developers and designers rapidly and efficiently create and deploy ready to work  robust application. Voodoo can be used to develop full fledge applications, RESTful app and API, or command line application. Voodoo makes you the Magician. You become the Magician. You are the Magician.
 
 
 
@@ -93,7 +93,7 @@ Unlike other frameworks, Voodoo highly follows the Convention over Configuration
 ##### Routing
 Voodoo cleverly routes to the right module of the application by using the URL schema 
 
-	`/Module/Controller/Action/Arguments/?queryName=queryValue`
+		/Module/Controller/Action/Arguments/?queryName=queryValue
 
 It first checks for the **Module**, if found, it accesses the directory 
 
@@ -141,22 +141,22 @@ Let's say you have 3 modules : Account, Admin, Main
 
 
 * Accessing: 
- *http://The-Site.com/profile/friends/Mardix/*
+ *http://Your-Voodoo-Site.com/profile/friends/Mardix/*
 
 Since there is no module called Profile, Voodoo will access the **Main/** module, then **Profile.php** controller, then execute the method **action_friends()**. And the name Mardix becomes an argument.
 
 * What about 
-*http://The-Site.com/admin/profile/edit/Mardix*
+*http://Your-Voodoo-Site.com/admin/profile/edit/Mardix*
 
 Same mechanism, this time Admin module exists, so Voodoo will access the **Admin/** module, then **Profile.php** controller, then execute the method **action_edit()**. And the name Mardix becomes an argument to be edited.
 
 * And this 
-*http://The-Site.com/account/friends/*
+*http://Your-Voodoo-Site.com/account/friends/*
 
 Same mechanism, Account module exists, so Voodoo will access the **Account/** module, but Friends.php is not a controller, so it falls back to the **Index.php** controller. No action comes after friend, so it executes the method **action_index()**.
 
 * And this 
-*http://The-Site.com/account/friends/logged-in/*
+*http://Your-Voodoo-Site.com/account/friends/logged-in/*
 
 Same as above, but **logged-in** becomes an argument, and the method that is executed in **action_index()**
 
@@ -227,14 +227,14 @@ Git Clone (notice the dot at the end)
 
 * Browser
 
-    	 http://YOUR-SITE.com/Voodoo/Magician/
+    	 http://Your-Voodoo-Site.com/Voodoo/Magician/
 
 ---
 
 
 ## 5. Getting Started: First Voodoo App
 
-Vodoo is a modular framework. Your application will be place at 
+Vodoo is a modular framework. Your application will be placed at 
 
 		/Application/Module/Main
 
@@ -323,7 +323,7 @@ So let's create the container. It is placed at:
 
 
 
-Accessing *http://The-Site.com/* will display the following:
+Accessing *http://Your-Voodoo-Site.com/* will display the following:
 
 		<HTML>
 
@@ -349,10 +349,7 @@ Oh yeah, The Magician will setup all of these files for you, so you don't have t
 ##6. Using Magician
 
 
-Magician is the web and command line interface that allows you to quickly create
-Models, Modules, Controllers, Views, Routes etc.
-
-Magician is a tool designed to help you speed up your development by generating MVC code for your application. It will create your Module, Models, Controllers, Views, Routes etc. Properly NAMESPACE your controller classed and put them in the right directory. The Magician can be accessed via command line and the web interface.
+Magician is a tool designed to help you speed up your development by generating MVC code for your application. It will create your Module, Models, Controllers, Views, Routes etc. Properly NAMESPACE your controller classes and put them in the right directory. The Magician can be accessed via command line and the web interface.
 
 * Command line interface
 
@@ -362,7 +359,7 @@ Magician is a tool designed to help you speed up your development by generating 
 
 * Web interface
 
-     `http://YOUR-SITE.com/Voodoo/Magician`
+     	http://Your-Voodoo-Site.com/Voodoo/Magician
 
 ---
 
