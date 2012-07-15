@@ -1,0 +1,12 @@
+
+=== VoodooPHP ==
+
+- 3.1.0.0
+    - New versioning <PHP5MinorVersion>.<VoodooMajor>.<VoodooMinor>.<VodooPatch>
+    - PHP 5.3
+    - Modular MVC
+    - More setting in the module config
+    - Dependency injection for views and pagination in the controller
+
+- 2.x
+The first version
