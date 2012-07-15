@@ -153,7 +153,7 @@ Same mechanism, this time Admin module exists, so Voodoo will access the **Admin
 * And this 
 *http://Your-Voodoo-Site.com/account/friends/*
 
-Same mechanism, Account module exists, so Voodoo will access the **Account/** module, but Friends.php is not a controller, so it falls back to the **Index.php** controller. No action comes after friend, so it executes the method **action_index()**.
+Same mechanism, Account module exists, so Voodoo will access the **Account/** module, but Friends.php is not a controller, so it falls back to the **Index.php** controller. Looking for **action_friends()**, it's found and loads it.
 
 * And this 
 *http://Your-Voodoo-Site.com/account/friends/logged-in/*
