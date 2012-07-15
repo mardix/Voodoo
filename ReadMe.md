@@ -172,15 +172,16 @@ It's really magic.
 
 ## 2. Versioning
 
-Voodoo will be maintained under the Semantic Versioning guidelines as much as possible.
+Voodoo will be maintained under the [PHP-Semantic Versioning](https://github.com/mardix/php-semver) specification as much as possible. (The [Semantic Versioning](https://github.com/mojombo/semver) specifications was authored by Tom Preston-Werner. the PHP-Semantic Versioning is a subset of the SemVer)
 
 Releases will be numbered with the following format:
 
-`<PHP5MinorVersion>.<VoodooMajor>.<VoodooMinor>.<VodooPatch>`
+	<PHPMajorVersion>.<PHPMinorVersion>/<VoodooMajor>.<VoodooMinor>.<VodooPatch>
 
- ie: Voodoo 3.1.2.4 
 
-	PHP 5 Minor Version = 3 ( 3 from PHP 5.3.x)
+ ie: Voodoo 5.3/1.2.7 
+
+	PHP Major.Minor Version = 5.3 ( 5.3 from PHP 5.3.x)
 
 	Voodoo Major = 1
 
@@ -190,13 +191,13 @@ Releases will be numbered with the following format:
 
  And constructed withe the following guidelines:
 
-* If New PHP 5.x version and breaking backward compatibility with previous PHP version bumps to the PHP Minor version and reset VoodooMajor to 1, VoodooMinor to  0, VoodooPatch to 0 (ie, from PHP 5.3 to 5.4 => 4.1.0.0)
+* If new PHP 5.x version and breaking backward compatibility with previous PHP version bumps to the PHP Major.Minor version and reset VoodooMajor to 1, VoodooMinor to  0, VoodooPatch to 0 (ie, from PHP 5.3 to 5.4 => 5.4/1.0.0)
 
-* If Breaking backward compatibility bumps Voodoo major and reset voodoo minor and patch (ie: 3.1.0.7 => 3.2.0.0)
+* If breaking backward compatibility bumps Voodoo major and reset voodoo minor and patch (ie: 5.3/1.0.7 => 5.3/2.0.0)
 
-* If New addition without backwards compatibilty bumps Voodoo minor and reset the patch (3.2.2.7 => 3.2.3.0)
+* If new addition without backwards compatibilty bumps Voodoo minor and reset the patch (5.3/2.2.7 => 5.3/2.3.0)
 
-* If Bug fixes and misc changes bump the Voodoo path version (3.2.3.5 => 3.2.3.6)
+* If bug fixes and misc changes bump the Voodoo patch version (5.3/2.3.5 => 5.3/2.3.6)
 
 
 
