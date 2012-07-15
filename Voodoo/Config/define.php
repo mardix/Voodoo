@@ -21,9 +21,9 @@ define("VOODOO_NAME","VoodooPHP");
  * Version 
  * VoodooPHP will be maintained under the Semantic Versioning guidelines as much as possible
  * Releases will be numberrd withe the following format:
- * <PHP 5 Minor Version>.<VoodooMajor>.<VoodooMinor>.<VodooPatch>
+ * <PHP5MinorVersion>.<VoodooMajor>.<VoodooMinor>.<VodooPatch>
  * ie: 3.1.2.4 
- *      PHP 5 Minor Version = 3
+ *      PHP 5 Minor Version = 3 ( 3 from PHP 5.3.x)
  *      Voodoo Major = 1
  *      Voodoo Minor = 2
  *      Voodoo Patch = 4
