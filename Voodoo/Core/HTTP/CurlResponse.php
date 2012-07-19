@@ -19,46 +19,33 @@
 
 namespace Voodoo\Core\HTTP;
 
-use Voodoo\Core\Exception;
-
-include_once(SOUP_INCLUDES_PATH."/encoding-functions.php");
+use Voodoo\Core;
 
 
 Class CurlResponse{
     
-    protected $ResponseData;
+    protected $response = "";
     
     
-    public function __construct(Array $Response){
-        $this->ResponseData = $Response;
+    public function __construct($response){
+        $this->response = $response;
     }
 
-    /**
-     * Return the response
-     * @return type 
-     */
-    public function response(){
-       return
-            $this->ResponseData["response"];
-    }
-    
-    /**
-     * Return the http code. On success it should be 2XX
-     * @return int 
-     */
-    public function httpCode(){
-        return $this->ResponseData["headers"]["http_code"];
-    }
-    
     
     /**
      * return the string value of the response
      * @return string 
      */
     public function __toString() {
-        return $this->response();
+        return $this->toString();
     }
-//------------------------------------------------------------------------------
+
+    /**
+     * Return to string 
+     */
+    public function toString(){
+        return $this->response;
+    }
     
     /**
      * Get the XML response and return it into SimpleXMLElement. 
@@ -69,7 +56,7 @@ Class CurlResponse{
 
         libxml_use_internal_errors(true);
 
-        $SXML = simplexml_load_string(utf8_encode($this->response()));
+        $SXML = simplexml_load_string($this->response());
 
         if(!$SXML){
             foreach(libxml_get_errors() as $E){
@@ -90,9 +77,39 @@ Class CurlResponse{
      * Return a json data to array
      * @return Array
      */
-    public function jsonToArray(){
-        return 
-            json_decode($this->response(),true);
+    public function toArray(){
+        
+       $data =  json_decode($this->response,true);
+       $msg = "";
+       
+         switch (json_last_error()) {
+            case JSON_ERROR_NONE:
+            break;
+            case JSON_ERROR_DEPTH:
+                $msg =  'Maximum stack depth exceeded';
+            break;
+            case JSON_ERROR_STATE_MISMATCH:
+                $msg =  'Underflow or the modes mismatch';
+            break;
+            case JSON_ERROR_CTRL_CHAR:
+                $msg =  'Unexpected control character found';
+            break;
+            case JSON_ERROR_SYNTAX:
+                $msg =  'Syntax error, malformed JSON';
+            break;
+            case JSON_ERROR_UTF8:
+                $msg =  'Malformed UTF-8 characters, possibly incorrectly encoded';
+            break;
+            default:
+                $msg = 'Unknown error';
+            break;
+        }
+        
+        if($msg)
+            throw new Core\Exception($msg);
+        
+        return
+            $data;
     }
         
 }

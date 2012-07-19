@@ -251,14 +251,7 @@ public static function removeUrl($data){
 
   return $newText;
 }
-//--------------------- REPLACE ACCENT -----------------------------------------
-# FUNCTIONS TO CLEAN DATA FROM PUNCTUATED CHARS
-# Jan 31 2005
-public static function replaceAccent($chaine){
-$tofind = "�����������������������������������������������������";
-$replac = "AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn";
-return(strtr($chaine,$tofind,$replac));
-}
+
 
 //---------------------- SUBSTR ------------------------------------------------
  # TO SHOW ONLY X MAX LETTER, SO EVEREYTHING FITS THE SAME

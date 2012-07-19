@@ -39,7 +39,7 @@ class URI {
         public static function init(){
 
             // Fetch the complete URI string
-            self::$uri_string = $_SERVER['QUERY_STRING'];
+            self::$uri_string = $_SERVER["QUERY_STRING"];
 
             // If the URI contains only a slash we'll kill it
             if (self::$uri_string == '/') self::$uri_string = '';

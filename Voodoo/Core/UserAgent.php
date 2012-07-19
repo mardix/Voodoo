@@ -69,7 +69,7 @@ Class UserAgent{
 	 * @access	private
 	 * @return	mixed
 	 */
-	private function _set_platform()
+	private static function _set_platform()
 	{
 			foreach (self::$platforms as $key => $val)
 			{
@@ -246,7 +246,7 @@ public static function __callStatic($fn,$a){
 }
 
 //------------------------------------------------------------------------------
-private function _settings(){
+public static function _settings(){
 
 /*
 | -------------------------------------------------------------------

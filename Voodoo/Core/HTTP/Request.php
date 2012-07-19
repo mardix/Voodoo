@@ -184,7 +184,7 @@ class Request{
             // these could be stored in a .ini file and loaded
             // via parse_ini_file()... however, this will suffice
             // for an example
-            $statusCodes = Array(
+            $statusCodes = array(
                 100 => 'Continue',
                 101 => 'Switching Protocols',
                 200 => 'OK',

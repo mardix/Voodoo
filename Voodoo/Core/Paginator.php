@@ -118,8 +118,8 @@ namespace Voodoo\Core;
 
 class Paginator implements Interfaces\Pagination{
    
-    const Name = "Paginator";
-    const Version = "1.2.2";
+    const NAME = "Paginator";
+    const VERSION = "1.2.2.1";
     
     /**
      * Holds params 

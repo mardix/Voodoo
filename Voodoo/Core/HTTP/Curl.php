@@ -19,14 +19,14 @@
 
 namespace Voodoo\Core\HTTP;
 
-use Voodoo\Core\Exception;
+use Voodoo\Core;
 //------------------------------------------------------------------------------
 
 /**
  * Make sure curl_init is enabled
  */
 if (!function_exists('curl_init')) 
-  throw new Exception('Class Core\Curl requires the CURL PHP extension.');
+  throw new Core\Exception('Class Voodo\Core\Curl requires the CURL PHP extension.');
 
 //------------------------------------------------------------------------------
 
@@ -35,6 +35,10 @@ class Curl{
     
    protected $url;
    protected $params = array();
+   public $headers = array();
+   public $response = "";
+   public $error = "";
+   public $errorNo = 0;
    
    
    /**
@@ -108,11 +112,12 @@ class Curl{
      */
     public function addParam($key,$value=""){
 
-        if(is_array($key))
-            $this->params = array_merge($this->params,$key);
-        else
-            $this->params[$key] = $value;
+        if(is_string($key))
+           $this->params[$key] = $value; 
         
+        else if(is_array($key))
+            $this->params = array_merge($this->params,$key);
+
         return $this;
         
     }
@@ -120,20 +125,28 @@ class Curl{
 
 
     /**
-     * Make a post request
-     * @return CurlResponse 
+     * POST method
+     * @param mixed $data, data to be posted
+     * @return type 
      */
-    public function post(){
-       return $this->makeRequest("POST"); 
+    public function post($data=""){
+        if($data)
+            $this->params = $data;
+        
+       return $this->call("POST"); 
     }
     
     
     /**
-     * make a GET request
-     * @return CurlResponse
+     * GET method
+     * @param mixed $data, data to get
+     * @return type 
      */
-    public function get(){
-        return $this->makeRequest("GET");
+    public function get($data=""){
+        if($data)
+            $this->params = $data;
+        
+        return $this->call("GET");
     }
     
 //------------------------------------------------------------------------------
@@ -141,15 +154,18 @@ class Curl{
     /**
      * Make the request and return the CURL RESPONSE
      * @param string $method  POST|GET (DELETE | PUT)
+     * @param mixed $data, data to get
      * @return CurlResponse 
      */
-    final protected function makeRequest($method = "GET"){
-
+    public function call($method = "GET",$data=""){
+        if($data)
+            $this->params = $data;
+        
         $ch = curl_init();
 
         $url = $this->url;
         
-        $strParams = http_build_query($this->params);
+        $strParams = (is_array($this->params)) ? http_build_query($this->params) : $this->params;
         
         /**
          * Methods
@@ -192,26 +208,49 @@ class Curl{
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_ENCODING, 1);
         
-        $response = curl_exec($ch);
+        $this->response = curl_exec($ch);
+        $this->headers = curl_getinfo($ch);
+        $this->error = curl_error($ch);
+        $this->errorNo = curl_errno($ch);
+
+        curl_close ($ch); 
         
-        if($response === FALSE)
-            throw new Exception(curl_error($ch),curl_errno($ch));
-        
-        /**
-         * Data to return to CurlResponse
-         */
-        $Data = array(
-            "response"=>$response,
-            "headers"=>curl_getinfo($ch)
-        );
-
-        curl_close ($ch);
-
-        return 
-            new CurlResponse($Data);
-
+        if($this->response === FALSE)
+            throw new Core\Exception($this->error,$this->errorNo);
+       
+       return
+            $this;
     }
     
+    /**
+     * Return the response object
+     * @return \Voodoo\Core\HTTP\CurlResponse 
+     */
+    public function getResponse(){
+        return
+            new CurlResponse($this->response);
+    }
+    
+    
+    /**
+     * Return the header
+     * @param type $key
+     * @return type 
+     */
+    public function getHeaders($key=""){
+        return
+            ($key) ? (isset($this->headers[$key]) ? $this->headers[$key] : "") : $this->headers;
+    }
+
+    
+    /**
+     * Return the HTTP code
+     * @return type 
+     */
+    public function getHTTPCode(){
+        return
+            $this->getHeaders("http_code");
+    }
 }
 
 
