@@ -1,5 +1,5 @@
 {
-    "name": "VoodooPHP/Voodoo",
+    "name": "voodoophp/voodoo",
     "type": "framework",
     "description": "Modular MVC Framework",
     "keywords": ["framework","microframework","mmvc","mvc","modular"],
