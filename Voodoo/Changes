@@ -1,0 +1,33 @@
+
+=== VoodooPHP ==
+
+---------
+- 5.3/1.1.0
+July 19 2012
+This version of Curl is backward incompatible
+    * Voodoo\Core\HTTP\Curl
+        - getResponse() return CurlResponse
+        - call($METHOD) 
+        - getHTTPCode()
+        -> get($data), post($data)
+    * Voodoo\Core\HTTP\CurlResponse
+        - change jsonToArray to toArray()
+        - removed httpCode(), to get the code use Core\Curl::getHTTPCode()
+        - removed response()
+        - added toString()
+     * Voodoo\Paginator
+        - Fix constant name
+     * Voodoo\Forms
+        - Simple form
+
+---------
+- 5.3/1.0.0
+Friday July 13 2012
+    - New versioning <PHPMajorVersion>.<PHPMinorVersion>/<VoodooMajor>.<VoodooMinor>.<VodooPatch>
+    - PHP 5.3
+    - Modular MVC
+    - More setting in the module config
+    - Dependency injection for views and pagination in the controller
+---------
+- 2.x
+The first version
