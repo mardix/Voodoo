@@ -1391,7 +1391,28 @@ public static function number_format_HumanReadable($number,$decimals=0){
         return $a;
     }    
     
-    
+    /**
+     * To flatten multi dimensional array into a flat one. Also preserve the key
+     * @param array $ar
+     * @param Array $f - am array to extend to
+     * @return mixed Arr- boolean 
+     * @since July 22 2012
+     */
+    public function arrayFlatten(Array $ar,$f = array()){
+        
+        if(!$ar||!is_array($ar)) 
+            return false;
+
+        foreach($ar as $k=>$v){
+
+            if(is_array($v))
+                $f= self::arrayFlatten($v,$f);
+            else $f[$k]=$v;
+
+        }
+        return $f;
+  
+    }
     
     /**
      * Camelize
