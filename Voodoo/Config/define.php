@@ -21,7 +21,7 @@ define("VOODOO_NAME","VoodooPHP");
  * Version  
  * Per PHP-SemVer @ http://github.com/mardix/php-semver
  */
-define("VOODOO_VERSION","5.3/1.1.0");
+define("VOODOO_VERSION","5.3/1.1.1");
 
 /**
  * Author 

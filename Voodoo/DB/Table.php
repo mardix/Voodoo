@@ -279,12 +279,26 @@ abstract class Table extends Mapper{
       
       $method = str_replace(array("orderBy","groupBy"),array("order","group"),$method);
 
-      if(in_array($method,$validMethods))
-         $this->fQuery[$method] = $args;
+      if(in_array($method,$validMethods)){
+         
+         // Modify where to accept multiple call
+         if($method == "where"){
+             
+            if(!isset($this->fQuery[$method]))
+                $this->fQuery[$method] = array(); 
+
+            $args = is_string($args[0]) ? array($args[0]=>$args[1]) : $args[0];
+
+            $this->fQuery[$method] = array(Core\Helpers::arrayExtend($this->fQuery[$method],$args));             
+         }
+
+         else
+           $this->fQuery[$method]  = $args;
+      }
       
       else
           throw new Core\Exception("__call to non existent method: {$method}()");
-          
+  
       return
         $this;
   }
