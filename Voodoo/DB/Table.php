@@ -289,7 +289,7 @@ abstract class Table extends Mapper{
 
             $args = is_string($args[0]) ? array($args[0]=>$args[1]) : $args[0];
 
-            $this->fQuery[$method] = array(Core\Helpers::arrayExtend($this->fQuery[$method],$args));             
+            $this->fQuery[$method] = array(Core\Helpers::arrayFlatten($args,$this->fQuery[$method][0]));             
          }
 
          else
