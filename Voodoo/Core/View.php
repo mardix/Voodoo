@@ -12,7 +12,6 @@
  * -----------------------------------------------------------------------------
  * 
  * @name        Core\Controller
- * @since       Jun 24, 2011
  * @desc        A View/Controller class 
  * 
  */
@@ -34,6 +33,8 @@ class View extends ThickMustache implements Interfaces\View{
               $controllerPath,
               $Body,
               $Container;
+    
+    private $pageTitle,$pageDescription;
     
     public $isDisabled = false;
     
@@ -162,6 +163,30 @@ class View extends ThickMustache implements Interfaces\View{
         if($this->renderedContent && $this->isRendered)
             return $this->renderedContent;
 
+        // Assign title
+        if($this->pageTitle){
+            $this->assign(array(
+                "App"=>array(
+                    "Page"=>array(
+                        "Title"=>$this->pageTitle
+                    )                
+                )
+            ));  
+            $this->setMetaTag("TITLE",$this->pageTitle);            
+        }
+         
+        // Assign description
+         if($this->pageDescription){
+            $this->assign(array(
+                "App"=>array(
+                    "Page"=>array(
+                        "Description"=>$this->pageDescription
+                    )                
+                )
+            ));  
+            $this->setMetaTag("Description",$this->pageDescription);            
+        }       
+        
         
         /**
          * Set the body 
@@ -247,14 +272,7 @@ class View extends ThickMustache implements Interfaces\View{
      */
     final public function setPageTitle($title=""){
         
-        $this->assign(array(
-            "App"=>array(
-                "Page"=>array(
-                    "Title"=>$title 
-                )                
-            )
-        ));            
-        $this->setMetaTag("TITLE",$title);
+        $this->pageTitle = $title;
 
         return $this;
     }
@@ -268,16 +286,8 @@ class View extends ThickMustache implements Interfaces\View{
      */
     final public function setPageDescription($desc=""){
 
-            $this->assign(array(
-                "App"=>array(
-                    "Page"=>array(
-                        "Description"=>$desc
-                    )                
-                )
-            ));
-  
-        $this->setMetaTag("DESCRIPTION",$desc);
-
+        $this->pageDescription = $desc;
+        
         return $this;
     }
 
