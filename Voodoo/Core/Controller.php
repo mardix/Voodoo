@@ -12,7 +12,6 @@
  * -----------------------------------------------------------------------------
  * 
  * @name        Controller
- * @since       Mar 12, 2012
  * @desc        This is the abstract controller which must be extended to read the proper controller name and actions
  *              Controller contains necessary methods for your own controller
  * 
@@ -147,8 +146,8 @@ abstract class Controller{
      * By default, when the destructor is called, it will render the views
      * To disable view, in your controller set: $this->disableView(true)
      */
-    final public function __destruct(){
-        print ($this->renderView());
+     public function __destruct(){
+        $this->renderView();
     }
 
 /*******************************************************************************/
@@ -472,11 +471,13 @@ abstract class Controller{
             $this;
     }
     
+
     /**
-     * Render the view
+     * To render the controller's view
+     * @param bool $printView - to print the view or just return it
      * @return boolean 
      */
-    protected function renderView(){
+    protected function renderView($printView = true){
          if(   
               $this->disableView    
            || !$this->view()
@@ -529,9 +530,14 @@ abstract class Controller{
         /**
          * Render the view in the page 
          */
-        return 
-            $this->view()->render();
+         
+         $render = $this->view()->render();
 
+         if($printView === true)
+             print($render);
+         
+         else
+             return $render;
     } 
 
     
@@ -794,7 +800,7 @@ abstract class Controller{
     
     
     public function __toString(){
-       print($this->renderView());
+       return $this->renderView(false);
     }
     
     
