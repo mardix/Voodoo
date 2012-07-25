@@ -17,7 +17,7 @@
  * @link        http://github.com/mardix/ThickMustache
  * @twitter     @mardix
  * @license     MIT
- * @copyright   Copyright (c) 2011 - Mardix
+ * @copyright   Copyright (c) 2012 - Mardix
  * @since       June 10 2012
  * @required    Mustache.php -> https://github.com/bobthecow/mustache.php
  * @required    PHP 5.3 or later
@@ -58,7 +58,7 @@ namespace Voodoo\Core;
 
 class ThickMustache extends Mustache{
 
-    const VERSION = "1.0";
+    const VERSION = "1.0.1";
     
     protected $assigned = array();
     
@@ -101,14 +101,24 @@ class ThickMustache extends Mustache{
      */
     public function assign($key,$val=""){
         
-        if(is_string($key))
-            $this->assigned[$key] = $val;
+        if(is_string($key) || is_array($key)){
         
-        if(is_array($key))
-            $this->assigned = array_merge_recursive($this->assigned,$key);
+            $data = array();
+
+            if(is_string($key))
+                $data[$key] = $val;
+            else
+                $data = $key;
+
+            $this->assigned = array_merge_recursive($data,$this->assigned);
+
+            return
+                $this;            
+        }
         
-        return
-            $this;
+        else
+            throw new \Exception("Can't assign() $key. Invalid key type. Must be string or array");
+
     }
     
     /**
@@ -303,11 +313,7 @@ class ThickMustache extends Mustache{
             }            
         }
     }
+    
 
 }
 
-
-
-   
-   
-   
