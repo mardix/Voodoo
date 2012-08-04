@@ -5,7 +5,7 @@
 
 Name: VoodooPHP (aka Voodoo)
 
-version: 5.3/1.2.0
+version: 5.3/1.3.0
 
 License: MIT
 
