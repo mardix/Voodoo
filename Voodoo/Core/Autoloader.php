@@ -11,7 +11,7 @@
  * @license     MIT
  * -----------------------------------------------------------------------------
  * 
- * @name        Core\Sessions
+ * @name        Core\Autoloader
  * @desc        The autoloader
  *              Autoloader per PSR-0 
  *              https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
@@ -20,7 +20,7 @@
 
 namespace Voodoo\Core;
 
-class Autoload{
+class Autoloader{
     
     private $libPath;
 
