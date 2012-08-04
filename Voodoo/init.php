@@ -34,7 +34,7 @@ if (version_compare(PHP_VERSION, VOODOO_PHP_VERSION, '<') )
 
 
 /**
- * Voodoo Autoload
+ * Voodoo Autoloader
  * Voodoo requires classes to be namespaced per PSR-0 (https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md)
  * And classes can be placed anywhere in your application as long there are properly namespaced per PHP 5.3
  * ie: 
@@ -44,8 +44,8 @@ if (version_compare(PHP_VERSION, VOODOO_PHP_VERSION, '<') )
  * It's best not to put your own or third party classes in the Voodoo directory, as if you update to the latest version it will squash your files
  * Instead you can place them in Application/Lib or AddOn/. Or the worst case, at the root.
  */
-include(VOODOO_PATH."/Core/Autoload.php");
-    Core\Autoload::register(BASE_PATH);
+include(VOODOO_PATH."/Core/Autoloader.php");
+    Core\Autoloader::register(BASE_PATH);
 
 /*******************************************************************************/
 # Config
