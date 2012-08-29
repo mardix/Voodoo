@@ -12,8 +12,7 @@
  * -----------------------------------------------------------------------------
  * 
  * @name        Core\HTTP\Request
- * @since       Jun 21, 2011
- * @desc        To read POST/GET/REQUEST and COOKIE vars
+ * @desc        To read and sanitize POST/GET/REQUEST and COOKIE vars
  */
 
 
@@ -24,7 +23,6 @@ use Voodoo\Core\Exception;
 class Request{
 
     private $Data = array();
-    
 
     /**
      * Bool to protect against XSS
@@ -32,33 +30,38 @@ class Request{
      */
     public static $XSSProof = false;
 
-    
-    public static function _Get(){
-        return
-            new self("GET");        
-    }
-    
-    public static function _Post(){
-        return
-            new self("POST");        
-    }
-    
-    public static function _Cookie(){
-        return
-            new self("COOKIE");
-    }
-    
-    
-    
-    public function __construct($Method){
+    /**
+     * Constructor
+     * 
+     * @param string $method - The request method
+     */
+    public function __construct($method = "REQUEST"){
         
-        $var = strtoupper($Method);
-        $Data = ($var == "POST") ? $_POST : 
-                (($var == "GET") ? $_GET : 
-                (($var == "COOKIE ") ? $_COOKIE : $_REQUEST));
 
-        if(is_array($Data))
-           $this->Data = $this->sanitize($Data);
+        switch(strtoupper($method)){
+            case "POST":
+                $data = $_POST;
+            break;
+        
+            case "GET":
+                $data = $_GET;
+            break;
+        
+            case "COOKIE":
+                $data = $_COOKIE;
+            break;
+        
+            default:
+                $data = $_REQUEST;
+            break;
+        }
+        
+        
+        /**
+         * Sanitize the data 
+         */
+        if(is_array($data))
+           $this->Data = $this->sanitize($data);
 
     }
     
@@ -123,7 +126,8 @@ class Request{
         * @return bool
         */
     public static function isAjax(){
-        return (strtolower($_SERVER['HTTP_X_REQUESTED_WITH'])=="xmlhttprequest") ? true : false;
+        return (strtolower($_SERVER['HTTP_X_REQUESTED_WITH'])=="xmlhttprequest") 
+               ? true : false;
     }    
 //------------------------------------------------------------------------------
 
