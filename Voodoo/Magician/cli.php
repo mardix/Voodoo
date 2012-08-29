@@ -61,7 +61,7 @@ CLI::O("****************************************************************** \n");
         CLI::O("We're going to setup ".VOODOO_NAME." on your system...");
         
         CLI::O("\nYour Project name can be your site name, or anything");
-        $info["Project.Name"] = CLI::I("Project's Name?","My Soup Project");
+        $info["Project.Name"] = CLI::I("Project's Name?","My Voodoo Project");
         
         CLI::O("\nAdmin email will be used to notify admin of any server error");
         $info["System.AdminEmail"] = CLI::I("Admin Email?:");
@@ -331,106 +331,3 @@ LINE();
 }while(true);    
     
 exit;  
-
-$CI
-   ->register("m","Create and Edit Modules, Controllers and Actions",function() use ($Potion){
-       
-
-
-       
-$Option ="
-COMMAND OPTIONS:
-ie: --module=Main,AnotherOne --controller=Index,OtherController --action=index,otheraction --template=1
-        
---module\tThe module name. Separate multiple name with a comma.
---controller\tThe controller name. Separate multiple name with a comma.
---action\tThe action to create. Separate multiple name with a comma.   
---template\tThe template id form the list below. Only one template id
-
-- Module Templates:
-Id. \tName
-";        
-foreach($TPL as $i=>$T){
-    $Option .="{$i} \t{$T["Name"]} \t{$T["Description"]}\n";
-}     
-
-     Core\CLI::O($Option."\n");
-    
-     $cmd = explode(" ",Core\CLI::I("Enter the command:\>"));
-    
-     $ARGV = Core\CLI::arg2Array($cmd);
-
-        Core\CLI::O("ERROR: Invalid Command");
-     
-   })
-/*******************************************************************************/
-   
-   ->register("l","To list Modules, Models, Routes",function() use ($Potion){
-$Option ="
-COMMAND OPTIONS:
-ie: --module --routes
-        
---module\tThe module name. Will the show the module's controolers with all their actions. Leave blank to show all models
---routes
-
-";  
-
-
-     Core\CLI::O($Option."\n");
-    
-     $cmd = explode(" ",Core\CLI::I("Enter the command:\>"));
-    
-     $ARGV = Core\CLI::arg2Array($cmd);
-     
-     if($ARGV["module"]){
-         
-
-     }
-     
-     
-     /**
-      * Routes 
-      */
-     if($ARGV["routes"]){
-
-
-
-     }
-
-   })
-   
-    ->register("r","Create New Route",function() use ($Potion){
-        
-$Option = <<<WC
-ie: POST /MyModule/MyController/(:num)/(:any)  -> /MyOtherModule/Main/$1/$2
-** Wildcard options:
- *  (:any)      : Will match anything
- *  (:num)      : will match only numeric values
- *  (:alpha)    : will match only alphabetical values
- *  (:alphanum) : will match only alpha and numeric values
- 
-WC;
-        
-                Core\CLI::O($Option);
-                
-                $method = strtoupper(Core\CLI::I("1. Request Method: (POST or GET or Blank): ")." ");
-                $from = Core\CLI::I("2. From: ie Module/Controller/Action/(:any)/(:alpha)/: ");
-                $to = Core\CLI::I("3. To: ie /MyOtherModule/OtherController/$1/$2: ");
-                
-                if(!in_array($method,array("POST ","GET ")))
-                  $method = "";
-                
-                $Routes = Core\INI::Routes()->get("Routes") ? : array();
-                
-                foreach($Routes as $rk=>$rv)
-                    $nRoutes["Routes[\"{$rk}\"]"] = $rv;
-               
-                if($from && $to)
-                    $nRoutes["Routes[\"{$method}{$from}\"]"] = $to;
-  
-                $Potion->buildRoutes($nRoutes);              
-            })    
-   ->run();
-   
-   
-   
