@@ -12,7 +12,6 @@
  * -----------------------------------------------------------------------------
  * 
  * @name        Core\HTTP\Curl
- * @since       Apr 21, 2011
  * @desc        A curl class
  * 
  */
@@ -239,7 +238,8 @@ class Curl{
      */
     public function getHeaders($key=""){
         return
-            ($key) ? (isset($this->headers[$key]) ? $this->headers[$key] : "") : $this->headers;
+            ($key) ? (isset($this->headers[$key]) ? $this->headers[$key] : "") 
+                   : $this->headers;
     }
 
     

@@ -11,8 +11,7 @@
  * @license     MIT
  * -----------------------------------------------------------------------------
  * 
- * @name        Core\Sessions
- * @since       Apr 21, 2011
+ * @name        Core\CurlResponse
  * @desc        Curl class response
  * 
  */
