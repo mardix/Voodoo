@@ -28,8 +28,11 @@
     ; Error reporting
     ErrorReporting = E_ALL & ~E_NOTICE 
 
-    DisplayError = "ON" ;
+    DisplayError = "ON" 
 
+    ; When an exception is caught, it will send it to the AdminEmail. 
+    ; Set TRUE to allow or FALSE to disallow
+    SendExceptionToEmail = true ;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Project's info

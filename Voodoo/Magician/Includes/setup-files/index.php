@@ -44,7 +44,10 @@ require($BASE_PATH."/Voodoo/init.php");
         * Notify admin of this exception
         * @param String - Email address
         */
-        $e->notifyAdmin(Core\Config::get("System.AdminEmail"));
+        if(Core\Config::get("System.SendExceptionToEmail")){
+           $e->sendToEmail(Core\Config::get("System.AdminEmail")); 
+        }
+        
 
 
         /**
