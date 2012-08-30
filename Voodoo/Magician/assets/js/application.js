@@ -4,7 +4,7 @@
  */
 
 
-var Soup = {
+var Magician = {
     
     init:function(){
        
@@ -162,15 +162,28 @@ var Soup = {
                 that.remove($(this).parent().parent())
             })
             
+            $("#routes-table-trs").on("click",".routes-move-up",function(){
+                var el = $(this).parent().parent();
+                var prev = el.prev()
+                prev.before(el)
+            })  
+            
+            $("#routes-table-trs").on("click",".routes-move-down",function(){
+                var el = $(this).parent().parent();
+                var next = el.next()
+                next.after(el)
+            }) 
+            
         },
         
         add:function(){
 
-            $("#routes-table-trs").append(this.template)
+            $("#routes-table-trs").prepend(this.template)
         },
         
         remove:function(el){
-            el.remove()
+            if(confirm("Do you want to delete this route?"))
+                el.remove()
         }
     }
 
@@ -179,6 +192,6 @@ var Soup = {
 
 
 $(document).ready(function(){
-    Soup.init();
+    Magician.init();
 })
 

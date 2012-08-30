@@ -100,14 +100,18 @@ $defSelectForm = Core\Forms::dropDownList($requestMethods,array("name"=>"RReques
         <td><?php print($defSelectForm); ?></td>
         <td><input type="text" class="span4"  name="RFrom[]" style="margin: 0 auto;" data-provide="typeahead" data-items="4" data-source='<?php print($controllerRoutesFrom); ?>'></td>
         <td><input type="text" class="span4"  name="RTo[]" style="margin: 0 auto;" data-provide="typeahead" data-items="4" data-source='<?php print($controllerRoutesTo); ?>'></td>
-        <td><a href="javascript:" class="routes-remove"><i class="icon-minus-sign "></i></a></td>
+        <td>
+                <a href="javascript:" class="routes-move-up btn"><i class="icon-chevron-up "></i></a> 
+                <a href="javascript:" class="routes-move-down btn"><i class="icon-chevron-down "></i></a>
+                <a href="javascript:" class="routes-remove btn"><i class="icon-minus-sign "></i></a>            
+        </td>
     </tr>              
 </script>
 
 
 <form method="POST">
 
-            <table class="table table-bordered">
+            <table class="table table-bordered table-hover">
                 <thead>
                 <tr>
                     <th>Request Method  <div class="small">(POST | GET)</div></th>
@@ -131,7 +135,11 @@ $defSelectForm = Core\Forms::dropDownList($requestMethods,array("name"=>"RReques
                                 <td><?php print($selectForm); ?></td>
                                 <td><input type="text" name="RFrom[]" value="<?php print($route["From"]); ?>" class="span4" style="margin: 0 auto;" data-provide="typeahead" data-items="5" data-source='<?php print($controllerRoutesFrom); ?>'></td>
                                 <td><input type="text" name="RTo[]"   value="<?php print($route["To"]); ?>"  class="span4" style="margin: 0 auto;" data-provide="typeahead" data-items="5" data-source='<?php print($controllerRoutesTo); ?>'></td>
-                                <td><a href="javascript:" class="routes-remove"><i class="icon-minus-sign "></i></a></td>
+                                <td>
+                                    <a href="javascript:" class="routes-move-up btn"><i class="icon-chevron-up "></i></a> 
+                                    <a href="javascript:" class="routes-move-down btn"><i class="icon-chevron-down "></i></a>
+                                    <a href="javascript:" class="routes-remove btn"><i class="icon-minus-sign "></i></a>
+                                </td>
                             </tr> 
 
                     <?php
@@ -147,7 +155,7 @@ $defSelectForm = Core\Forms::dropDownList($requestMethods,array("name"=>"RReques
             </div>
     
         <p></p><p></p>
-        <input class="btn-large btn-primary" type="submit" value="Save Routes">
+        <input class="btn-large btn" type="submit" value="Save Routes">
 
 
 </form>

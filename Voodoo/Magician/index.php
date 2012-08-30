@@ -86,8 +86,8 @@ if(!Core\Config::get("VoodooMagician.EnableWeb")){
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title><?php print(VOODOO_GENERATOR); ?> The Magician</title>
         
-        <link href="./assets/bootstrap/css/bootstrap.css" rel="stylesheet">
-        <link href="./assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="./assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="./assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
         <link href="./assets/css/style.css" rel="stylesheet">
         <style type="text/css">
             body {
@@ -112,9 +112,9 @@ if(!Core\Config::get("VoodooMagician.EnableWeb")){
           <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->    
 
-        <script src="./assets/jquery/jquery-1.7.js"></script>
+        <script src="./assets/jquery/jquery-1.8.min.js"></script>
         <script src="./assets/underscorejs/underscore.js"></script>
-        <script src="./assets/bootstrap/js/bootstrap.js"></script>    
+        <script src="./assets/bootstrap/js/bootstrap.min.js"></script>    
         <script src="./assets/js/application.js"></script>        
     </head>
     <body>       
@@ -122,7 +122,7 @@ if(!Core\Config::get("VoodooMagician.EnableWeb")){
       
      <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
-        <div class="container">
+        <div class="container-fluid">
           <a class="brand" href="#"><?php print(VOODOO_NAME); ?> &middot The Magician</a>
           <div class="nav-collapse">
             <ul class="nav">
@@ -134,7 +134,7 @@ if(!Core\Config::get("VoodooMagician.EnableWeb")){
     </div>       
         
         
- <div class="container">
+ <div class="container-fluid">
   <div class="row-fluid">
 
       
