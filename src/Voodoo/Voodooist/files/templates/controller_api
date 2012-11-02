@@ -1,0 +1,51 @@
+<?php
+/** {{GENERATOR}} (autogen date: {{DATE}})
+ ******************************************************************************
+ * @desc
+ * @package     {{NAMESPACE}}
+ * @name        {{CONTROLLER}}
+ * @copyright   (c) {{YEAR}}
+ ******************************************************************************/
+
+
+namespace {{NAMESPACE}};
+
+use Voodoo;
+
+class {{CONTROLLER}} extends Voodoo\Core\Controller\Api
+{
+
+    /**
+     * init() allows you to execute code when the controller is loaded
+     */
+    protected function init()
+    {
+        parent::init();
+    }
+
+    /**
+     * finalize() is executed before it renders the content
+     */
+    protected function finalize()
+    {
+        parent::finalize();
+    }
+
+
+
+//------------------------------------------------------------------------------
+
+
+    /**
+     * Action: Index
+     * This is the index action.
+     * It is loaded by default or when  action is missing
+     */
+    public function action_index()
+    {
+
+
+    }
+
+
+}

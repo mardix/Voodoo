@@ -1,0 +1,46 @@
+================================== VoodooPHP ===================================
+Hello future Voodooist!
+
+Thank you for using or at least trying VoodooPHP. 
+
+Voodoo is a slim yet powerful Modular MVC PHP 5.3 framework, that will help you
+create awesome web application efficiently.
+
+VoodooPHP is under the MIT license, so feel free to do whatever.
+
+If you have any issues or would like to bring some fixes, please visit:
+https://github.com/VoodooPHP/Voodoo
+
+To learn more about Voodoo 
+https://github.com/VoodooPHP/Voodoo
+
+To contact Mardix (the author)
+https://github.com/mardix or https://twitter.com/mardix
+
+
+Thank you
+
+- Mardix
+
+(c) 2012
+
+=== SETUP VOODOO ===
+Voodoo can be set up with Voodooist. It will setup the basic structure for you app.
+
+> cd Voodoo/Voodooist
+> php -f do-voodoo.php
+
+
+Once done, you should have a structure that looks like this
+
+|_ /Voodoo
+|
+|_ /VoodooApp
+|
+|_ /assets
+|
+|_ index.php
+|
+|_ .htaccess
+|
+|_ robots.txt

@@ -1,0 +1,30 @@
+<!--
+message.html
+Responsible to show error or success message
+-->
+
+<!-- ERROR -->
+{{#App.ErrorMessage}}
+    <div class="alert alert-error">
+        <a class="close" data-dismiss="alert" href="#">×</a>
+        <h3 class="alert-heading">Error Found!</h3>
+        <ul>
+            {{#Messages}}
+            <li>{{.}}</li>
+            {{/Messages}}
+        </ul>
+    </div>
+{{/App.ErrorMessage}}
+
+
+<!-- SUCCESS -->
+{{#App.SuccessMessage}}
+    <div class="alert alert-success">
+        <a class="close" data-dismiss="alert" href="#">×</a>
+        <ul>
+            {{#Messages}}
+            <li>{{.}}</li>
+            {{/Messages}}
+        </ul>
+    </div>
+{{/App.SuccessMessage}}

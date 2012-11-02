@@ -1,0 +1,51 @@
+<?php
+/** {{GENERATOR}} (autogen date: {{DATE}})
+ ******************************************************************************
+ * @desc        
+ * @package     {{NAMESPACE}}
+ * @name        {{MODELNAME}}    
+ * @copyright   (c) {{YEAR}}
+ ******************************************************************************/ 
+
+namespace {{NAMESPACE}};
+
+use Voodoo;
+
+class {{MODELNAME}} extends Voodoo\Core\Model
+{
+    
+    /**
+     * TableName
+     * 
+     * @var string 
+     */
+    protected $tableName = "{{TABLENAME}}";
+
+    /**
+     * PrimaryKey
+     * 
+     * @var string 
+     */
+    protected $primaryKeyName = "{{PRIMARYKEY}}";
+    
+     /**
+     * ForeignKey
+     * 
+     * @var string 
+     */   
+    protected $foreignKeyName = "{{FOREIGNKEY}}";
+    
+     /**
+     * DB Alias
+     * The DB alias name in DB.ini to connect to
+     * 
+     * @var string 
+     */   
+    protected $dbAlias = "{{DBALIAS}}";    
+//------------------------------------------------------------------------------
+    
+// Enter your methods below
+    
+    
+
+}

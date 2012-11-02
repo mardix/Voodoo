@@ -1,0 +1,9 @@
+#-------------------------------------------------------------------------------
+#                         VoodooPHP
+# Only allow access to static files: js, css, gif, jpg, jpeg, png, ...
+#-------------------------------------------------------------------------------
+
+order allow,deny
+<Files ~ "\.(js|css|gif|jpg|jpeg|png|ico|swf|pdf)$">
+    allow from all
+</Files>

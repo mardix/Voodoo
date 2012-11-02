@@ -1,0 +1,10 @@
+
+    /**
+     * Action: {{METHODNAME}}
+     * 
+     */
+    public function action_{{METHODNAME}}()
+    {
+        {{INLINECODE}}
+    }
+}

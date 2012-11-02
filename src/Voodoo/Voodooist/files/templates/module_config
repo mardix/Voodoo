@@ -1,0 +1,63 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; {{GENERATOR}} - Module's Settings File
+; 
+; Add your Module's settings in this file
+; It will be automatically loaded and data can be accessed in your controller with $this->getConfig()
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Since: {{DATE}}
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Set The applications settings  for this module     
+[Application]
+    moduleName = {{MODULENAME}}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Views
+; Setting that will be used in your view
+[views]
+    ; Date format. There is a shortcut in your controller: Controller::toDate();
+    ; It will be loaded in there by default
+    dateFormat = "D, M d Y" 
+
+    ; Voodoo by default requires your site (if that's what you are doing) to have a container
+    ; The container technically contains the header, footer of your site and a placeholder for the body
+    ; The body will be including upon rendering
+    container = "_includes/container.html" 
+
+    ; Module Assets contains all css, js, static files, etc that can be used by the module.
+    ; The path is relative to the Module's Views directory or be a url
+    ; ie: _assets or /OtherModule/Views/_assets or http://a-place-i-host-my-static-files.com
+    ; To access it in your view files use: {{App.Module.Assets}}
+    moduleAssetsDir = "_assets" ; The directory in the current module
+
+    ; Public Assets contains all css, js, static files, etc that can be shared with other Modules. ie: jQuery, Twitter Bootstrap
+    ; The path is relative to the root or can be a url
+    ; ie: MyOwnPathRelativeToTheRoot or http://a-place-i-host-my-static-files.com
+    ; To access it in your view files use: {{App.Assets}}
+    publicAssetsDir = "assets" 
+
+
+    ; pagination
+    ; Settings for the pagination
+
+    ; Total items per page
+    pagination[itemsPerPage] = 10 
+
+    ; (:num) must be provided to match the correct page number. :num mean numeric value. default for friendly url = 'page/(:num)'  or normal page 'page=(:num)'
+    pagination[pagePattern] = "page/(:num)"  
+
+    ; The size of the navigation bar
+    pagination[navigationSize] = 10 
+
+
+    ; loadTemplate
+    ; Voodoo will automatically load the files and assign them so the can be included with their alias. 
+    ; ie: {{%include @PageMessage}}, this will include the file _includes/message.html
+    ; Format: LoadTemplate[AliasNameOfTheFileToLoad] = "filename"
+    loadTemplate[PageMessage] = "_includes/message.html"
+    loadTemplate[PagePagination] = "_includes/pagination.html"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
