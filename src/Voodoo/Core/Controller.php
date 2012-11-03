@@ -134,17 +134,17 @@ abstract class Controller
     final public function __destruct()
     {
         $this->finalize();
+        $this->renderView();
     }
 
     /**
      * finalize()
-     * By default, when the finalize is called, it will render the views
-     * To disable view, in your controller set: $this->disableView(true)  
+     * Code to excute before rendering
      */
     protected function finalize()
     {
         Http\Response::setStatus($this->httStatusCode);
-        $this->renderView();
+        return $this;
     }
     
 //------------------------------------------------------------------------------
