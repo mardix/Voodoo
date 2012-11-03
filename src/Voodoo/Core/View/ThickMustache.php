@@ -56,9 +56,11 @@
 
 namespace Voodoo\Core\View;
 
+use Voodoo\Core;
+
 class ThickMustache extends Mustache
 {
-    const VERSION = "1.0.1.1";
+    const VERSION = "1.0.2";
 
     protected $assigned = array();
 
@@ -77,9 +79,7 @@ class ThickMustache extends Mustache
     public function __construct($templateDir="")
     {
        parent::__construct();
-
        $this->setDir($templateDir);
-
     }
 
     /**
@@ -90,23 +90,25 @@ class ThickMustache extends Mustache
     public function setDir($dir)
     {
       $this->templateDir =   preg_match("!/$!",$dir) ? $dir : "{$dir}/";
-
       return $this;
     }
     /**
      * Assign variable
-     * @param  mixed          $key
+     * @param  mixed          $key - can be string, dot notation k/v, or array to set data as bulk
      * @param  mixed          $val - can be string, numeric, closure, array
      * @return \ThickMustache
      */
     public function assign($key, $val="")
     {
         if (is_string($key) || is_array($key)) {
-
             $data = array();
 
             if (is_string($key)) {
-                $data[$key] = $val;
+                if (preg_match("/\./",$key)) { // dot notation keys
+                    Core\Helpers::setArrayToDotNotation($data, $key, $val);
+                } else {
+                  $data[$key] = $val;
+                }
             } else {
                 $data = $key;
             }
@@ -114,10 +116,10 @@ class ThickMustache extends Mustache
             $this->assigned = array_merge_recursive($data,$this->assigned);
 
             return $this;
-        } else {
-            throw new \Exception("Can't assign() $key. Invalid key type. Must be string or array");
-        }
 
+        } else {
+            throw new Core\Exception("Can't assign() $key. Invalid key type. Must be string or array");
+        }
     }
 
     /**
@@ -130,7 +132,6 @@ class ThickMustache extends Mustache
         if(is_string($key) && isset($this->assigned[$key])){
             unset($this->assigned[$key]);
         }
-
         return $this;
     }
 
@@ -155,9 +156,7 @@ class ThickMustache extends Mustache
     public function addTemplateString($name,$content)
     {
         $this->templates[$name] = $this->parseTemplate($content);
-
-        return
-            $this;
+        return $this;
     }
 
     /**
@@ -167,9 +166,9 @@ class ThickMustache extends Mustache
      */
     public function removeTemplate($name)
     {
-        if(isset($this->templates[$name]))
+        if (isset($this->templates[$name])) {
             unset($this->templates[$name]);
-
+        }
         return $this;
     }
 
@@ -184,14 +183,10 @@ class ThickMustache extends Mustache
         $this->parse();
 
         if (isset($this->templates[$name])) {
-
             $r = parent::render($this->templates[$name],array_merge($this->assigned,$data));
-
             // replace the raws and return
-            return
-                str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$r);
+            return str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$r);
         }
-
         return false;
     }
 
@@ -202,7 +197,6 @@ class ThickMustache extends Mustache
     public function reparse()
     {
         $this->parsed = false;
-
         return $this;
     }
 /*******************************************************************************/
@@ -216,9 +210,7 @@ class ThickMustache extends Mustache
     protected function loadFile($src,$absolute=false)
     {
          $src = ($absolute == true) ? $src : $this->templateDir.$src;
-
          return (file_exists($src)) ? file_get_contents($src) : "";
-
     }
 
     /**
@@ -255,19 +247,17 @@ class ThickMustache extends Mustache
          */
         if (preg_match_all("/{{%include\s+(.*?)\s*}}/i",$template,$matches)) {
 
-            foreach ($matches[1] as $k=>$src) {
-
+            foreach ($matches[1] as $k => $src) {
                 if (!preg_match("/^@/",$src)) {
-
                     $absolute = preg_match("/^!/",$src) ? true : false;
 
                     $src = preg_replace("/^!/","",$src);
 
                     $tkey = md5($src);
 
-                    if(!isset($this->templates[$tkey]))
+                    if(!isset($this->templates[$tkey])) {
                         $this->addTemplate($tkey, $src, $absolute);
-
+                    }
                     $template = $this->parseTemplate(str_replace($matches[0][$k],$this->templates[$tkey],$template));
                 }
             }
@@ -278,23 +268,17 @@ class ThickMustache extends Mustache
 
     private function parse()
     {
-        if($this->parsed)
-
+        if ($this->parsed){
             return false;
+        }
 
         $this->parsed = true;
-
-        foreach ($this->templates as $kk=>$template) {
-
+        foreach ($this->templates as $kk => $template) {
             if (preg_match_all("/{{%include\s+(.*?)\s*}}/i",$template,$matches)) {
-
                 foreach ($matches[1] as $k=>$src) {
-
                     // Anything with @Reference
                     if (preg_match("/^@/",$src)) {
-
                         $tplRef = preg_replace("/^@/","",$matches[1][$k]);
-
                         if(isset($this->templates[$tplRef]))
                             $this->templates[$kk] = str_replace($matches[0][$k],$this->templates[$tplRef],$this->templates[$kk]);
                     }
