@@ -28,16 +28,11 @@ abstract class Api extends Core\Controller
     private $restView = null;
     private $renderFormat;
 
-    /**
-     *
-     */
-    protected function finalize()
+    protected function renderView()
     {
-        Core\Http\Response::setStatus($this->httpStatusCode);
         echo $this->view()->render($this->renderFormat);
     }
-
-
+    
     /**
      * Set the view response format
      *
