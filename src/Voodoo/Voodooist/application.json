@@ -14,7 +14,12 @@
                         {
                             "name" : "Index",
                             "actions" : ["index"]
-                        }
+                        },
+                        {
+                            "name" : "Api",
+                            "isApi": true,
+                            "actions" : ["index"]
+                        }                    
                     ],
                 
                     "models" : [

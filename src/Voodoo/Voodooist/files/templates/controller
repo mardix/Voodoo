@@ -14,25 +14,6 @@ use Voodoo;
 
 class {{CONTROLLER}} extends Voodoo\Core\Controller
 {
-
-    /**
-     * init() allows you to execute code when the controller is loaded
-     */
-    protected function init()
-    {
-        parent::init();
-    }
-
-    /**
-     * finalize() allows you to execute code before the application exits or renders
-     */
-    protected function finalize()
-    {
-        parent::finalize();
-    }
-//------------------------------------------------------------------------------
-    
-    
     /**
      * Action: Index
      * This is the index action.

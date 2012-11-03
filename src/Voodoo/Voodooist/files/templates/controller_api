@@ -14,28 +14,6 @@ use Voodoo;
 
 class {{CONTROLLER}} extends Voodoo\Core\Controller\Api
 {
-
-    /**
-     * init() allows you to execute code when the controller is loaded
-     */
-    protected function init()
-    {
-        parent::init();
-    }
-
-    /**
-     * finalize() is executed before it renders the content
-     */
-    protected function finalize()
-    {
-        parent::finalize();
-    }
-
-
-
-//------------------------------------------------------------------------------
-
-
     /**
      * Action: Index
      * This is the index action.

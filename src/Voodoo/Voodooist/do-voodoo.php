@@ -85,8 +85,8 @@ if(!Core\Env::isCli()) {
 
                             $controllerAction = "";
                             $cIsApi = $isApi;
-                            if (isset($controller["isApi"]) && $controller["isApi"] === false) {
-                                $cIsApi = false;
+                            if (isset($controller["isApi"])) {
+                                $cIsApi = $controller["isApi"];
                             }
                             
                             if ($BlackMagic->createController($controller["name"], $cIsApi)) {
