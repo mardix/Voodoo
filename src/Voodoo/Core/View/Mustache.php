@@ -13,6 +13,8 @@
  * This is very, very rad.
  *
  * @author Justin Hileman {@link http://justinhileman.com}
+ * 
+ * Absolute link: https://github.com/bobthecow/mustache.php/tree/cd6bfaefd30e13082780b3711c2aa4b92d146b1e
  */
 
 namespace Voodoo\Core\View;
