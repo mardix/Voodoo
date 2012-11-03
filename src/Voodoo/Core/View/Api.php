@@ -23,15 +23,15 @@ use Voodoo\Core;
 
 class Api {
     const FORMAT_JSON = 1;
-    const FORMAR_TEXT = 2;
+    const FORMAT_TEXT = 2;
 
     protected $assigned = array();
 
       /**
      * Assign variable
-     * @param  mixed          $key
-     * @param  mixed          $val - can be string, numeric, closure, array
-     * @return Rest
+     * @param  mixed          $key - can be string, dot notation k/v, or array to set data as bulk
+     * @param  mixed          $val - can be string, numeric, array
+     * @return Api
      */
     public function assign($key, $val="")
     {
@@ -55,20 +55,18 @@ class Api {
         } else {
             throw new Core\Exception("Can't assign() $key. Invalid key type. Must be string or array");
         }
-
     }
 
     /**
      * To unassign variable by key name
      * @param  string         $key, the key name associated when it was created
-     * @return Rest
+     * @return Api
      */
     public function unassign($key)
     {
         if(is_string($key) && isset($this->assigned[$key])){
             unset($this->assigned[$key]);
         }
-
         return $this;
     }
 
@@ -82,7 +80,6 @@ class Api {
     {
         switch($format) {
             // JSON
-            default:
             case self::FORMAT_JSON:
               return json_encode($this->assigned);
             break;
