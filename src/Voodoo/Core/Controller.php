@@ -318,7 +318,7 @@ abstract class Controller
     }
 
     /**
-     * forwardController, unlike getController, forward the current controller to a new controller and allows it to render the view, while it deactivate the current controller view.
+     * useController, unlike getController, forward the current controller to a new controller and allows it to render the view, while it deactivate the current controller view.
      * All the settings and params will be forwarded to the new controller
      * @param type $Controller
      */
@@ -354,7 +354,8 @@ abstract class Controller
         if (method_exists($this, $actionName)) {
 
             $this->actionName = strtolower(Helpers::camelize($action, false));
-
+            $this->setActionView($this->actionName);
+            
             $this->{$actionName}();
         } else {
             throw new Exception("Action '{$actionName}' doesn't exist in " . get_called_class());
@@ -432,7 +433,7 @@ abstract class Controller
         if ($this->disableView || !$this->viewExists()) {
             return false;
         } else {
-            $this->view()->setBody($this->actionName);            
+            $this->view()->setBody($this->actionView);            
             $render = $this->view()->render();
             return ($echoView) ? print($render) : $render;
         }
