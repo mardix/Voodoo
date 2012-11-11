@@ -27,13 +27,12 @@ namespace Voodoo\Core\Model;
 use ArrayIterator,
     IteratorAggregate,
     Closure,
-    PDO,
-    PDOException;
+    PDO;
 
 class VoodOrm implements IteratorAggregate
 {
     const NAME              = "VoodOrm";
-    const VERSION           = "0.3.1";
+    const VERSION           = "0.4.0";
 
     // RELATIONSHIP CONSTANT
     const REL_HASONE        =  1;       // OneToOne. Eager Load data
@@ -145,7 +144,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $tableName - Table name
      * @param  string   $alias     - The table alias name
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function table($tableName, $alias = "")
     {
@@ -173,7 +172,7 @@ class VoodOrm implements IteratorAggregate
      * @param bool   $is_fluent_query -
      *          FALSE to return a bool if the the pdoStmt was executed
      *          TRUE, return self and you can use $this->find() or $this->findOne() to retrieve entries
-     * @return bool | Voodoo\Core\VoodOrm 
+     * @return bool | Voodoo\VoodOrm 
      */
     public function query($query, Array $parameters = array(), $is_fluent_query = true)
     {
@@ -271,7 +270,7 @@ class VoodOrm implements IteratorAggregate
      * Return one row
      *
      * @param  int      $id - use to fetch by primary key
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function findOne($id = null)
     {
@@ -305,7 +304,7 @@ class VoodOrm implements IteratorAggregate
      * Create an instance from the given row (an associative
      * array of data fetched from the database)
      *
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function _toRow(Array $data)
     {
@@ -325,7 +324,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  mixed    $expr  - the column to select. Can be string or array of fields
      * @param  string   $alias - an alias to the column
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function select($columns = "*", $alias = null)
     {
@@ -350,7 +349,7 @@ class VoodOrm implements IteratorAggregate
      * @param string condition possibly containing ? or :name
      * @param mixed array accepted by PDOStatement::execute or a scalar value
      * @param mixed ...
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function where($condition, $parameters = array())
     {
@@ -398,7 +397,7 @@ class VoodOrm implements IteratorAggregate
     /**
      * Create an AND operator in the where clause
      * 
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function _and() 
     {
@@ -416,7 +415,7 @@ class VoodOrm implements IteratorAggregate
     /**
      * Create an OR operator in the where clause
      * 
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */    
     public function _or() 
     {
@@ -433,7 +432,7 @@ class VoodOrm implements IteratorAggregate
     /**
      * To group multiple where clauses together.  
      * 
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function wrap()
     {
@@ -464,7 +463,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereNot($columnName, $value)
     {
@@ -476,7 +475,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereLike($columnName, $value)
     {
@@ -488,7 +487,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereNotLike($columnName, $value)
     {
@@ -500,7 +499,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereGt($columnName, $value)
     {
@@ -512,7 +511,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereGte($columnName, $value)
     {
@@ -524,7 +523,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereLt($columnName, $value)
     {
@@ -536,7 +535,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereLte($columnName, $value)
     {
@@ -548,7 +547,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  Array    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereIn($columnName, Array $values)
     {
@@ -560,7 +559,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  Array    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereNotIn($columnName, Array $values)
     {
@@ -573,7 +572,7 @@ class VoodOrm implements IteratorAggregate
      * WHERE $columName IS NULL
      *
      * @param  string   $columnName
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereNull($columnName)
     {
@@ -584,7 +583,7 @@ class VoodOrm implements IteratorAggregate
      * WHERE $columName IS NOT NULL
      *
      * @param  string   $columnName
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function whereNotNull($columnName)
     {
@@ -596,9 +595,9 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName - The name of the colum or an expression
      * @param  string   $ordering   (DESC | ASC)
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
-    protected function orderBy($columnName, $ordering = "")
+    public function orderBy($columnName, $ordering = "")
     {
         $this->is_fluent_query = true;
         $this->order_by[] = "{$columnName} {$ordering}";
@@ -609,7 +608,7 @@ class VoodOrm implements IteratorAggregate
      * GROUP BY $columnName
      *
      * @param  string   $columnName
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function groupBy($columnName)
     {
@@ -624,7 +623,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  int      $limit
      * @param  int      $offset
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function limit($limit, $offset = null)
     {
@@ -642,7 +641,7 @@ class VoodOrm implements IteratorAggregate
      * OFFSET $offset
      *
      * @param  int      $offset
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function offset($offset)
     {
@@ -659,7 +658,7 @@ class VoodOrm implements IteratorAggregate
      * @param  string   $constraint    -> id = profile.user_id
      * @param  string   $table_alias   - The alias of the table name
      * @param  string   $join_operator - LEFT | INNER | etc...
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function join($table, $constraint, $table_alias = "", $join_operator = "")
     {
@@ -682,7 +681,7 @@ class VoodOrm implements IteratorAggregate
      * @param  string   $table
      * @param  string   $constraint
      * @param  string   $table_alias
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function leftJoin($table, $constraint, $table_alias=null)
     {
@@ -707,7 +706,7 @@ class VoodOrm implements IteratorAggregate
             $query .= ($this->table_alias) ? " AS {$this->table_alias}" : "";
             
         if(count($this->join_sources)){
-            $query .= implode(" ",$this->join_sources);
+            $query .= (" ").implode(" ",$this->join_sources);
         }
             $query .= $this->getWhereString();
         if (count($this->group_by)){
@@ -770,7 +769,7 @@ class VoodOrm implements IteratorAggregate
     /**
       * Detect if its a single row instance and reset it to PK
       *
-      * @return Voodoo\Core\VoodOrm 
+      * @return Voodoo\VoodOrm 
       */
     protected function setSingleWhere()
     {
@@ -784,7 +783,7 @@ class VoodOrm implements IteratorAggregate
     /**
       * Reset the where
       *
-      * @return Voodoo\Core\VoodOrm 
+      * @return Voodoo\VoodOrm 
       */
     protected function resetWhere()
     {
@@ -803,7 +802,7 @@ class VoodOrm implements IteratorAggregate
      * If a single row is inserted, it will return it's row instance
      *
      * @param  array    $data - data to populate
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function insert(Array $data)
     {
@@ -926,7 +925,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  mixed    $key
      * @param  mixed    $value
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function set($key, $value = null)
     {
@@ -1287,7 +1286,7 @@ class VoodOrm implements IteratorAggregate
     /**
      * Reset fields
      *
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function reset()
     {
@@ -1329,7 +1328,7 @@ class VoodOrm implements IteratorAggregate
      * and getSqlParameters to get the data
      * 
      * @param bool $bool
-     * @return Voodoo\Core\VoodOrm 
+     * @return Voodoo\VoodOrm 
      */
     public function debugSqlQuery($bool = true)
     {
