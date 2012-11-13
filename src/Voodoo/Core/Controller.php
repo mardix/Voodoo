@@ -21,7 +21,6 @@
 namespace Voodoo\Core;
 
 use ReflectionClass,
-    ReflectionException,
     Closure;
 
 abstract class Controller
@@ -78,7 +77,7 @@ abstract class Controller
     private $moduleNamespace = "";
     private $controllerNamespace = "";
     private $modelNamespace = "";
-    
+
     protected $httpStatusCode = 200;
 //------------------------------------------------------------------------------
     /**
@@ -97,26 +96,27 @@ abstract class Controller
     final public function __construct(Array $segments = array())
     {
         /**
-         * Built variables based on the controller 
+         * Built variables based on the controller
          */
         $refClass = new ReflectionClass(get_called_class());
 
-        $ns = explode("\\", $refClass->getNamespaceName());
+        $namespace = $refClass->getNamespaceName();
 
-        $this->moduleName = $ns[count($ns) - 2];
+        $this->moduleName = current(array_splice(explode("\\", $namespace), -2));
         $this->namespace = $refClass->getName();
         $this->controllerName = $refClass->getShortName();
-        $this->controllerNamespace = $refClass->getNamespaceName();
+        $this->controllerNamespace = $namespace;
         $this->moduleDir = dirname(dirname($refClass->getFileName()));
         $this->moduleRootDir = dirname($this->moduleDir);
-        $this->moduleNamespace = dirname($refClass->getNamespaceName());
+        $this->moduleNamespace = $this->getParentNamespace($namespace);
         $this->modelNamespace = $this->moduleNamespace."\\Model";
 
         $this->segments = $segments;
 
         $this->init();
+
     }
-    
+
     /**
      * init()
      * __construct is and can't be overriden by any child class
@@ -125,6 +125,17 @@ abstract class Controller
      */
     protected function init()
     {}
+
+    /**
+     * finalize()
+     * Code to excute before rendering
+     */
+    protected function finalize()
+    {
+        Http\Response::setStatus($this->httStatusCode);
+        return $this;
+    }
+
 
     /**
      * It's a wrap
@@ -137,21 +148,12 @@ abstract class Controller
         $this->renderView();
     }
 
-    /**
-     * finalize()
-     * Code to excute before rendering
-     */
-    protected function finalize()
-    {
-        Http\Response::setStatus($this->httStatusCode);
-        return $this;
-    }
-    
+
 //------------------------------------------------------------------------------
-    
+
     /**
      * Get POST ot GET params
-     * 
+     *
      * @param string $key
      * @param mixed $default
      * @return mixed
@@ -187,7 +189,7 @@ abstract class Controller
                 }
                 $i++;
             }
-            return ($key) ? $segs[$key] : $segs;            
+            return ($key) ? $segs[$key] : $segs;
         } else {
             return $this->segments;
         }
@@ -236,7 +238,7 @@ abstract class Controller
     {
         return $this->moduleRootDir;
     }
-    
+
     /**
      * To get the request uri. It includes everything in the URI
      * @return string
@@ -294,18 +296,18 @@ abstract class Controller
 // CONTROLLER
     /**
      * To access another controller without rendering it
-     * 
+     *
      * @param string $controllerName
      * @param array $params
      * @return \Voodoo\Core\controller
-     * @throws Exception 
+     * @throws Exception
      */
     protected function getController($controllerName, Array $params = array())
     {
-        $controller = (strpos('\\',$controllerName) === 0) 
-                        ? $controller 
+        $controller = (strpos('\\',$controllerName) === 0)
+                        ? $controller
                         : $this->controllerNamespace."\\".Helpers::camelize($controllerName, true);
-        
+
         $clsRef = new ReflectionClass($controller);
 
         if ($clsRef->isSubclassOf(__CLASS__)) {
@@ -328,7 +330,7 @@ abstract class Controller
 
         // Disable the current controller before forward
         $this->disableView(true);
-        
+
         $params = array_merge_recursive($this->segments, $params);
         return $this->getController($Controller, $params)
                         ->disableView($disableView);
@@ -355,7 +357,7 @@ abstract class Controller
 
             $this->actionName = strtolower(Helpers::camelize($action, false));
             $this->setActionView($this->actionName);
-            
+
             $this->{$actionName}();
         } else {
             throw new Exception("Action '{$actionName}' doesn't exist in " . get_called_class());
@@ -418,11 +420,11 @@ abstract class Controller
             } else {
                 $this->view = new View($this);
                 $this->view->setContainer($this->getConfig("views.container"));
-            }            
+            }
         }
         return $this->view;
     }
-    
+
     /**
      * To render the controller's view
      * @param  bool    $echoView - to print the view or just return it
@@ -433,13 +435,13 @@ abstract class Controller
         if ($this->disableView || !$this->viewExists()) {
             return false;
         } else {
-            $this->view()->setBody($this->actionView);            
+            $this->view()->setBody($this->actionView);
             $render = $this->view()->render();
             return ($echoView) ? print($render) : $render;
         }
     }
-    
-    
+
+
     /**
      * Verify if the view directory exists
      * @return bool
@@ -449,7 +451,7 @@ abstract class Controller
         return is_dir($this->moduleDir."/Views");
     }
 
-    
+
     /**
      * To enable render view. on __destruct, it will render the view, otherwise it's up to the controller to launch it.
      * @param  bool       $en
@@ -474,10 +476,10 @@ abstract class Controller
      */
     protected function getModel($modelName)
     {
-        $model = (strpos('\\',$modelName) === 0) 
-                        ? $model 
+        $model = (strpos('\\',$modelName) === 0)
+                        ? $model
                         : $this->modelNamespace."\\".Helpers::camelize($modelName, true);
-        
+
         if (class_exists($model)) {
             return new $model;
         }
@@ -498,7 +500,7 @@ abstract class Controller
         if (!$this->config) {
             $file = $iniFile ? : "{$this->moduleDir}/Config.ini";
             $this->config = new Config($this->modelNamespace);
-            $this->config->loadFile($file);           
+            $this->config->loadFile($file);
         }
         return $this->config->get($key);
     }
@@ -567,7 +569,7 @@ abstract class Controller
 
     /**
      * Set the http status code
-     * 
+     *
      * @param int $code
      * @return Voodoo\Core\Controller
      */
@@ -593,7 +595,7 @@ abstract class Controller
         return true;
     }
 
-    
+
 // Magic Methods to Set and Unser
     /**
      * Assign global variables to be used in all controllers. To set a variable that will be used in its own controller, it must be defined prior .ie: public $varName;
@@ -625,4 +627,13 @@ abstract class Controller
         return $this->renderView(false);
     }
 
+    /**
+     * Return the parent namespace
+     * @param type $namespace
+     * @return string
+     */
+    private function getParentNamespace($namespace)
+    {
+        return implode("\\",array_splice(explode("\\",$namespace),0,-1));
+    }
 }
