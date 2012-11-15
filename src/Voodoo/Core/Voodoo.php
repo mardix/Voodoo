@@ -29,14 +29,12 @@ class Voodoo
 {
     CONST NAME = "VoodooPHP";
     
-    CONST VERSION = "0.4.1";
+    CONST VERSION = "0.5";
     
     CONST AUTHOR = "Mardix < https://github.com/mardix >";
     
     CONST LICENSE = "MIT";
-    
-    CONST PHP_VERSION = "5.3";
-    
+
     CONST REPO_LINK = "https://github.com/VoodooPHP/Voodoo";
     
     
@@ -70,12 +68,8 @@ class Voodoo
      */
     public function __construct($appName = "www", $URI = "/", Array $Routes = array())
     {
-        if (version_compare(PHP_VERSION, self::PHP_VERSION, '<') ) {
-            throw new Core\Exception (self::NAME." requires PHP ".self::PHP_VERSION." or greater");
-        }
-        
         $appName = $this->formatName($appName, true);
-        $application = Path::VoodooApp()."/{$appName}";
+        $application = Path::App()."/{$appName}";
         
         $this->setModulesPath($application);
 
@@ -83,7 +77,7 @@ class Voodoo
         $URI .= (!preg_match("/\/$/",$URI)) ? "/" : "";
 
         // Reroute the URI based on Routes
-        $URI = Core\Router::Create($Routes)->parse($URI);
+        $URI = Router::Create($Routes)->parse($URI);
 
         /**
          * Build the URI segments that will be used to redirect to wherever in the application
@@ -91,16 +85,6 @@ class Voodoo
          */
         $this->segments = explode("/", preg_replace("|/*(.+?)/*$|", "\\1", $URI));
 
-    }
-
-    /**
-     * Root of Voodoo directory
-     *
-     * @return string
-     */
-    public function getRootDir()
-    {
-        return dirname(dirname(__DIR__));
     }
 
     /**
@@ -125,7 +109,7 @@ class Voodoo
     public function setModulesPath($path)
     {
         $this->modulesPath = $path;
-        $basename = str_replace(array($this->getRootDir(), "/","."), array("", "\\",""), $this->getModulesPath());
+        $basename = str_replace(array(Env::getRootDir(), "/","."), array("", "\\",""), $this->getModulesPath());
         $this->baseNamespace = preg_replace("/^\\\/", "", $basename);
 
         return $this;
@@ -186,7 +170,7 @@ class Voodoo
             }
 
             if (!is_dir($this->getModulesPath($this->moduleName))){
-               throw new Core\Exception("Module: '{$this->moduleName}' doesn't exist!");
+               throw new Exception("Module: '{$this->moduleName}' doesn't exist!");
             }
          } else {
             array_shift($this->segments);
@@ -234,7 +218,7 @@ class Voodoo
                  $this->controllerName = $this->formatName($this->defaultController, true);
 
              } catch (ReflectionException $e2) {
-                 throw new Core\Exception("Controller :'$this->controllerName' is not found in Module: '{$this->moduleName}'","",$e2->getPrevious());
+                 throw new Exception("Controller :'$this->controllerName' is not found in Module: '{$this->moduleName}'","",$e2->getPrevious());
              }
          }
 
@@ -255,7 +239,7 @@ class Voodoo
                  } else {
                     $this->action = strtolower($this->formatName("index",false));
                     if(!$this->callControllerReflection()->hasMethod("action_{$this->action}")) {
-                        throw new Core\Exception("Action: 'action_{$this->action}' is missing in: '".$this->callControllerReflection()->getName()."'");    
+                        throw new Exception("Action: 'action_{$this->action}' is missing in: '".$this->callControllerReflection()->getName()."'");    
                     }
                  }
              
@@ -277,7 +261,7 @@ class Voodoo
              $Controller->getAction($this->action);
 
          } else {
-             throw new Core\Exception("Controller: '{$ControllerN}' doesn't exist!");
+             throw new Exception("Controller: '{$ControllerN}' doesn't exist!");
          }
 
         return $this;
@@ -310,7 +294,7 @@ class Voodoo
     private function formatName($name,$pascalCase = false)
     {
         $name = preg_replace("/[^a-z09_\-]/i","",$name);
-        return Core\Helpers::camelize($name,$pascalCase);
+        return Helpers::camelize($name,$pascalCase);
     }
 
 }

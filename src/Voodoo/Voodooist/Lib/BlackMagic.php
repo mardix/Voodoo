@@ -150,8 +150,8 @@ class BlackMagic
     public function setApplication($name)
     {
         $this->applicationName = $this->formatName($name);
-        $this->applicationPath = Core\Path::VoodooApp()."/{$this->applicationName}";
-        $this->applicationNS = "VoodooApp\\{$this->applicationName}";
+        $this->applicationPath = Core\Path::App()."/{$this->applicationName}";
+        $this->applicationNS = "App\\{$this->applicationName}";
     }
 
 
@@ -225,7 +225,7 @@ class BlackMagic
 
         // Create a SampleModel
         if (! $newModelDir && $countModels == 0) {
-            $this->createModel("SampleModel", "MyDB", "sample_table", "id", "%s_id");
+            //$this->createModel("SampleModel", "MyDB", "sample_table", "id", "%s_id");
         }   
                 
         $this->createController("Index", $isApi);
@@ -411,8 +411,8 @@ class BlackMagic
      */
     public function createVoodooApp()
     {
-      $this->mkdir(Core\Path::VoodooApp());
-      Core\Helpers::recursiveCopy(Core\Path::Voodooist()."/files/setup/VoodooApp", Core\Path::VoodooApp());  
+      $this->mkdir(Core\Path::App());
+      Core\Helpers::recursiveCopy(Core\Path::Voodooist()."/files/setup/App", Core\Path::App());  
     }
     
     /**

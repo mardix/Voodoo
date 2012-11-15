@@ -28,11 +28,50 @@ abstract class Api extends Core\Controller
     private $restView = null;
     private $renderFormat;
 
-    protected function renderView()
+    /**
+     * Init
+     * We'll set the api for  JSON response
+     */
+    protected function init()
     {
-        echo $this->view()->render($this->renderFormat);
+        parent::init();
+        $this->setJsonResponse();
     }
-    
+
+
+    /**
+     * Finalize
+     *
+     * Do some assignment and finalize the process
+     */
+    protected function finalize()
+    {
+      parent::finalize();
+
+      if($this->view()->hasError()) {
+          $this->view()->assign("error", $this->view()->getMessage("error"));
+      }
+
+    }
+
+
+    /**
+     *
+     * @param string $echoView
+     *
+     * @return string
+     */
+    protected function renderView($echoView = true)
+    {
+        $view = $this->view()->render($this->renderFormat);
+
+        if($echoView) {
+            echo $view;
+        } else {
+            return $view;
+        }
+    }
+
     /**
      * Set the view response format
      *
@@ -48,10 +87,10 @@ abstract class Api extends Core\Controller
 
     /**
      * Setup the API view
-     * 
+     *
      * @return Core\View\Api
      */
-    protected function view()
+    protected function view(Closure $callback = null)
     {
         if ($this->restView == null) {
             $this->restView = new Core\View\Api;
@@ -119,9 +158,8 @@ abstract class Api extends Core\Controller
     public function action_404()
     {
         $this->setHttpCode(404);
-        $this->view()->assign("error", array(
-            "code" => 404,
-            "message" => Core\Http\Response::getHttpCode(404)
-        ));
-    }    
+
+        $message = Core\Http\Response::getHttpCode(404);
+        $this->view()->setError($message, 404);
+    }
 }

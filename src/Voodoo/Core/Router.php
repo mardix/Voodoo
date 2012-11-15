@@ -93,13 +93,13 @@ class Router
      * The wildCards that will be used
      * @var type
      */
-    private $wildCards = array(
-                                ":any"=>".*",
-                                ":num"=>"[0-9]+",
-                                ":alpha"=>"[A-Za-z]+",
-                                ":alphanum"=>"[A-Za-z0-9]+",
-                                ":hex"=>"[A-Fa-f0-9]+"
-                            );
+    private $wildCards = [
+                            ":any"=>".*",
+                            ":num"=>"[0-9]+",
+                            ":alpha"=>"[A-Za-z]+",
+                            ":alphanum"=>"[A-Za-z0-9]+",
+                            ":hex"=>"[A-Fa-f0-9]+"
+                        ];
 
     /**
      * The request method POST | GET
@@ -125,7 +125,6 @@ class Router
     public function __construct(Array $Routes = array())
     {
         $this->setRoutes($Routes);
-
         $this->requestMethod = @strtoupper($_SERVER["REQUEST_METHOD"]);
     }
 
@@ -198,9 +197,7 @@ class Router
                     $route = $val.$qs;
 
                     return ($method && $this->requestMethod =! $method) ? $originalUri : $route;
-
                 }
-
             }
 
             return $originalUri;
@@ -214,7 +211,6 @@ class Router
     public function allowQuery($allow = true)
     {
         $this->allowQuery = $allow;
-
         return $this;
     }
 
@@ -225,7 +221,7 @@ class Router
      */
     public function getRoutes($addExtendedRoutes = false)
     {
-        $arr = array();
+        $arr = [];
 
         foreach (($addExtendedRoutes ? $this->routesExtended : $this->routes) as $key => $val) {
 
@@ -236,11 +232,11 @@ class Router
                 $key = preg_replace("/^(POST|GET)\s+/i","",$key);
             }
 
-            $arr[] = array(
+            $arr[] = [
                 "RequestMethod" => $method,
                 "From" => $key,
                 "To" => $val
-            );
+            ];
         }
 
         return $arr;

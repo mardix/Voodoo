@@ -22,53 +22,11 @@ namespace Voodoo\Core\View;
 use Voodoo\Core;
 
 class Api {
+    use TView;
+
     const FORMAT_JSON = 1;
     const FORMAT_TEXT = 2;
 
-    protected $assigned = array();
-
-      /**
-     * Assign variable
-     * @param  mixed          $key - can be string, dot notation k/v, or array to set data as bulk
-     * @param  mixed          $val - can be string, numeric, array
-     * @return Api
-     */
-    public function assign($key, $val="")
-    {
-        if (is_string($key) || is_array($key)) {
-            $data = array();
-
-            if (is_string($key)) {
-                if (preg_match("/\./",$key)) { // dot notation keys
-                    Core\Helpers::setArrayToDotNotation($data, $key, $val);
-                } else {
-                  $data[$key] = $val;
-                }
-            } else {
-                $data = $key;
-            }
-
-            $this->assigned = array_merge_recursive($data,$this->assigned);
-
-            return $this;
-
-        } else {
-            throw new Core\Exception("Can't assign() $key. Invalid key type. Must be string or array");
-        }
-    }
-
-    /**
-     * To unassign variable by key name
-     * @param  string         $key, the key name associated when it was created
-     * @return Api
-     */
-    public function unassign($key)
-    {
-        if(is_string($key) && isset($this->assigned[$key])){
-            unset($this->assigned[$key]);
-        }
-        return $this;
-    }
 
     /**
      * To render the assigned vars
@@ -81,10 +39,12 @@ class Api {
         switch($format) {
             // JSON
             case self::FORMAT_JSON:
-              return json_encode($this->assigned);
+              return json_encode($this->getAssigned());
             break;
         }
 
     }
+    
+
 }
 

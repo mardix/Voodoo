@@ -55,13 +55,13 @@ class Connect
                     case "sqlite":
 
                         $dbms = strtolower($db["dbms"]);
-
+                        $port = (isset($db["port"]) && $db["port"]) ? ";port={$db["port"]}" : "";
                         if ($dbms == "sqlite"){
                             $PDO = new PDO("sqlite:".APPLICATION_DB_PATH."/{$db["dbName"]}.{$db["DBFileExt"]}");
                         } else if ($dbms == "mysql") {
-                            $PDO = new PDO("mysql:host={$db["host"]};dbname={$db["dbName"]}",$db["username"],$db["password"]);
+                            $PDO = new PDO("mysql:host={$db["host"]};dbname={$db["dbName"]}{$port}",$db["user"],$db["password"]);
                         } else if ($dbms == "pgsql") {
-                            $PDO = new PDO("pgsql:host={$db["host"]};dbname={$db["dbName"]}",$db["username"],$db["password"]);
+                            $PDO = new PDO("pgsql:host={$db["host"]};dbname={$db["dbName"]}{$port}",$db["user"],$db["password"]);
                         }
                         
                         $PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -75,7 +75,7 @@ class Connect
                         $Options = array();
 
                         if($db["username"]){
-                            $Options["username"] = $db["username"];
+                            $Options["username"] = $db["user"];
                         }
                         
                         if($db["password"]){

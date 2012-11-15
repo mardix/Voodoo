@@ -2,7 +2,7 @@
 /**
  * do-voodoo
  * It allows the creation of your application
- * 
+ *
  */
 
 include_once(dirname(__DIR__)."/init.php");
@@ -18,36 +18,38 @@ if(!Core\Env::isCli()) {
     e("Voodooist must run in CLI mode");
     exit;
 } else {
-    $jsonFile = __DIR__."/application.json";
-    $BlackMagic = new Voodoo\Voodooist\Lib\BlackMagic;
-    
+
+    $jsonFile = Core\Path::Config()."/app-schema.json";
+    $BlackMagic = new Voodooist\Lib\BlackMagic;
+
     e(Core\Voodoo::NAME." ".Core\Voodoo::VERSION." : The Voodooist!");
     e("-----------------------------------------------------------------------");
 
+    // /VoodooApp
+     if (! file_exists(Core\Path::Config()."/Application.ini")) {
+        e("> creating Dir: ".Core\Path::App());
+        $BlackMagic->createVoodooApp();
+    }
+
     if (! file_exists($jsonFile)) {
         e("Error");
-        e("'{$jsonFile}' is missing");
+        e("'{$jsonFile}' doesn't exist! Go ");
         exit;
     }
-    
+
     $json = file_get_contents($jsonFile);
     $schema = json_decode($json, true);
 
     if ($error = Core\Helpers::getJsonLastError()) {
         e("Error");
-        e("'application.json' contains a JSON error : ({$error["code"]}) {$error["message"]}");
+        e("'app-schema' contains a JSON error : ({$error["code"]}) {$error["message"]}");
         exit;
     }
-    
+
     e("> checking front controller... ");
     $BlackMagic->createFrontController();
-    
-    // /VoodooApp
-     if (! file_exists(Core\Path::AppConfig()."/Application.ini")) {
-        e("> creating Dir: ".Core\Path::VoodooApp());
-        $BlackMagic->createVoodooApp();
-    }
-    
+
+
     // /assets
     if ($schema["createPublicAssets"] === true && !is_dir(Core\Path::Assets())) {
         e("> creating Assets dir: ".Core\Path::Assets());
@@ -55,7 +57,7 @@ if(!Core\Env::isCli()) {
     }
 
     e("> building application from schema...\n");
-    
+
         $created = " [CREATED] ";
         foreach ($schema["applications"] as $app) {
 
@@ -88,7 +90,7 @@ if(!Core\Env::isCli()) {
                             if (isset($controller["isApi"])) {
                                 $cIsApi = $controller["isApi"];
                             }
-                            
+
                             if ($BlackMagic->createController($controller["name"], $cIsApi)) {
                                 $controllerAction = $created;
                             }

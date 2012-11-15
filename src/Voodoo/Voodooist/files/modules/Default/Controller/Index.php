@@ -81,10 +81,10 @@ class Index extends Voodoo\Core\Controller
              * Verify Email and Password
              */
             if(!Core\Helpers::validEmail($Email))
-                $this->view()->setError("Invalid Email Address");
+                $this->view()->setFlash("Invalid Email Address");
 
             if(!Core\Helpers::validPassword($Password))
-                $this->view()->setError("Invalid Password");
+                $this->view()->setFlash("Invalid Password");
 
             /**
              * No error found
@@ -98,7 +98,7 @@ class Index extends Voodoo\Core\Controller
                     $this->redirect("/account");
 
                 else
-                    $this->view()->setError("Invalid Login");
+                    $this->view()->setFlash("Invalid Login");
 
             }
 

@@ -48,9 +48,9 @@ class Request
      * @param string $key
      * @param mixed $default
      */
-    public function getParam($key = null, $default = null)
+    public static function getParam($key = null, $default = null)
     {
-        if(!self::$params) {
+        if (! self::$params) {
             $params = array_merge(self::getGetParams(), self::getPostParams());
             self::$params = array_filter($params);
         }
@@ -82,7 +82,7 @@ class Request
     */
     public static function isAjax()
     {
-        return (isset($this->env['X_REQUESTED_WITH']) && 
+        return (isset($_SERVER['X_REQUESTED_WITH']) && 
                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH'])=="xmlhttprequest")
                ? true : false;
     }
@@ -92,7 +92,7 @@ class Request
      * Segments are part of the URL separated by a slash /
      * @return array
      */
-    public function getUrlSegments()
+    public static function getUrlSegments()
     {
         return explode("/",$_SERVER["QUERY_STRING"]);
     }

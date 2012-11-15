@@ -23,10 +23,10 @@ class View extends View\ThickMustache
 {
     public $isDisabled = false;
     public $isRendered = false;
-    
+
     // View file extension
     protected $ext = ".html";
-    
+
     protected $moduleName,
                 $controllerName,
                 $modulesPath,
@@ -37,8 +37,8 @@ class View extends View\ThickMustache
                 $config,
                 $renderedContent,
                 $controllersViewPath;
-    
-    private $pageTitle, 
+
+    private $pageTitle,
             $pageDescription;
 
     private $controller = null;
@@ -74,13 +74,13 @@ class View extends View\ThickMustache
 
                 "SiteUrl" => $this->controller->getSiteUrl(),
                 "Url" => $this->controller->getBaseUrl(),
-                
+
                 "Module" => array(
                     "Name"      => $this->moduleName,
                     "Url"       => $this->controller->getModuleUrl(),
                     "Assets"    => $this->getModuleAssetsDir()
                 ),
-                
+
                 "Assets"    => $this->getPublicAssetsDir()
 
             ),
@@ -158,7 +158,6 @@ class View extends View\ThickMustache
      */
     public function render()
     {
-        
         /**
          * LoadTemplates
          * Templates that are set in the config.ini of the module with key/value
@@ -170,44 +169,34 @@ class View extends View\ThickMustache
                 $this->addTemplate($pageKey, $pagePath);
             }
         }
-        
+
         if ($this->renderedContent && $this->isRendered)
             return $this->renderedContent;
 
         // App.Page.Title
         if ($this->pageTitle) {
-            $this->assign(array(
-                "App" => array(
-                    "Page" => array(
-                        "Title" => $this->pageTitle
-                    )
-                )
-            ));
+            $this->assign("App.Page.Title", $this->pageTitle);
             $this->setMetaTag("TITLE", $this->pageTitle);
         }
 
         // App.Page.Description
         if ($this->pageDescription) {
-            $this->assign(array(
-                "App" => array(
-                    "Page" => array(
-                        "Description" => $this->pageDescription
-                    )
-                )
-            ));
+            $this->assign("App.Page.Description", $this->pageDescription);
             $this->setMetaTag("Description", $this->pageDescription);
         }
-        
+
         // App.Pagination
         if ($this->paginator && $this->paginator->getTotalItems()) {
-            $this->assign(array(
-                "App" => array(
-                    "Pagination" => $this->paginator()->toArray()
-                )
-            ));            
+            $this->assign("App.Pagination", $this->paginator()->toArray());
+        }
+        
+         // App.FlashMessage
+        $flashMessage = $this->getFlashMessage();
+        if ($flashMessage) {
+            $this->assign("App.FlashMessage", $flashMessage);
+            $this->clearFlash();
         }
 
-                
         $renderName = "PageBody";
 
         $this->addTemplate("PageBody", $this->body, $this->isBodyAbsolute);
@@ -219,7 +208,7 @@ class View extends View\ThickMustache
 
         $this->isRendered = true;
 
-        $this->renderedContent = parent::render($renderName);
+        $this->renderedContent = parent::renderMustache($renderName);
 
         return $this->renderedContent;
     }
@@ -244,13 +233,13 @@ class View extends View\ThickMustache
         if (count($assignments)){
             $this->assign($assignments);
         }
-        
+
         $content = $this->getContent($tplName);
 
         if (count($assignments)){
             $this->unassign($assignments);
         }
-        
+
         parent::removeTemplate($tplName)->reparse();
 
         return $content;
@@ -336,13 +325,7 @@ class View extends View\ThickMustache
             $metaTag = "<META NAME=\"$tagName\" CONTENT=\"$content\">";
         }
         if ($metaTag) {
-            $this->assign(array(
-                "App" => array(
-                    "Page" => array(
-                        "MetaTags" => array($metaTag)
-                    )
-                )
-            ));
+            $this->assign("App.Page.MetaTags",array($metaTag));
         }
 
         return $this;
@@ -370,18 +353,13 @@ class View extends View\ThickMustache
                     $this->setOpenGraphTag($property, $content);
             }
         } elseif (is_string($Prop) && $content) {
-            $this->assign(array(
-                "App" => array(
-                    "Page" => array(
-                        "OpenGraphTags" => array("<meta property=\"$property\" content=\"$content\"/>")
-                    )
-                )
-            ));
+            $this->assign("App.Page.MetaTags", 
+                    array("<meta property=\"$property\" content=\"$content\"/>"));
         }
     }
 
-    
-    
+
+
     /**
      * Access the Paginator object
      * @return Core\View\Paginator
@@ -393,14 +371,14 @@ class View extends View\ThickMustache
             $pattern = $this->getConfig("Views.Pagination.PagePattern");
             $itemsPerPage = $this->getConfig("Views.Pagination.ItemsPerPage");
             $navigationSize = $this->getConfig("Views.Pagination.NavigationSize");
-            
+
             $this->paginator = new View\Paginator($uri, $pattern);
             $this->paginator->setItemsPerPage($itemsPerPage)
-                            ->setNavigationSize($navigationSize);            
+                            ->setNavigationSize($navigationSize);
         }
         return $this->paginator;
     }
-    
+
     /**
      * Return the Forms object
      * @return Core\View\Forms
@@ -410,81 +388,10 @@ class View extends View\ThickMustache
             $this->form = new View\Forms;
         }
         return $this->form;
-    }    
+    }
 //------------------------------------------------------------------------------
 // ERROR HANDLING
 //------------------------------------------------------------------------------
-
-    /**
-     * To set error message that can be displayed by System.Errors.Message
-     * @param  string | bool    $err - if false, it will delete the error message
-     * @return Voodoo\Core\View
-     *
-     * @example
-     *
-     * {{#App.ErrorMessage}}
-     *     {{#Messages}}
-     *          {{.}}
-     *     {{/Messages}}
-     * {{/App.ErrorMessage}}
-     */
-    public function errorMessage($err)
-    {
-        if ($err === false){
-            unset($this->assigned["App"]["ErrorMessage"]);
-        } else {
-            $this->assign(array(
-                "App" => array(
-                    "ErrorMessage" => array(
-                        "Messages" => array($err)
-                    )
-                )
-            ));
-        }
-        return $this;
-    }
-
-    /**
-     * To set success message that can be display by System.Success.Message
-     * @param  string | bool    $succ - if false, it will delete the success message
-     * @return Voodoo\Core\View
-     * @example
-     *
-     * {{#App.SuccessMessage}}
-     *     {{#Messages}}
-     *          {{.}}
-     *     {{/Messages}}
-     * {{/App.SuccessMessage}}
-     *
-     */
-    public function successMessage($succ)
-    {
-        if ($succ === false){
-            unset($this->assigned["App"]["SuccessMessage"]);
-        } else {
-            $this->assign(array(
-                "App" => array(
-                    "SuccessMessage" => array(
-                        "Messages" => array($succ)
-                    )
-                )
-            ));
-        }
-
-        return $this;
-    }
-
-    /**
-     * Check if there is an error
-     * @return bool
-     */
-    public function hasErrors()
-    {
-        return (count($this->assigned["App"]["ErrorMessage"])) ? true : false;
-    }
-
-    /*     * **************************************************************************** */
-
     /**
      * To add a template file
      * @param  type             $name     - the name of the template. Can be used to call it: {{%include @name}}
@@ -577,13 +484,13 @@ class View extends View\ThickMustache
                 return $path;
                 break;
         }
-        
-        $root = Voodoo::getRootDir();
+
+        $root = Env::getRootDir();
         $baseDir = Config::Application()->get("VoodooApp.BaseDir") == "/" ? "" : Config::Application()->get("VoodooApp.BaseDir");
-        $modulePath = str_replace(array($root, "\\", $baseDir),  array("", "/",""),$this->modulesPath);      
+        $modulePath = str_replace(array($root, "\\", $baseDir),  array("", "/",""),$this->modulesPath);
         $url = preg_replace("/\/$/","",$this->controller->getSiteUrl());
         return $url.$modulePath."/$path";
-               
+
     }
 
     /**
@@ -602,8 +509,8 @@ class View extends View\ThickMustache
 
         // Shared assets starts from the root
         return
-            $this->controller->getSiteUrl() . "/" . preg_replace("/^\//", "", 
-                    str_replace(BASE_PATH, "", $path ? : Path::Assets()));
+            $this->controller->getSiteUrl() . "/" . preg_replace("/^\//", "",
+                    str_replace(Path::Base(), "", $path ? : Path::Assets()));
     }
 
     /**

@@ -19,7 +19,7 @@ namespace Voodoo\Core\Http;
 
 class Response
 {
-    private static $httpCodes = array(
+    private static $httpCodes = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         200 => 'OK',
@@ -62,7 +62,7 @@ class Response
         503 => 'Service Unavailable',
         504 => 'Gateway Timeout',
         505 => 'HTTP Version Not Supported'
-    ); 
+    ]; 
     
     /**
      * Get the HTTP Code
@@ -89,10 +89,17 @@ class Response
      * Set the status
      * @param <type> $status
      */
-    public static function setStatus($code = 200){
+    public static function setStatus($code = 200)
+    {
         $status_header = 'HTTP/1.1 ' . $code . ' ' . self::getHttpCode($code);
         self::setHeader($status_header, $code);
-    }    
+    }   
+    
+    public static function redirect($url, $httpCode = 302)
+    {
+        self::setHeader("Location: {$url}", $httpCode);
+        exit;
+    }
 }
 
 

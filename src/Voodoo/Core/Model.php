@@ -19,29 +19,29 @@
  * Quick Tips
  * - Relationship
  * Sometimes you will need relationship in your model
- * 
+ *
  * Let's say you have the tables: book and author
- * 
+ *
  * We can create a method in Model/Book to get author from the Model/Author
- * 
+ *
  * class Book extends Voodoo\Core\Model
   {
    // blah blah code here
-  
-    // For One to One. Will get only one entry 
+
+    // For One to One. Will get only one entry
     public function getAuthor(){
         $table = Author::create()->getTableName();
          return $this->{$table}(self::REL_HASONE, function($res){
-                    return Author::create($res);  
+                    return Author::create($res);
                 });
 
     }
- 
+
     // For One to Many. Will get all the tags entry
     public function getTags(){
         $table = Tags::create()->getTableName();
          return $this->{$table}(self::REL_HASMANY, function($res){
-                    return Tags::create($res);  
+                    return Tags::create($res);
                 });
 
     }
@@ -51,11 +51,13 @@
    $book = new Model\Book::findOne(1234);
    $author = $book->getAuthor()->name;
    $tags = $book->getTags();
- 
+
  *
  */
 
 namespace Voodoo\Core;
+
+use Closure;
 
 abstract class Model extends Model\VoodOrm
 {
@@ -98,11 +100,14 @@ abstract class Model extends Model\VoodOrm
         if ($obj) {
             // A single row will return an array
             if (is_array($obj)) {
-                $Instance->set($obj);
+                $Instance->_toRow($obj);
+                $Instance->is_single = true;
+
             } else if ($obj instanceof Model\VoodOrm) {
             // TODO: implement
             }
         }
+
         return $Instance;
     }
 
@@ -120,13 +125,13 @@ abstract class Model extends Model\VoodOrm
         } else if (!$this->dbAlias){
             throw new Exception("DB Alias is missing in ".get_called_class());
         }
-        
+
         $PDO = Model\Connect::alias($this->dbAlias);
 
         parent::__construct($PDO, $this->primaryKeyName, $this->foreignKeyName);
 
         $instance = parent::table($this->tableName);
-        
+
         $this->table_name = $instance->table_name;
 
         $this->table_token = $instance->table_token;
@@ -142,7 +147,7 @@ abstract class Model extends Model\VoodOrm
     /**
      * Returns the table name
      *
-     * @param ModelName 
+     * @param ModelName
      * @return string
      */
     public function getTableName(Model\VoodOrm $model = null)
@@ -150,7 +155,7 @@ abstract class Model extends Model\VoodOrm
         if ($model != null) {
             return $model->getTableName();
         } else {
-            return $this->table_name;   
+            return $this->table_name;
         }
     }
 
@@ -174,7 +179,20 @@ abstract class Model extends Model\VoodOrm
         return $this->foreign_key_name;
     }
 
-    
-    
-    
+    /**
+     * To execute a code only if $this->is_single
+     * @param Closure $fn
+     * @return mixed
+     * @throws Exception
+     */
+    public function ifSingle(\Closure $fn)
+    {
+        if ($this->is_single) {
+            return $fn();
+        } else {
+            throw new Exception("Not a single Object");
+        }
+    }
+
+
 }

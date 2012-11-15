@@ -14,12 +14,12 @@
  * About VoodOrm
  *
  * VoodOrm is a micro-ORM which functions as both a fluent select query API and a CRUD model class.
- * VoodOrm is built on top of PDO and is well fit for small to mid-sized projects, where the emphasis 
+ * VoodOrm is built on top of PDO and is well fit for small to mid-sized projects, where the emphasis
  * is on simplicity and rapid development rather than infinite flexibility and features.
  * VoodOrm works easily with table relationship
- * 
+ *
  * Learn more: https://github.com/mardix/VoodOrm
- * 
+ *
  */
 
 namespace Voodoo\Core\Model;
@@ -32,7 +32,7 @@ use ArrayIterator,
 class VoodOrm implements IteratorAggregate
 {
     const NAME              = "VoodOrm";
-    const VERSION           = "0.4.0";
+    const VERSION           = "0.4.1";
 
     // RELATIONSHIP CONSTANT
     const REL_HASONE        =  1;       // OneToOne. Eager Load data
@@ -43,7 +43,7 @@ class VoodOrm implements IteratorAggregate
 
     const WHERE_OPERATOR_AND = " AND ";
     const WHERE_OPERATOR_OR  = " OR ";
-    
+
     public $pdo = null;
 
     public $pdoStmt = null;
@@ -77,11 +77,11 @@ class VoodOrm implements IteratorAggregate
     private $where_parameters = array();
 
     private $where_conditions = array();
-    
+
     private $where_operator = self::WHERE_OPERATOR_AND;
-    
+
     private $wrap_open = false;
-    
+
     private $last_wrap_position = 0;
 
     private $is_fluent_query = true;
@@ -89,17 +89,17 @@ class VoodOrm implements IteratorAggregate
     private $pdo_executed = false;
 
     private $_data = array();
-    
+
     private $debug_sql_query = false;
-    
+
     private $sql_query = "";
-    
+
     private $sql_parameters = array();
 
     private $_dirty_fields = array();
 
     private static $references = array();
-    
+
     private $query_profiler = array();
 
     // Table structure
@@ -121,7 +121,7 @@ class VoodOrm implements IteratorAggregate
      * @param string $tablePrefix
      *
      */
-    public function __construct(PDO $pdo, $primaryKeyName = "id", 
+    public function __construct(PDO $pdo, $primaryKeyName = "id",
                                 $foreignKeyName = "%s_id", $tablePrefix = "") {
         $this->pdo = $pdo;
 
@@ -144,12 +144,12 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $tableName - Table name
      * @param  string   $alias     - The table alias name
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function table($tableName, $alias = "")
     {
         $instance = clone($this);
-        
+
         $instance->table_name = $this->table_structure["tablePrefix"].$tableName;
 
         $instance->table_token = $this->tokenize($this->table_name,":");
@@ -172,13 +172,13 @@ class VoodOrm implements IteratorAggregate
      * @param bool   $is_fluent_query -
      *          FALSE to return a bool if the the pdoStmt was executed
      *          TRUE, return self and you can use $this->find() or $this->findOne() to retrieve entries
-     * @return bool | Voodoo\VoodOrm 
+     * @return bool | Voodoo\VoodOrm
      */
     public function query($query, Array $parameters = array(), $is_fluent_query = true)
     {
         $this->sql_parameters = $parameters;
         $this->sql_query = $query;
-        
+
         if ($this->debug_sql_query) {
             return false;
         } else {
@@ -206,7 +206,7 @@ class VoodOrm implements IteratorAggregate
 
             $this->is_fluent_query = $is_fluent_query;
 
-            return $this->is_fluent_query ? $this : $this->pdo_executed;            
+            return $this->is_fluent_query ? $this : $this->pdo_executed;
         }
     }
 
@@ -243,7 +243,7 @@ class VoodOrm implements IteratorAggregate
         if($this->is_fluent_query){
             $this->query($this->getSelectQuery(), $this->getWhereParameters());
         }
-        
+
         //Debug SQL Query
         if ($this->debug_sql_query) {
             $this->debugSqlQuery(false);
@@ -259,18 +259,18 @@ class VoodOrm implements IteratorAggregate
                     $that = $this;
                     $map = array_map(function($r) use ($that) {
                                 return $that->_toRow($r);
-                            }, $this->allRows);                    
+                            }, $this->allRows);
                 }
             }
-            return new ArrayIterator($map);            
-        }      
+            return new ArrayIterator($map);
+        }
     }
-    
+
     /**
      * Return one row
      *
      * @param  int      $id - use to fetch by primary key
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function findOne($id = null)
     {
@@ -279,7 +279,7 @@ class VoodOrm implements IteratorAggregate
         }
 
         $this->limit(1);
-        
+
         // Debug the SQL Query
         if ($this->debug_sql_query) {
             $this->find();
@@ -289,7 +289,7 @@ class VoodOrm implements IteratorAggregate
             return $findAll->valid() ? $findAll->offsetGet(0) : false;
         }
     }
-    
+
     /**
      * This method allow the iteration inside of foreach()
      *
@@ -299,12 +299,12 @@ class VoodOrm implements IteratorAggregate
     {
       return ($this->is_single) ? new ArrayIterator($this->toArray()) : $this->find();
     }
-    
+
     /**
      * Create an instance from the given row (an associative
      * array of data fetched from the database)
      *
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function _toRow(Array $data)
     {
@@ -324,7 +324,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  mixed    $expr  - the column to select. Can be string or array of fields
      * @param  string   $alias - an alias to the column
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function select($columns = "*", $alias = null)
     {
@@ -349,16 +349,16 @@ class VoodOrm implements IteratorAggregate
      * @param string condition possibly containing ? or :name
      * @param mixed array accepted by PDOStatement::execute or a scalar value
      * @param mixed ...
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function where($condition, $parameters = array())
     {
         $this->is_fluent_query = true;
-        
-        // By default the where_operator and wrap operator is AND, 
+
+        // By default the where_operator and wrap operator is AND,
         if ($this->wrap_open || ! $this->where_operator) {
             $this->_and();
-        } 
+        }
 
         // where(array("column1" => 1, "column2 > ?" => 2))
         if (is_array($condition)) {
@@ -390,16 +390,16 @@ class VoodOrm implements IteratorAggregate
 
         // Reset the where operator to AND. To use OR, you must call _or()
         $this->_and();
-        
+
         return $this;
     }
 
     /**
      * Create an AND operator in the where clause
-     * 
-     * @return Voodoo\VoodOrm 
+     *
+     * @return Voodoo\VoodOrm
      */
-    public function _and() 
+    public function _and()
     {
         if ($this->wrap_open) {
             $this->where_conditions[] = self::WHERE_OPERATOR_AND;
@@ -411,13 +411,13 @@ class VoodOrm implements IteratorAggregate
         return $this;
     }
 
-    
+
     /**
      * Create an OR operator in the where clause
-     * 
-     * @return Voodoo\VoodOrm 
-     */    
-    public function _or() 
+     *
+     * @return Voodoo\VoodOrm
+     */
+    public function _or()
     {
         if ($this->wrap_open) {
             $this->where_conditions[] = self::WHERE_OPERATOR_OR;
@@ -428,16 +428,16 @@ class VoodOrm implements IteratorAggregate
         }
         return $this;
     }
-    
+
     /**
-     * To group multiple where clauses together.  
-     * 
-     * @return Voodoo\VoodOrm 
+     * To group multiple where clauses together.
+     *
+     * @return Voodoo\VoodOrm
      */
     public function wrap()
     {
         $this->wrap_open = true;
-        
+
         $spliced = array_splice($this->where_conditions, $this->last_wrap_position, count($this->where_conditions), "(");
         $this->where_conditions = array_merge($this->where_conditions, $spliced);
 
@@ -446,7 +446,7 @@ class VoodOrm implements IteratorAggregate
 
         return $this;
     }
-    
+
     /**
      * Where Primary key
      *
@@ -463,7 +463,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereNot($columnName, $value)
     {
@@ -475,7 +475,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereLike($columnName, $value)
     {
@@ -487,7 +487,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereNotLike($columnName, $value)
     {
@@ -499,7 +499,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereGt($columnName, $value)
     {
@@ -511,7 +511,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereGte($columnName, $value)
     {
@@ -523,7 +523,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereLt($columnName, $value)
     {
@@ -535,7 +535,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  mixed    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereLte($columnName, $value)
     {
@@ -547,19 +547,19 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName
      * @param  Array    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereIn($columnName, Array $values)
     {
         return $this->where($columnName,$values);
     }
-    
+
     /**
      * WHERE $columName NOT IN (?,?,?,...)
      *
      * @param  string   $columnName
      * @param  Array    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereNotIn($columnName, Array $values)
     {
@@ -572,7 +572,7 @@ class VoodOrm implements IteratorAggregate
      * WHERE $columName IS NULL
      *
      * @param  string   $columnName
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereNull($columnName)
     {
@@ -583,7 +583,7 @@ class VoodOrm implements IteratorAggregate
      * WHERE $columName IS NOT NULL
      *
      * @param  string   $columnName
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function whereNotNull($columnName)
     {
@@ -595,7 +595,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  string   $columnName - The name of the colum or an expression
      * @param  string   $ordering   (DESC | ASC)
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function orderBy($columnName, $ordering = "")
     {
@@ -608,7 +608,7 @@ class VoodOrm implements IteratorAggregate
      * GROUP BY $columnName
      *
      * @param  string   $columnName
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function groupBy($columnName)
     {
@@ -623,13 +623,13 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  int      $limit
      * @param  int      $offset
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function limit($limit, $offset = null)
     {
         $this->is_fluent_query = true;
         $this->limit = $limit;
-        
+
         if($offset){
             $this->offset($offset);
         }
@@ -641,7 +641,7 @@ class VoodOrm implements IteratorAggregate
      * OFFSET $offset
      *
      * @param  int      $offset
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function offset($offset)
     {
@@ -658,7 +658,7 @@ class VoodOrm implements IteratorAggregate
      * @param  string   $constraint    -> id = profile.user_id
      * @param  string   $table_alias   - The alias of the table name
      * @param  string   $join_operator - LEFT | INNER | etc...
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function join($table, $constraint, $table_alias = "", $join_operator = "")
     {
@@ -681,7 +681,7 @@ class VoodOrm implements IteratorAggregate
      * @param  string   $table
      * @param  string   $constraint
      * @param  string   $table_alias
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function leftJoin($table, $constraint, $table_alias=null)
     {
@@ -696,15 +696,15 @@ class VoodOrm implements IteratorAggregate
      */
     public function getSelectQuery()
     {
-        $columns = (is_array($this->select_fields) && count($this->select_fields)) 
+        $columns = (is_array($this->select_fields) && count($this->select_fields))
                     ? $this->select_fields : array("*");
-        
+
         $result_columns = implode(", ", $columns);
 
         $query = "SELECT {$result_columns} FROM {$this->table_name}";
 
             $query .= ($this->table_alias) ? " AS {$this->table_alias}" : "";
-            
+
         if(count($this->join_sources)){
             $query .= (" ").implode(" ",$this->join_sources);
         }
@@ -724,7 +724,7 @@ class VoodOrm implements IteratorAggregate
         return $query;
     }
 
-    
+
     /**
      * Build the WHERE clause(s)
      *
@@ -735,7 +735,7 @@ class VoodOrm implements IteratorAggregate
         // If there are no WHERE clauses, return empty string
         if (!count($this->where_conditions)) {
             return " WHERE 1";
-        } 
+        }
 
         $where_condition = "";
         $last_condition = "";
@@ -769,7 +769,7 @@ class VoodOrm implements IteratorAggregate
     /**
       * Detect if its a single row instance and reset it to PK
       *
-      * @return Voodoo\VoodOrm 
+      * @return Voodoo\VoodOrm
       */
     protected function setSingleWhere()
     {
@@ -783,26 +783,26 @@ class VoodOrm implements IteratorAggregate
     /**
       * Reset the where
       *
-      * @return Voodoo\VoodOrm 
+      * @return Voodoo\VoodOrm
       */
     protected function resetWhere()
     {
         $this->where_conditions = array();
         $this->where_parameters = array();
         return $this;
-    }  
-    
-    
+    }
+
+
 /*------------------------------------------------------------------------------
                                 Insert
-*-----------------------------------------------------------------------------*/    
+*-----------------------------------------------------------------------------*/
     /**
      * Insert new rows
      * $data can be 2 dimensional to add a bulk insert
      * If a single row is inserted, it will return it's row instance
      *
      * @param  array    $data - data to populate
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function insert(Array $data)
     {
@@ -834,7 +834,7 @@ class VoodOrm implements IteratorAggregate
             $this->debugSqlQuery(false);
             return false;
         }
-                
+
         $rowCount = $this->rowCount();
 
         if ($rowCount == 1) {
@@ -846,7 +846,7 @@ class VoodOrm implements IteratorAggregate
 
 /*------------------------------------------------------------------------------
                                 Updating
-*-----------------------------------------------------------------------------*/    
+*-----------------------------------------------------------------------------*/
     /**
       * Update entries
       * Use the query builder to create the where clause
@@ -861,7 +861,7 @@ class VoodOrm implements IteratorAggregate
         if (! is_null($data)) {
             $this->set($data);
         }
-        
+
         $values = array_values($this->_dirty_fields);
         $field_list = array();
 
@@ -880,20 +880,20 @@ class VoodOrm implements IteratorAggregate
         $values = array_merge($values, $this->getWhereParameters());
 
         $this->query($query, $values, false);
-        
+
         // Return the SQL Query
         if ($this->debug_sql_query) {
             $this->debugSqlQuery(false);
             return false;
         } else {
             $this->_dirty_fields = array();
-            return false;            
+            return false;
         }
     }
 
 /*------------------------------------------------------------------------------
                                 Delete
-*-----------------------------------------------------------------------------*/    
+*-----------------------------------------------------------------------------*/
     /**
      * Delete rows
      * Use the query builder to create the where clause
@@ -902,20 +902,22 @@ class VoodOrm implements IteratorAggregate
      */
     public function delete()
     {
+        $this->setSingleWhere();
+
         $query  = "DELETE FROM {$this->table_name}";
         $query .= $this->getWhereString();
 
         $q = $this->query($query, $this->getWhereParameters(), false);
-        
+
         // Return the SQL Query
         if ($this->debug_sql_query) {
             $this->debugSqlQuery(false);
             return false;
         } else {
-           return $this->rowCount(); 
+           return $this->rowCount();
         }
     }
-    
+
 /*------------------------------------------------------------------------------
                                 Set & Save
 *-----------------------------------------------------------------------------*/
@@ -925,7 +927,7 @@ class VoodOrm implements IteratorAggregate
      *
      * @param  mixed    $key
      * @param  mixed    $value
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function set($key, $value = null)
     {
@@ -941,23 +943,23 @@ class VoodOrm implements IteratorAggregate
 
     /**
      * Save, a shortcut to update() or insert().
-     * 
-     * @return mixed 
+     *
+     * @return mixed
      */
-    public function save() 
+    public function save()
     {
         if (! $this->where_conditions || ! $this->is_single) {
             return $this->insert($this->_data);
         } else {
             return $this->update();
         }
-    }    
+    }
 
 
 /*------------------------------------------------------------------------------
                                 AGGREGATION
 *-----------------------------------------------------------------------------*/
-    
+
     /**
      * Return the aggregate count of column
      *
@@ -1061,7 +1063,7 @@ class VoodOrm implements IteratorAggregate
         return $this->_data;
     }
 
-    
+
     public function __get($key)
     {
         return $this->get($key);
@@ -1075,7 +1077,7 @@ class VoodOrm implements IteratorAggregate
     public function __isset($key)
     {
         return isset($this->_data[$key]);
-    }    
+    }
 
 /*******************************************************************************/
 
@@ -1138,10 +1140,10 @@ class VoodOrm implements IteratorAggregate
                         $whereCondition = $args[0];
                     } else if ($args[0] instanceof Closure) {
                         $callback = $args[0];
-                    }                    
+                    }
                 }
 
-                 
+
                 array_shift($args);
 
             } while (count($args));
@@ -1286,7 +1288,7 @@ class VoodOrm implements IteratorAggregate
     /**
      * Reset fields
      *
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function reset()
     {
@@ -1322,40 +1324,40 @@ class VoodOrm implements IteratorAggregate
 
 /*******************************************************************************/
 // Query Debugger
-    
+
     /**
      * To debug the query. It will not execute it but instead using debugSqlQuery()
      * and getSqlParameters to get the data
-     * 
+     *
      * @param bool $bool
-     * @return Voodoo\VoodOrm 
+     * @return Voodoo\VoodOrm
      */
     public function debugSqlQuery($bool = true)
     {
         $this->debug_sql_query = $bool;
         return $this;
     }
-    
+
     /**
-     * Get the SQL Query with 
-     * 
-     * @return string 
+     * Get the SQL Query with
+     *
+     * @return string
      */
     public function getSqlQuery()
     {
         return $this->sql_query;
     }
-    
+
     /**
      * Return the parameters of the SQL
-     * 
+     *
      * @return array
      */
     public function getSqlParameters()
     {
         return $this->sql_parameters;
     }
-    
+
     /**
      * To profile all queries that have been executed
      *
@@ -1405,9 +1407,9 @@ class VoodOrm implements IteratorAggregate
     public function __clone()
     {
     }
-    
+
     public function __toString()
     {
         return $this->is_single ? $this->getPK() : $this->table_name;
-    }    
+    }
 }

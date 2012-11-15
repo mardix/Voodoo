@@ -44,6 +44,5 @@ require($VoodooPHP_Dir."/Voodoo/init.php");
     /**
      * Let's do it!
      */
-    $Voodoo = new Voodoo\Core\Voodoo($application, $segments, $routes);
-
-    $Voodoo->doMagic();
+    (new Voodoo\Core\Voodoo($application, $segments, $routes))->doMagic();
+    

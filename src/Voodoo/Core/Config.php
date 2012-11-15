@@ -59,6 +59,7 @@ class Config
     public function loadFile($file, $keyname = ""){
       $cnf = parse_ini_file($file, true);
       $this->set($cnf, $keyname);
+      return $this;
     }  
     
     
@@ -117,7 +118,7 @@ class Config
 
         $data = self::arrayToINI($this->toArray());
 
-        file_put_contents(Path::AppConfig()."/{$fileName}.ini", $data);
+        file_put_contents(Path::Config()."/{$fileName}.ini", $data);
 
         return $this;
     }
@@ -133,7 +134,7 @@ class Config
     public static function __callStatic($name, $args)
     {
         $ini = new self($name);
-        $file = Path::AppConfig()."/{$name}.ini";
+        $file = Path::Config()."/{$name}.ini";
         
         if(file_exists($file)) {
             $ini->loadFile($file);

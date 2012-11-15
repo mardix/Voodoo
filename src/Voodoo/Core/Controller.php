@@ -79,6 +79,8 @@ abstract class Controller
     private $modelNamespace = "";
 
     protected $httpStatusCode = 200;
+    
+    private $exit = false;
 //------------------------------------------------------------------------------
     /**
      * This is the index action.
@@ -102,7 +104,8 @@ abstract class Controller
 
         $namespace = $refClass->getNamespaceName();
 
-        $this->moduleName = current(array_splice(explode("\\", $namespace), -2));
+        $nsArr = explode("\\", $namespace);
+        $this->moduleName = current(array_splice($nsArr, -2));
         $this->namespace = $refClass->getName();
         $this->controllerName = $refClass->getShortName();
         $this->controllerNamespace = $namespace;
@@ -144,11 +147,25 @@ abstract class Controller
      */
     final public function __destruct()
     {
-        $this->finalize();
-        $this->renderView();
+        if ($this->exit) {
+            exit;
+        } else {
+            $this->finalize();
+            $this->renderView();            
+        }
     }
 
-
+    /**
+     * Using exit() anywhere, the __destruct() will still be executed
+     * _exit() will force the exit in the destructor itself
+     * @param bool $exit
+     * @return boolean
+     */
+    final protected function _exit($exit = true)
+    {
+        $this->exit = $exit;
+        return true;
+    }
 //------------------------------------------------------------------------------
 
     /**
@@ -266,8 +283,8 @@ abstract class Controller
      */
     public function getBaseUrl()
     {
-        $htaccessEnabled = Config::Application()->get("env.htaccessEnabled");
-        return Env::getUrl().($htaccessEnabled ? "" : "?");
+        $questionMark = Config::Application()->get("application.useUrlQuestionMark");
+        return $this->getSiteUrl().($questionMark ? "/?" : "");
     }
 
     /**
@@ -311,29 +328,25 @@ abstract class Controller
         $clsRef = new ReflectionClass($controller);
 
         if ($clsRef->isSubclassOf(__CLASS__)) {
-            $C = new $controller($params);
-            $C->disableView();
-            return $C;
+            return (new $controller($params))->disableView();
         } else {
             throw new Exception("Can't getController(). Controller '$controller' doesn't exists or not an instance of Voodoo\Core\Controller");
         }
     }
 
     /**
-     * useController, unlike getController, forward the current controller to a new controller and allows it to render the view, while it deactivate the current controller view.
+     * forward, unlike getController, forward the current controller to a new controller 
+     * and allows it to render the view, while it deactivate the current controller view.
      * All the settings and params will be forwarded to the new controller
      * @param type $Controller
      */
-    protected function useController($Controller, Array $params = array())
+    protected function forward($Controller, Array $params = array())
     {
-        $disableView = $this->disableView;
-
-        // Disable the current controller before forward
-        $this->disableView(true);
-
+        $this->_exit();
+        
         $params = array_merge_recursive($this->segments, $params);
         return $this->getController($Controller, $params)
-                        ->disableView($disableView);
+                        ->disableView($this->disableView);
     }
 
     /*     * **************************************************************************** */
@@ -344,10 +357,9 @@ abstract class Controller
      * It's purpose is to set the action to be rendered. You still can access the method the normal way $this->action_index
      * i.e $this->getAction("index");
      * @param  string     $action       - The action name without Action as suffix. ie: action_index() =  getAction("index")
-     * @param  bool       $renderAction - Calling getAction() will trigger the view for the action, set to false to disable it
      * @return Controller
      */
-    public function getAction($action = "index", $renderAction = true)
+    public function getAction($action = "index")
     {
         $action = strtolower(Helpers::camelize($action, false));
 
@@ -393,7 +405,6 @@ abstract class Controller
     protected function setActionView($view)
     {
         $this->actionView = $view;
-
         return $this;
     }
 
@@ -478,13 +489,14 @@ abstract class Controller
     {
         $model = (strpos('\\',$modelName) === 0)
                         ? $model
-                        : $this->modelNamespace."\\".Helpers::camelize($modelName, true);
+                        : $this->modelNamespace."\\"
+                            .Helpers::camelize($modelName, true);
 
         if (class_exists($model)) {
             return new $model;
+        } else {
+            throw new Exception("Model doesn't exist: {$model}"); 
         }
-
-        throw new Exception("Model doesn't exist: {$model}");
     }
 
     /*     * **************************************************************************** */
@@ -498,9 +510,8 @@ abstract class Controller
     public function getConfig($key = null)
     {
         if (!$this->config) {
-            $file = $iniFile ? : "{$this->moduleDir}/Config.ini";
-            $this->config = new Config($this->modelNamespace);
-            $this->config->loadFile($file);
+            $this->config = (new Config($this->modelNamespace))
+                                ->loadFile("{$this->moduleDir}/Config.ini");
         }
         return $this->config->get($key);
     }
@@ -582,51 +593,23 @@ abstract class Controller
 
     /**
      * To redirect the page to a new page
-     * @param type $path
+     * @param string $path
+     * @param int $httpCode 
      */
-    public function redirect($path = "")
+    public function redirect($path = "", $httpCode = 302)
     {
-        if (preg_match("/^\/|^http/", $path)) {
+        if (preg_match("/^http/", $path)) { // http://xyz
             $url = $path;
-        } else {
+        } else if(preg_match("/^\//", $path)) { // we'll add the ? if possible
+            $url = $this->getBaseUrl().$path; 
+        } else { // go to the current module
             $url = $this->getModuleUrl()."/{$path}";
         }
-        Helpers::redirect($url);
-        return true;
+       
+        $this->_exit();
+        return Http\Response::redirect($url, $httpCode);
     }
-
-
-// Magic Methods to Set and Unser
-    /**
-     * Assign global variables to be used in all controllers. To set a variable that will be used in its own controller, it must be defined prior .ie: public $varName;
-     * @param type $name
-     * @param type $var
-     */
-    public function __set($key, $value)
-    {
-        $this->vars[$key] = $var;
-    }
-    public function __get($key)
-    {
-        return (isset($this->vars[$key])) ? $this->vars[$key] : null;
-    }
-
-    public function __isset($key)
-    {
-        return (isset($this->vars[$key]));
-    }
-    public function __unset($key)
-    {
-        if (isset($this->vars[$key])) {
-            unset($this->vars[$key]);
-        }
-    }
-
-    public function __toString()
-    {
-        return $this->renderView(false);
-    }
-
+    
     /**
      * Return the parent namespace
      * @param type $namespace
@@ -634,6 +617,17 @@ abstract class Controller
      */
     private function getParentNamespace($namespace)
     {
-        return implode("\\",array_splice(explode("\\",$namespace),0,-1));
+        $nsArr = explode("\\", $namespace);
+        return implode("\\",array_splice($nsArr,0,-1));
     }
+    
+    /**
+     * Return the full name of the class
+     * 
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->controllerNamespace;
+    }    
 }

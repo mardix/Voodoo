@@ -57,7 +57,7 @@
     ; Voodoo will automatically load the files and assign them so the can be included with their alias. 
     ; ie: {{%include @PageMessage}}, this will include the file _includes/message.html
     ; Format: LoadTemplate[AliasNameOfTheFileToLoad] = "filename"
-    loadTemplate[PageMessage] = "_includes/message.html"
+    loadTemplate[PageFlashMessage] = "_includes/flash-message.html"
     loadTemplate[PagePagination] = "_includes/pagination.html"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

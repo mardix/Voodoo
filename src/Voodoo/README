@@ -26,21 +26,23 @@ Thank you
 
 === SETUP VOODOO ===
 Voodoo can be set up with Voodooist. It will setup the basic structure for you app.
+Go to your command line (terminal) and run the following code.
+Make sure you are in the right directory
 
-> cd Voodoo/Voodooist
+> cd ~/Voodoo/Voodooist
 > php -f do-voodoo.php
 
 
 Once done, you should have a structure that looks like this
 
-|_ /Voodoo
+|_ /Voodoo (contains Voodoo core classes)
 |
-|_ /VoodooApp
+|_ /App (Contains your mvc applications)
 |
-|_ /assets
+|_ /assets (Contain public assets css, js, img)
 |
-|_ index.php
+|_ index.php (front controller)
 |
-|_ .htaccess
+|_ .htaccess 
 |
 |_ robots.txt

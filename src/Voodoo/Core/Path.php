@@ -27,15 +27,14 @@ class Path
      * Default paths
      * @var Array
      */
-    private static $pathList = array(
-        "Base"      => "",
-        "Voodoo"    => "Voodoo",
-        "Voodooist"  => "Voodoo/Voodooist",
-        "VoodooApp" => "VoodooApp",
-        "AppConfig" => "VoodooApp/Config",
-        "Assets"    => "assets"
-        
-    );
+    private static $pathList = [
+        "Base"          => "",
+        "Voodoo"        => "Voodoo",
+        "Voodooist"     => "Voodoo/Voodooist",
+        "App"           => "App",
+        "Config"        => "App/Config",
+        "Assets"        => "assets"
+    ];
     
     /**
      * Set the base path
@@ -52,7 +51,7 @@ class Path
     }
     
     /** 
-     * To statically call path as method, ie Path::Voodoo(), Path::VoodooApp()
+     * To statically call path as method, ie Path::Voodoo(), Path::App()
      * 
      * @param string $name
      * @param null $args

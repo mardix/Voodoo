@@ -26,7 +26,7 @@ class Env {
      * 
      * @return bool
      */
-    public function isCLI()
+    public static function isCLI()
     {
         return php_sapi_name()=== "cli";
     }
@@ -36,7 +36,7 @@ class Env {
      * 
      * @return string
      */
-    public function getUrl()
+    public static function getUrl()
     {
         $domain = "http";
         $domain .= self::isHttps() ? "s" : "";
@@ -50,7 +50,7 @@ class Env {
      * 
      * @return string
      */
-    public function getServerName()
+    public static function getServerName()
     {
         return $_SERVER["SERVER_NAME"];
     }
@@ -60,7 +60,7 @@ class Env {
      * 
      * @return string
      */
-    public function getHostName()
+    public static function getHostName()
     {
         return $_SERVER["HTTP_HOST"];
     }
@@ -70,7 +70,7 @@ class Env {
      * 
      * @return bool
      */
-    public function isHttps()
+    public static function isHttps()
     {
         return (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== 'off') 
                 || ($_SERVER["SERVER_PORT"] == 443)  ;     
@@ -82,7 +82,7 @@ class Env {
      * 
      * @return string
      */
-    public function getPhpVersion()
+    public static function getPhpVersion()
     {
         return \PHP_VERSION;
     } 
@@ -93,9 +93,30 @@ class Env {
      * 
      * @return string
      */
-    public function getApplicationBaseDir()
+    public static function getApplicationBaseDir()
     {
         return str_replace("\\","/",pathinfo($_SERVER["SCRIPT_NAME"],PATHINFO_DIRNAME));
+    }
+    
+    /**
+     * Root of Voodoo directory
+     *
+     * @return string
+     */
+    public static function getRootDir()
+    {
+        return dirname(dirname(__DIR__));
+    }    
+    
+    /**
+     * To start a session if it's not active
+     * Once set, you can use $_SESSION to work with your data
+     */
+    public static function startSession()
+    {
+        if( session_status() !=  PHP_SESSION_ACTIVE) {
+            session_start();
+        }        
     }
 }
 

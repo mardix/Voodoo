@@ -12,7 +12,7 @@
  * -----------------------------------------------------------------------------
  *
  * @name    init
- * @desc    To initialize VoodooPHP
+ * @desc    include this file in the header to setup the environment
  */
 
 /*******************************************************************************/
@@ -23,22 +23,26 @@ ini_set('memory_limit', -1);
 
 $BASE_PATH = dirname(__DIR__);
 
+$REQUIRE_PHP_VERSION = "5.4";
+
+/**
+ *  Check PHP Version
+ */
+if (version_compare(PHP_VERSION, $REQUIRE_PHP_VERSION, '<') ) {
+    echo ("VoodooPHP requires PHP ".$REQUIRE_PHP_VERSION." or greater");
+    exit;
+}
+
 /*******************************************************************************/
 
 /**
- * Voodoo Autoloader
- * Voodoo requires classes to be namespaced per PSR-0 (https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md)
- * And classes can be placed anywhere in your application as long there are properly namespaced per PHP 5.3
- * ie:
- *      \namespace\package\Class => ROOT_DIR/namespace/package/Class.php
- *      \namespace\package_name\Class_Name => ROOT_DIR/namespace/package_name/Class/Name.php
- *
- * It's best not to put your own or third party classes in the Voodoo directory, as if you update to the latest version it will squash your files
- * Instead you can place them in Application/Lib or AddOn/. Or the worst case, at the root.
+ * Autoloader
+ * We'll set the autoloader at the base
  */
 include(__DIR__."/Core/Autoloader.php");
 Core\Autoloader::register($BASE_PATH);
 
+// Set the base path of the application
 Core\Path::setBase($BASE_PATH);
 
 /*******************************************************************************/
@@ -47,13 +51,7 @@ Core\Path::setBase($BASE_PATH);
  * So it can be merged with VoodooApp\Config\Application.ini
  * and be used as Core\Config::Application()
  */
-$Config = new Core\Config("Application");
-$Config->loadFile(__DIR__."/Config.ini");
-
-// Check HTACCESS existence. Can be overriden in the Application ini
-// [env] htaccessEnabled = true
-$htaccessEnabled = file_exists(dirname($_SERVER["SCRIPT_FILENAME"])."/.htaccess") ? true : false;
-$Config->set(array("htaccessEnabled" => $htaccessEnabled), "env");
+(new Core\Config("Application"))->loadFile(__DIR__."/Config.ini");
 
 /*******************************************************************************/
 

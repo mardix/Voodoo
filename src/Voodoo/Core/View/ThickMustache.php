@@ -13,34 +13,6 @@
  *                  include other template files
  *                  assign variables
  *                  defined raw blocks, which will not be converted upon render
- *
- * @link        http://github.com/mardix/ThickMustache
- * @twitter     @mardix
- * @license     MIT
- * @copyright   Copyright (c) 2012 - Mardix
- * @since       June 10 2012
- * @required    Mustache.php -> https://github.com/bobthecow/mustache.php
- * @required    PHP 5.3 or later
- * @version
- *
- * == Methods
- *      - __construct
- *
- *      - setDir()               : Set the working directort
- *
- *      - assign()               : Assign variables
- *
- *      - unassign()             : To unassign a var
- *
- *      - addTemplate()          : Add a template file
- *
- *      - addTemplateString()    : Add a template string
- *
- *      - render()               : render the template
- *
- *      - reparse()              : To reparse the template. By default template can be reparsed once.
- *
- *
  * == New Markups
  *
  *      - Include
@@ -56,14 +28,10 @@
 
 namespace Voodoo\Core\View;
 
-use Voodoo\Core;
-
-class ThickMustache extends Mustache
+class ThickMustache
 {
-    const VERSION = "1.0.2";
-
-    protected $assigned = array();
-
+    use TView;
+    
     protected $templates =  array();
 
     protected $templateDir = "";
@@ -78,7 +46,6 @@ class ThickMustache extends Mustache
      */
     public function __construct($templateDir="")
     {
-       parent::__construct();
        $this->setDir($templateDir);
     }
 
@@ -92,48 +59,7 @@ class ThickMustache extends Mustache
       $this->templateDir =   preg_match("!/$!",$dir) ? $dir : "{$dir}/";
       return $this;
     }
-    /**
-     * Assign variable
-     * @param  mixed          $key - can be string, dot notation k/v, or array to set data as bulk
-     * @param  mixed          $val - can be string, numeric, closure, array
-     * @return \ThickMustache
-     */
-    public function assign($key, $val="")
-    {
-        if (is_string($key) || is_array($key)) {
-            $data = array();
 
-            if (is_string($key)) {
-                if (preg_match("/\./",$key)) { // dot notation keys
-                    Core\Helpers::setArrayToDotNotation($data, $key, $val);
-                } else {
-                  $data[$key] = $val;
-                }
-            } else {
-                $data = $key;
-            }
-
-            $this->assigned = array_merge_recursive($data,$this->assigned);
-
-            return $this;
-
-        } else {
-            throw new Core\Exception("Can't assign() $key. Invalid key type. Must be string or array");
-        }
-    }
-
-    /**
-     * To unassign variable by key name
-     * @param  string         $key, the key name associated when it was created
-     * @return \ThickMustache
-     */
-    public function unassign($key)
-    {
-        if(is_string($key) && isset($this->assigned[$key])){
-            unset($this->assigned[$key]);
-        }
-        return $this;
-    }
 
     /**
      * To add a template file
@@ -178,14 +104,14 @@ class ThickMustache extends Mustache
      * @param  array  $data - data for this context
      * @return string if success, or false
      */
-    public function render($name,Array $data = array())
+    public function renderMustache($name, Array $data = array())
     {
         $this->parse();
-
         if (isset($this->templates[$name])) {
-            $r = parent::render($this->templates[$name],array_merge($this->assigned,$data));
+            $data = array_merge($this->assigned,$data);
+            $template = (new Mustache($this->templates[$name], $data))->render();
             // replace the raws and return
-            return str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$r);
+            return str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$template);
         }
         return false;
     }
@@ -199,7 +125,6 @@ class ThickMustache extends Mustache
         $this->parsed = false;
         return $this;
     }
-/*******************************************************************************/
 
     /**
      * Load the template file
@@ -262,7 +187,6 @@ class ThickMustache extends Mustache
                 }
             }
         }
-
         return $template;
     }
 
@@ -279,8 +203,9 @@ class ThickMustache extends Mustache
                     // Anything with @Reference
                     if (preg_match("/^@/",$src)) {
                         $tplRef = preg_replace("/^@/","",$matches[1][$k]);
-                        if(isset($this->templates[$tplRef]))
+                        if (isset($this->templates[$tplRef])) {
                             $this->templates[$kk] = str_replace($matches[0][$k],$this->templates[$tplRef],$this->templates[$kk]);
+                        }
                     }
                 }
             }
