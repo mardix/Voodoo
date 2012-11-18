@@ -25,7 +25,7 @@ class Config
      * Hold topics list that has been loaded
      * @var Array
      */
-    private static $Config = array();
+    private static $Config = [];
 
     private $namespace = "";
    
@@ -39,7 +39,10 @@ class Config
         $this->namespace = $namespace;
         
         if (!$this->namespaceExists()) {
-            self::$Config[$this->namespace] = array();
+            self::$Config[$this->namespace] = [
+                "__called" => false,
+                "data" => []
+            ];
         }
     }
    
@@ -47,9 +50,20 @@ class Config
      * Check if a namespace exists
      * @return bool
      */
-    public function namespaceExists(){
+    public function namespaceExists()
+    {
         return isset(self::$Config[$this->namespace]);
     }
+    
+    /**
+     * Return the namespace data
+     * @return Array
+     */
+    public function getNamespace()
+    {
+        return self::$Config[$this->namespace];
+    }
+    
     /**
      * To load an .ini file
      * 
@@ -57,9 +71,9 @@ class Config
      * @param type $keyname 
      */
     public function loadFile($file, $keyname = ""){
-      $cnf = parse_ini_file($file, true);
-      $this->set($cnf, $keyname);
-      return $this;
+        $cnf = parse_ini_file($file, true);
+        $this->set($cnf, $keyname);  
+        return $this;
     }  
     
     
@@ -70,7 +84,7 @@ class Config
     */
    public function toArray()
    {
-      return self::$Config[$this->namespace];
+      return $this->getNamespace()["data"];
    }
 
     /**
@@ -95,14 +109,13 @@ class Config
     public function set(Array $data, $keyName="")
     {
         if($keyName){
-            if (!isset(self::$Config[$this->namespace][$keyName])){
-                self::$Config[$this->namespace][$keyName] = array();
+            if (!isset($this->getNamespace()["data"][$keyName])){
+                self::$Config[$this->namespace]["data"][$keyName] = array();
             }
-            self::$Config[$this->namespace][$keyName] = Helpers::arrayExtend(self::$Config[$this->namespace][$keyName], $data);
+            self::$Config[$this->namespace]["data"][$keyName] = Helpers::arrayExtend($this->getNamespace()["data"][$keyName], $data);
         } else {
-            self::$Config[$this->namespace] = Helpers::arrayExtend(self::$Config[$this->namespace], $data);
+            self::$Config[$this->namespace]["data"] = Helpers::arrayExtend($this->getNamespace()["data"], $data);
         }
-
         return $this;
     }
 
@@ -115,11 +128,8 @@ class Config
     public function save($fileName="")
     {
         $fileName = $fileName ?: $this->namespace;
-
         $data = self::arrayToINI($this->toArray());
-
         file_put_contents(Path::Config()."/{$fileName}.ini", $data);
-
         return $this;
     }
 
@@ -127,21 +137,24 @@ class Config
      * Statically load any INI file. IE \Core\INI::Settings()->toArray()
      * @param  type $name
      * @param  type $args
-     * @return INI
-     * Set the 1st agrs to false to not show error if class doesnt exist
-     *  Core\INI::Settings(false)->toArray()
+     * @return Config
      */
     public static function __callStatic($name, $args)
     {
         $ini = new self($name);
-        $file = Path::Config()."/{$name}.ini";
         
-        if(file_exists($file)) {
-            $ini->loadFile($file);
-        } else if(!$ini->namespaceExists()) {
-            throw new Exception("INI File '{$file}' doesn't exist");
-        }
-        return $ini;
+        if($ini->getNamespace()["__called"]) {
+            return $ini;
+        } else {
+            $file = Path::Config()."/{$name}.ini";
+            if(file_exists($file)) {
+                $ini->loadFile($file);
+                self::$Config[$ini->namespace]["__called"] = true;
+            } else if(!$ini->namespaceExists()) {
+                throw new Exception("INI File '{$file}' doesn't exist");
+            }
+            return $ini;            
+       }
     }
 
     /**
