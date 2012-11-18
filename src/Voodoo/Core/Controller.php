@@ -80,7 +80,9 @@ abstract class Controller
 
     protected $httpStatusCode = 200;
     
-    private $exit = false;
+    protected $exit = false;
+    
+    protected $reflection = null;
 //------------------------------------------------------------------------------
     /**
      * This is the index action.
@@ -100,16 +102,16 @@ abstract class Controller
         /**
          * Built variables based on the controller
          */
-        $refClass = new ReflectionClass(get_called_class());
+        $this->reflection = new ReflectionClass(get_called_class());
 
-        $namespace = $refClass->getNamespaceName();
+        $namespace = $this->reflection->getNamespaceName();
 
         $nsArr = explode("\\", $namespace);
         $this->moduleName = current(array_splice($nsArr, -2));
-        $this->namespace = $refClass->getName();
-        $this->controllerName = $refClass->getShortName();
+        $this->namespace = $this->reflection->getName();
+        $this->controllerName = $this->reflection->getShortName();
         $this->controllerNamespace = $namespace;
-        $this->moduleDir = dirname(dirname($refClass->getFileName()));
+        $this->moduleDir = dirname(dirname($this->reflection->getFileName()));
         $this->moduleRootDir = dirname($this->moduleDir);
         $this->moduleNamespace = $this->getParentNamespace($namespace);
         $this->modelNamespace = $this->moduleNamespace."\\Model";
@@ -117,7 +119,6 @@ abstract class Controller
         $this->segments = $segments;
 
         $this->init();
-
     }
 
     /**
@@ -147,9 +148,7 @@ abstract class Controller
      */
     final public function __destruct()
     {
-        if ($this->exit) {
-            exit;
-        } else {
+        if (! $this->exit) {
             $this->finalize();
             $this->renderView();            
         }
@@ -157,7 +156,7 @@ abstract class Controller
 
     /**
      * Using exit() anywhere, the __destruct() will still be executed
-     * _exit() will force the exit in the destructor itself
+     * _exit() will force the destructor to not execute the finalize or render
      * @param bool $exit
      * @return boolean
      */
@@ -246,11 +245,21 @@ abstract class Controller
         return $this->controllerName;
     }
 
+    /**
+     * Get the module directory
+     * 
+     * @return string
+     */
     public function getModuleDir()
     {
         return $this->moduleDir;
     }
 
+    /**
+     * Get the module root dir
+     * 
+     * @return string
+     */
     public function getModuleRootDir()
     {
         return $this->moduleRootDir;
@@ -258,6 +267,7 @@ abstract class Controller
 
     /**
      * To get the request uri. It includes everything in the URI
+     * 
      * @return string
      */
     public function getRequestURI()
@@ -289,6 +299,7 @@ abstract class Controller
 
     /**
      * Return the site url itself
+     * 
      * @uses    : To get the site url
      * @example : http://mysite.com/
      * @return string
@@ -300,6 +311,7 @@ abstract class Controller
 
     /**
      * Return the URL of the module
+     * 
      * @uses    : Get the module url
      * @return string
      */
@@ -314,7 +326,8 @@ abstract class Controller
     /**
      * To access another controller without rendering it
      *
-     * @param string $controllerName
+     * @param string $controllerName. If it starts with \ (backslash) 
+     * it will load it from the absolute path, otherwise it loads from the current namespace
      * @param array $params
      * @return \Voodoo\Core\controller
      * @throws Exception
@@ -353,8 +366,8 @@ abstract class Controller
 
 // ACTION
     /**
-     * Load an action by providing just the name with the Action suffix.
-     * It's purpose is to set the action to be rendered. You still can access the method the normal way $this->action_index
+     * Load an action by providing just the name without the Action suffix.
+     * Its purpose is to set the action to be rendered. You still can access the method the normal way $this->action_index
      * i.e $this->getAction("index");
      * @param  string     $action       - The action name without Action as suffix. ie: action_index() =  getAction("index")
      * @return Controller
@@ -366,26 +379,13 @@ abstract class Controller
         $actionName = "action_{$action}";
 
         if (method_exists($this, $actionName)) {
-
-            $this->actionName = strtolower(Helpers::camelize($action, false));
+            $this->actionName = $action;
             $this->setActionView($this->actionName);
-
             $this->{$actionName}();
         } else {
             throw new Exception("Action '{$actionName}' doesn't exist in " . get_called_class());
         }
-
         return $this;
-    }
-
-    /**
-     * Set the action name. It will be used to render the view
-     * @param  type       $action
-     * @return Controller
-     */
-    protected function setActionName($action)
-    {
-        return $this->setActionView($action);
     }
 
     /**
@@ -479,7 +479,9 @@ abstract class Controller
 // MODEL
     /**
      * Access the module's model, or load it from another module
-     * @param string $modelName  - The name of the model to use.
+     * @param string $modelName  - The name of the model to use. 
+     * If it starts with a \ (blackslah), it will load the model from there
+     * Otherwise it loads the model from the current NS
      * @return Model
      * @throws Exception
      * @example $this->getModel("Users");
@@ -510,7 +512,7 @@ abstract class Controller
     public function getConfig($key = null)
     {
         if (!$this->config) {
-            $this->config = (new Config($this->modelNamespace))
+            $this->config = (new Config($this->controllerNamespace))
                                 ->loadFile("{$this->moduleDir}/Config.ini");
         }
         return $this->config->get($key);
