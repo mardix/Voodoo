@@ -512,8 +512,9 @@ abstract class Controller
     public function getConfig($key = null)
     {
         if (!$this->config) {
+            $configFile = "{$this->applicationDir}/Config.ini";
             $this->config = (new Config($this->controllerNamespace))
-                                ->loadFile("{$this->moduleDir}/Config.ini");
+                                ->loadFile($configFile);
         }
         return $this->config->get($key);
     }
