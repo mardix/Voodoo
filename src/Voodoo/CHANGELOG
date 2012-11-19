@@ -1,0 +1,17 @@
+version 0.6
+Nov 19 2012
+- Applications now have their own config
+- Routes are now in their own application config
+- Voodoo now loads from the application config
+- In Core\Controller, the config loads the application's config
+- Core/Router.php : fix leading slash in uri
+- Core/Config.php : When loading file makes sure file exists
+- Core/Controller: change method to getApplicationDir()
+- Voodooist update
+- bug fixes
+- refactoring
+
+
+
+Version: 0.1 - 0.5
+Lost track, but we got to 0.5 :)
