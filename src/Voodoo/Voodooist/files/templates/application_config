@@ -1,20 +1,70 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-; {{GENERATOR}} - Module's Settings File
+; {{GENERATOR}} - Application ({{APPLICATIONNAME}}) config
 ; 
-; Add your Module's settings in this file
+; This contains your application config
 ; It will be automatically loaded and data can be accessed in your controller with $this->getConfig()
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Since: {{DATE}}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Application settings
+; 
+[application]
+    ; The name of the application
+    name = "{{APPLICATIONNAME}}"
 
-; Set The applications settings  for this module     
-[Application]
-    moduleName = {{MODULENAME}}
+    ; Default Module name. 
+    ; By default, if a module is not provided, it will load the default module
+    ; Default module: Main
+    defaultModule = "Main"
+
+    ; Default Controller name
+    ; By default, if a controller is not provided, it will load the default controller
+    ; Default controller: Index
+    defaultController = "Index"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Routes
+;
+; This is your Router Settings
+;
+; The Routes map URL to different Module/Controller/Action, and conversely to generate URLs. 
+;        Router makes it easy to create pretty and concise URLs that are RESTful with little effort.
+;
+;  Use of Wildcards:
+;  Router use some wildcards to quickly match part of the url and replace it with the proper regex values
+;   (:any)  : Will match anything
+;   (:num)  : will match only numeric values
+;   (:alpha) : will match only alphabetical values
+;   (:alphanum) : will match alpha and numerical values
+;   
+;  Use of Regex
+;  Router allow you to use your own regexp to do more complex stuff
+;
+; Reference: /Voodoo/Core/Router.php
+; 
+; examples
+; - With wildcards
+;       path["(:any)"] = "$1"
+; - For GET or POST
+;       path["POST /mypath/(:num)"] = "" // Will do only for post
+; - With regexp
+;       path["/universe/([sky|moon]+)/"] = "world/$1" 
+;
+; Default config
+; [routes]
+;   path["(:any)"] = "$1"
+;
+[routes]
+    path["(:any)"] = "$1"
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Views
 ; Setting that will be used in your view
 [views]

@@ -10,8 +10,13 @@ include_once(dirname(__DIR__)."/init.php");
 use Voodoo\Core,
     Voodoo\Voodooist;
 
+// echo message
 function e($msg) {
     echo "$msg \n";
+}
+// create tab
+function t($multiplier = 1){
+    return str_repeat("\t",$multiplier ? : 1);
 }
 
 if(!Core\Env::isCli()) {
@@ -26,7 +31,7 @@ if(!Core\Env::isCli()) {
     e("-----------------------------------------------------------------------");
 
     // /VoodooApp
-     if (! file_exists(Core\Path::Config()."/Application.ini")) {
+     if (! file_exists(Core\Path::Config()."/System.ini")) {
         e("> creating Dir: ".Core\Path::App());
         $BlackMagic->createVoodooApp();
     }
@@ -74,14 +79,14 @@ if(!Core\Env::isCli()) {
                     if ($BlackMagic->createModule($module["name"], $module["template"], $isApi, $omitViews) ){
                         $moduleAction = $created;
                     }
-                    e("\t|");
-                    e("\t|_{$module["name"]}");
+                    e(t()."|");
+                    e(t()."|_{$module["name"]}");
 
 
                     // Create controllers
                     if (isset($module["controllers"])) {
 
-                        e("\t\t|_ Controller");
+                        e(t(2)."|_ Controller");
 
                         foreach ($module["controllers"] as $controller) {
 
@@ -95,8 +100,8 @@ if(!Core\Env::isCli()) {
                                 $controllerAction = $created;
                             }
 
-                            e("\t\t\t|");
-                            e("\t\t\t|_{$controller["name"]} {$controllerAction}");
+                            e(t(3)."|");
+                            e(t(3)."|_{$controller["name"]} {$controllerAction}");
 
                             // actions
                             if (isset($controller["actions"])) {
@@ -105,8 +110,8 @@ if(!Core\Env::isCli()) {
                                     if($BlackMagic->addAction($action)) {
                                        $actionAction = $created;
                                     }
-                                    e("\t\t\t\t|");
-                                    e("\t\t\t\t|_{$action} {$actionAction}");
+                                    e(t(4)."|");
+                                    e(t(4)."|_{$action} {$actionAction}");
                                 }
                             }
                         }
@@ -115,14 +120,14 @@ if(!Core\Env::isCli()) {
                     // Create Models
                     if (isset($module["models"])) {
 
-                        e("\t\t|");
-                        e("\t\t|_ Model");
+                        e(t(2)."|");
+                        e(t(2)."|_ Model");
 
                         foreach ($module["models"] as $model) {
                             $BlackMagic->createModel($model["name"], $model["dbAlias"], $model["table"], $model["primaryKey"], $model["foreignKey"]);
 
-                            e("\t\t\t|");
-                            e("\t\t\t|_{$model["name"]}");                       }
+                            e(t(3)."|");
+                            e(t(3)."|_{$model["name"]}");                       }
                     }
                 }
             }
@@ -130,16 +135,3 @@ if(!Core\Env::isCli()) {
 
     e("Done!");
 }
-
-
-/**
- * The application's library
- */
-
-
-
-
-/*******************************************************************************/
-
-
-

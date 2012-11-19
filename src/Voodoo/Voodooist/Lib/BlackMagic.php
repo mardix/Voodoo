@@ -152,6 +152,10 @@ class BlackMagic
         $this->applicationName = $this->formatName($name);
         $this->applicationPath = Core\Path::App()."/{$this->applicationName}";
         $this->applicationNS = "App\\{$this->applicationName}";
+        
+        $file = $this->applicationPath."/Config.ini";
+        
+        $this->saveTpl("application_config",$file,["APPLICATIONNAME"=>$this->applicationName]);        
     }
 
 
@@ -173,10 +177,6 @@ class BlackMagic
         
         $this->mkdir($appControllerDir);
         $this->mkdir($appModelDir);
-        
-        $file = $this->applicationPath."/{$module}/Config.ini";
-        
-        $this->saveTpl("module_config",$file,array("MODULENAME"=>$module,"TEMPLATENAME"=>$templateDir));
 
         if (! $isApi) {
             
