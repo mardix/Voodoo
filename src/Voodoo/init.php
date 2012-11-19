@@ -51,12 +51,12 @@ Core\Path::setBase($BASE_PATH);
  * So it can be merged with VoodooApp\Config\Application.ini
  * and be used as Core\Config::Application()
  */
-(new Core\Config("Application"))->loadFile(__DIR__."/Config.ini");
+(new Core\Config("System"))->loadFile(__DIR__."/System.ini");
 
 /*******************************************************************************/
 
 // Set the system timezone
-date_default_timezone_set(Core\Config::Application()->get("system.timezone"));
+date_default_timezone_set(Core\Config::System()->get("timezone"));
 
 // Error reporting
-error_reporting(Core\Config::Application()->get("system.errorReporting"));
+error_reporting(Core\Config::System()->get("errorReporting"));
