@@ -41,15 +41,17 @@ class Voodoo
 /*******************************************************************************/
     
     
-    private $segments = array();
+    private $segments = [];
 
     private $moduleName = "";
 
     private $controllerName = "";
 
     private $action = "";
-
-    private $modulesPath = "";
+    
+    private $config = [];
+    
+    private $applicationPath = "";
 
     private $baseNamespace = "";
 
@@ -66,19 +68,21 @@ class Voodoo
      * @param string $URI         : Use a URI string in this format: /Module/Controller/Action. ie: /Store/Items/Delete/1
      * @param array  $Routes      : to override the default route
      */
-    public function __construct($appName = "www", $URI = "/", Array $Routes = array())
+    public function __construct($appName = "www", $URI = "/", Array $Routes = [])
     {
-        $appName = $this->formatName($appName, true);
-        $application = Path::App()."/{$appName}";
-        
-        $this->setModulesPath($application);
+        $this->setApplicationPath($appName);
 
+        $configFile = $this->applicationPath."/Config.ini";
+        $this->config = (new Core\Config("VoodooApp"))->loadFile($configFile);
+
+        $Routes = (count($Routes)) ? $Routes : $this->config->get("routes.path");
+        
         // Make sure we add the trailing slash
         $URI .= (!preg_match("/\/$/",$URI)) ? "/" : "";
 
         // Reroute the URI based on Routes
-        $URI = Router::Create($Routes)->parse($URI);
-
+        $URI = (new Router($Routes))->parse($URI);
+        
         /**
          * Build the URI segments that will be used to redirect to wherever in the application
          * /Module/Controller/Action
@@ -96,8 +100,7 @@ class Voodoo
     public function getModulesPath($module = "")
     {
         $module = $this->formatName($module,true);
-
-        return $this->modulesPath.($module ? ("/".$module): "");
+        return $this->applicationPath.($module ? ("/".$module): "");
     }
 
     /**
@@ -106,14 +109,14 @@ class Voodoo
      * @param  string      $path
      * @return Core\Voodoo
      */
-    public function setModulesPath($path)
+    public function setApplicationPath($appName)
     {
-        $this->modulesPath = $path;
+        $this->applicationPath = Path::App()."/".($this->formatName($appName, true));
         $basename = str_replace(array(Env::getRootDir(), "/","."), array("", "\\",""), $this->getModulesPath());
         $this->baseNamespace = preg_replace("/^\\\/", "", $basename);
-
         return $this;
     }
+    
     /**
      * doMagic
      * Abracadabra!
@@ -121,20 +124,19 @@ class Voodoo
      * This is how it works, if a segment exist as Module,Controller,Action,
      * it will shift it and the segment will become the current
      * 
-     * @param   string $module  - To change the default module
-     * @param   string $controller - To change the default controller
      * @return Voodoo
      * @throws Core\Exception
      */
-    public function doMagic($module = "", $controller = "")
+    public function doMagic()
     {
-        if ($module){
-            $this->defaultModule = $module;
-        }
-        if ($controller) {
-            $this->defaultController = $controller;
+        
+        if($this->config->get("application.defaultModule")) {
+            $this->defaultModule = $this->config->get("application.defaultModule");
         }
         
+        if($this->config->get("application.defaultController")) {
+            $this->defaultController = $this->config->get("application.defaultController");
+        }
         
          /**
           * Set Module
@@ -212,11 +214,9 @@ class Voodoo
              array_shift($this->segments);
 
          } catch (ReflectionException $e) {
-
              try {
                  // Fall back to Index
                  $this->controllerName = $this->formatName($this->defaultController, true);
-
              } catch (ReflectionException $e2) {
                  throw new Exception("Controller :'$this->controllerName' is not found in Module: '{$this->moduleName}'","",$e2->getPrevious());
              }
