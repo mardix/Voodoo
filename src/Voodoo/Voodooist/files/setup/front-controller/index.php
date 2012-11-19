@@ -22,27 +22,18 @@ require($VoodooPHP_Dir."/Voodoo/init.php");
 
     /**
      * Set the default app to access. By default it's Www
-     * 
-     * @string
+     * @type string
      */
-    $application = Voodoo\Core\Config::Application()->get("application.defaultApp");
+    $application = "www";
 
     /**
      * The URI
-     * 
-     * @string
+     * @type string
      */
     $segments = implode("/",Voodoo\Core\Http\Request::getUrlSegments());
 
     /**
-     * The routes
-     * 
-     * @array
-     */
-    $routes = Voodoo\Core\Config::Routes()->get("Routes") ?: array();
-
-    /**
      * Let's do it!
      */
-    (new Voodoo\Core\Voodoo($application, $segments, $routes))->doMagic();
+    (new Voodoo\Core\Voodoo($application, $segments))->doMagic();
     
