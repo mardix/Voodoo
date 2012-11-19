@@ -69,7 +69,7 @@ class Router
 {
     const Name = "Router";
 
-    const Version = "1.1";
+    const Version = "1.1.1";
 
 
     /**
@@ -146,7 +146,6 @@ class Router
                 $nR2[$this->removeLeadingSlash($k)] = $this->removeLeadingSlash($v);
             }
         }
-
         $this->routes = array_merge($this->routes,$nR);
         $this->routesExtended = array_merge($this->routesExtended,$this->routes,$nR2);
 
@@ -160,47 +159,40 @@ class Router
      */
     public function parse($uri)
     {
-            $originalUri = $uri;
-            $qs = "";
+        $uri = $this->removeLeadingSlash($uri);
+        $originalUri = $uri;
+        $qs = "";
 
-            if ($this->allowQuery && strpos( $uri, '?' ) !== false ) {
-                // Break the query string off and attach later
-                $qs = '?'.parse_url( $uri, PHP_URL_QUERY );
-                $uri = str_replace( $qs, '', $uri );
-            }
+        if ($this->allowQuery && strpos( $uri, '?' ) !== false ) {
+            // Break the query string off and attach later
+            $qs = '?'.parse_url( $uri, PHP_URL_QUERY );
+            $uri = str_replace( $qs, '', $uri );
+        }
 
-            // Is there a literal match?
-            if (isset($this->routes[$uri])){
-                return $this->routes[$uri].$qs;
-            }
+        // Is there a literal match?
+        if (isset($this->routes[$uri])){
+            return $this->routes[$uri].$qs;
+        }
 
-            $Routes = $this->getRoutes(true);
+        $Routes = $this->getRoutes(true);
 
-            /**
-             * Check each route against the URI
-             */
-            foreach ($Routes as $route) {
-
-                $key = str_replace(array_keys($this->wildCards),array_values($this->wildCards),$route["From"]);
-
-                $method = $route["RequestMethod"];
-
-                $val = $route["To"];
-
-                if (preg_match("#^{$key}$#i", $uri)) {
-
-                    // Do we have a back-reference?
-                    if(strpos($val,'$')!== false && strpos($key,"(")!== false){
-                        $val = preg_replace("#^{$key}$#i",$val,$uri);
-                    }
-
-                    $route = $val.$qs;
-
-                    return ($method && $this->requestMethod =! $method) ? $originalUri : $route;
+        /**
+         * Check each route against the URI
+         */
+        foreach ($Routes as $route) {   
+            $key = str_replace(array_keys($this->wildCards),array_values($this->wildCards),$route["From"]);
+            $method = $route["RequestMethod"];
+            $val = $route["To"];
+            if (preg_match("#^{$key}$#i", $uri)) {
+                // Do we have a back-reference?
+                if(strpos($val,'$')!== false && strpos($key,"(")!== false){
+                    $val = preg_replace("#^{$key}$#i",$val,$uri);
                 }
+                $route = $val.$qs;
+                return ($method && $this->requestMethod =! $method) ? $originalUri : $route;
             }
-
-            return $originalUri;
+        }
+        return $originalUri;
     }
 
     /**
@@ -222,23 +214,18 @@ class Router
     public function getRoutes($addExtendedRoutes = false)
     {
         $arr = [];
-
         foreach (($addExtendedRoutes ? $this->routesExtended : $this->routes) as $key => $val) {
-
             $method = "";
-
             if (preg_match("/^(POST|GET)\s+/i",$key,$m)) {
                 $method = strtoupper($m[1]);
                 $key = preg_replace("/^(POST|GET)\s+/i","",$key);
             }
-
             $arr[] = [
                 "RequestMethod" => $method,
                 "From" => $key,
                 "To" => $val
             ];
         }
-
         return $arr;
     }
 
