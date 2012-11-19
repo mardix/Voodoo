@@ -71,9 +71,13 @@ class Config
      * @param type $keyname 
      */
     public function loadFile($file, $keyname = ""){
-        $cnf = parse_ini_file($file, true);
-        $this->set($cnf, $keyname);  
-        return $this;
+        if(! file_exists($file)) {
+            throw new Exception("File: '$file' doesn't exist or is not readable");
+        } else {
+            $cnf = parse_ini_file($file, true);
+            $this->set($cnf, $keyname);  
+            return $this;            
+        }
     }  
     
     
