@@ -153,6 +153,8 @@ class BlackMagic
         $this->applicationPath = Core\Path::App()."/{$this->applicationName}";
         $this->applicationNS = "App\\{$this->applicationName}";
         
+        $this->mkdir($this->applicationPath);
+        
         $file = $this->applicationPath."/Config.ini";
         
         $this->saveTpl("application_config",$file,["APPLICATIONNAME"=>$this->applicationName]);        
