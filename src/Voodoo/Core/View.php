@@ -29,7 +29,7 @@ class View extends View\ThickMustache
 
     protected $moduleName,
                 $controllerName,
-                $modulesPath,
+                $applicationPath,
                 $viewsPath,
                 $controllerPath,
                 $body,
@@ -59,7 +59,7 @@ class View extends View\ThickMustache
 
         $this->controllerName = $this->controller->getControllerName();
 
-        $this->modulesPath = $this->controller->getModuleRootDir();
+        $this->applicationPath = $this->controller->getApplicationDir();
 
         $this->viewsPath = $this->controller->getModuleDir() . "/Views";
 
@@ -67,24 +67,23 @@ class View extends View\ThickMustache
 
         parent::__construct($this->controllersViewPath);
 
-        $this->assign(array(
-            "App" => array(
+        $this->assign([
+            "App" => [
                 "Copyright" => "Copyright &copy; " . date("Y"), // Copyright (c) 2012
                 "CurrentYear" => date("Y"), // The current year
 
                 "SiteUrl" => $this->controller->getSiteUrl(),
                 "Url" => $this->controller->getBaseUrl(),
 
-                "Module" => array(
+                "Module" => [
                     "Name"      => $this->moduleName,
                     "Url"       => $this->controller->getModuleUrl(),
                     "Assets"    => $this->getModuleAssetsDir()
-                ),
+                ],
 
                 "Assets"    => $this->getPublicAssetsDir()
-
-            ),
-        ));
+            ],
+        ]);
 
     }
 
@@ -347,10 +346,12 @@ class View extends View\ThickMustache
             foreach ($Prop as $property => $content) {
 
                 if (is_array($content)) {
-                    foreach ($content as $cv)
+                    foreach ($content as $cv) {
                         $this->setOpenGraphTag($property, $cv);
-                } else
+                    }
+                } else {
                     $this->setOpenGraphTag($property, $content);
+                }
             }
         } elseif (is_string($Prop) && $content) {
             $this->assign("App.Page.MetaTags", 
@@ -440,7 +441,7 @@ class View extends View\ThickMustache
             $src = ($absolutePath || preg_match("/^({$this->controllerName}|_[\w]+)/", $src)) ? $src : "{$this->controllerName}/{$src}";
 
             if ($Controller) {
-                $src = $this->addFileExtension($this->modulesPath . "/{$Module}/Views/{$Controller}/$viewAction");
+                $src = $this->addFileExtension($this->applicationPath . "/{$Module}/Views/{$Controller}/$viewAction");
                 $absolutePath = true;
             }
         }
@@ -487,7 +488,7 @@ class View extends View\ThickMustache
 
         $root = Env::getRootDir();
         $baseDir = Config::Application()->get("VoodooApp.BaseDir") == "/" ? "" : Config::Application()->get("VoodooApp.BaseDir");
-        $modulePath = str_replace(array($root, "\\", $baseDir),  array("", "/",""),$this->modulesPath);
+        $modulePath = str_replace(array($root, "\\", $baseDir),  array("", "/",""),$this->applicationPath);
         $url = preg_replace("/\/$/","",$this->controller->getSiteUrl());
         return $url.$modulePath."/$path";
 

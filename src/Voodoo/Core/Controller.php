@@ -73,7 +73,7 @@ abstract class Controller
      */
     private $disableView = false;
     private $moduleDir = "";
-    private $moduleRootDir = "";
+    private $applicationDir = "";
     private $moduleNamespace = "";
     private $controllerNamespace = "";
     private $modelNamespace = "";
@@ -112,7 +112,7 @@ abstract class Controller
         $this->controllerName = $this->reflection->getShortName();
         $this->controllerNamespace = $namespace;
         $this->moduleDir = dirname(dirname($this->reflection->getFileName()));
-        $this->moduleRootDir = dirname($this->moduleDir);
+        $this->applicationDir = dirname($this->moduleDir);
         $this->moduleNamespace = $this->getParentNamespace($namespace);
         $this->modelNamespace = $this->moduleNamespace."\\Model";
 
@@ -256,13 +256,13 @@ abstract class Controller
     }
 
     /**
-     * Get the module root dir
+     * Get the application
      * 
      * @return string
      */
-    public function getModuleRootDir()
+    public function getApplicationDir()
     {
-        return $this->moduleRootDir;
+        return $this->applicationDir;
     }
 
     /**
@@ -293,7 +293,7 @@ abstract class Controller
      */
     public function getBaseUrl()
     {
-        $questionMark = Config::Application()->get("application.useUrlQuestionMark");
+        $questionMark = Config::System()->get("useUrlQuestionMark");
         return $this->getSiteUrl().($questionMark ? "/?" : "");
     }
 
