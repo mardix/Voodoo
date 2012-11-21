@@ -25,6 +25,8 @@ use ReflectionClass,
 
 abstract class Controller
 {
+    use Controller\TAnnotation;
+    
     /**
      * Segments passed
      * @var array
@@ -388,6 +390,15 @@ abstract class Controller
         return $this;
     }
 
+    /**
+     * Return the full name of the method
+     * @return string
+     */
+    public function getActionMethodName()
+    {
+        return "action_".$this->getActionName();
+    }
+    
     /**
      * Return the last action name saved
      * @return string
