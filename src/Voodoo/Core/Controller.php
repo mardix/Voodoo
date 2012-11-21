@@ -23,10 +23,11 @@ namespace Voodoo\Core;
 use ReflectionClass,
     Closure;
 
+
 abstract class Controller
 {
     use Controller\TAnnotation;
-    
+
     /**
      * Segments passed
      * @var array
@@ -81,9 +82,9 @@ abstract class Controller
     private $modelNamespace = "";
 
     protected $httpStatusCode = 200;
-    
+
     protected $exit = false;
-    
+
     protected $reflection = null;
 //------------------------------------------------------------------------------
     /**
@@ -152,7 +153,7 @@ abstract class Controller
     {
         if (! $this->exit) {
             $this->finalize();
-            $this->renderView();            
+            $this->renderView();
         }
     }
 
@@ -249,7 +250,7 @@ abstract class Controller
 
     /**
      * Get the module directory
-     * 
+     *
      * @return string
      */
     public function getModuleDir()
@@ -259,7 +260,7 @@ abstract class Controller
 
     /**
      * Get the application
-     * 
+     *
      * @return string
      */
     public function getApplicationDir()
@@ -269,7 +270,7 @@ abstract class Controller
 
     /**
      * To get the request uri. It includes everything in the URI
-     * 
+     *
      * @return string
      */
     public function getRequestURI()
@@ -301,7 +302,7 @@ abstract class Controller
 
     /**
      * Return the site url itself
-     * 
+     *
      * @uses    : To get the site url
      * @example : http://mysite.com/
      * @return string
@@ -313,7 +314,7 @@ abstract class Controller
 
     /**
      * Return the URL of the module
-     * 
+     *
      * @uses    : Get the module url
      * @return string
      */
@@ -328,7 +329,7 @@ abstract class Controller
     /**
      * To access another controller without rendering it
      *
-     * @param string $controllerName. If it starts with \ (backslash) 
+     * @param string $controllerName. If it starts with \ (backslash)
      * it will load it from the absolute path, otherwise it loads from the current namespace
      * @param array $params
      * @return \Voodoo\Core\controller
@@ -350,7 +351,7 @@ abstract class Controller
     }
 
     /**
-     * forward, unlike getController, forward the current controller to a new controller 
+     * forward, unlike getController, forward the current controller to a new controller
      * and allows it to render the view, while it deactivate the current controller view.
      * All the settings and params will be forwarded to the new controller
      * @param type $Controller
@@ -358,7 +359,7 @@ abstract class Controller
     protected function forward($Controller, Array $params = array())
     {
         $this->_exit();
-        
+
         $params = array_merge_recursive($this->segments, $params);
         return $this->getController($Controller, $params)
                         ->disableView($this->disableView);
@@ -376,18 +377,28 @@ abstract class Controller
      */
     public function getAction($action = "index")
     {
-        $action = strtolower(Helpers::camelize($action, false));
+        $this->setActionName($action);
 
-        $actionName = "action_{$action}";
+        $actionName = $this->getActionMethodName();
 
         if (method_exists($this, $actionName)) {
-            $this->actionName = $action;
-            $this->setActionView($this->actionName);
+            $this->setActionView($this->getActionName());
             $this->{$actionName}();
         } else {
             throw new Exception("Action '{$actionName}' doesn't exist in " . get_called_class());
         }
         return $this;
+    }
+
+    /**
+     * Set the action name
+     *
+     * @param string $action
+     */
+    protected function setActionName($action)
+    {
+       $this->actionName = strtolower(Helpers::camelize($action, false));
+       return $this;
     }
 
     /**
@@ -398,7 +409,7 @@ abstract class Controller
     {
         return "action_".$this->getActionName();
     }
-    
+
     /**
      * Return the last action name saved
      * @return string
@@ -490,7 +501,7 @@ abstract class Controller
 // MODEL
     /**
      * Access the module's model, or load it from another module
-     * @param string $modelName  - The name of the model to use. 
+     * @param string $modelName  - The name of the model to use.
      * If it starts with a \ (blackslah), it will load the model from there
      * Otherwise it loads the model from the current NS
      * @return Model
@@ -508,7 +519,7 @@ abstract class Controller
         if (class_exists($model)) {
             return new $model;
         } else {
-            throw new Exception("Model doesn't exist: {$model}"); 
+            throw new Exception("Model doesn't exist: {$model}");
         }
     }
 
@@ -608,22 +619,22 @@ abstract class Controller
     /**
      * To redirect the page to a new page
      * @param string $path
-     * @param int $httpCode 
+     * @param int $httpCode
      */
     public function redirect($path = "", $httpCode = 302)
     {
         if (preg_match("/^http/", $path)) { // http://xyz
             $url = $path;
         } else if(preg_match("/^\//", $path)) { // we'll add the ? if possible
-            $url = $this->getBaseUrl().$path; 
+            $url = $this->getBaseUrl().$path;
         } else { // go to the current module
             $url = $this->getModuleUrl()."/{$path}";
         }
-       
+
         $this->_exit();
         return Http\Response::redirect($url, $httpCode);
     }
-    
+
     /**
      * Return the parent namespace
      * @param type $namespace
@@ -634,14 +645,14 @@ abstract class Controller
         $nsArr = explode("\\", $namespace);
         return implode("\\",array_splice($nsArr,0,-1));
     }
-    
+
     /**
      * Return the full name of the class
-     * 
+     *
      * @return string
      */
     public function __toString()
     {
         return $this->controllerNamespace;
-    }    
+    }
 }
