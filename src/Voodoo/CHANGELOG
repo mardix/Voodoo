@@ -1,4 +1,15 @@
-version 0.6
+Voodoo Changelog
+================================================================================
+
+0.7
+Nov 22 2012
+- Implement annotation: @request in Core\Controller\Api
+- Refactor code in Controller
+- Implementation of AnnotationReader
+- Refactor /voodooist/setup/front-controller/.htacess
+
+--------
+0.6
 Nov 19 2012
 - Applications now have their own config
 - Routes are now in their own application config
@@ -11,6 +22,7 @@ Nov 19 2012
 - bug fixes
 - refactoring
 
+------
 
 
 Version: 0.1 - 0.5
