@@ -1,21 +1,24 @@
 #-------------------------------------------------------------------------------
 #                         VoodooPHP .htaccess
+#                        Front Controller HTACCESS
 #-------------------------------------------------------------------------------
-
 
 IndexIgnore .htaccess * */.??* *~ *# */HEADER*  */README* */_vti*
 
+#LIMIT > ACCEPT POST GET
 <Limit GET POST>
     order deny,allow
     deny from all
     allow from all
 </Limit>
+#LIMIT > ACCEPT POST GET
 
+#LIMIT > DENY PUT DELETE
 <Limit PUT DELETE>
     order deny,allow
     deny from all
 </Limit>
-
+#LIMIT > DENY PUT DELETE
 
 # Block access to .git folder if exists
 RedirectMatch 404 /\\.git(/.*|$)
@@ -32,24 +35,11 @@ RewriteEngine on
 # change the RewriteBase below to RewriteBase /MyVoodooDir
 RewriteBase /
 
-
-
-#-------------------------------------------------------------------------------
-
-# Force URL to end with trailing slash /
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} !(.*)/$
-RewriteRule ^(.*)$ $1/ [L,NC,R=301]
-
-#-------------------------------------------------------------------------------
-
-# Soup Router: everything is routed to index.php. Except for statics file -
+# Route everything to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !\.(js|css|gif|jpg|jpeg|png|ico|swf|pdf)$
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?/$1 [L,NC]
-
-#-------------------------------------------------------------------------------
 
 #
 # Redirect to non WWW
@@ -57,3 +47,5 @@ RewriteRule ^(.*)$ index.php?/$1 [L,NC]
 #RewriteCond %{HTTP_HOST} ^www\.(.*)
 #RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
 
+#END VOODOO
+#-------------------------------------------------------------------------------
