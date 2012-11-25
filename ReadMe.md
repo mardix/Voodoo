@@ -9,7 +9,9 @@ License: MIT
 
 Design: Modular MVC
 
-PSR (0,1,2) compliant
+Requirements: PHP 5.4
+
+Compliance: PSR-0, PSR-1, PSR-2
 
 Author: [Mardix](http://github.com/mardix)
 
@@ -32,7 +34,8 @@ Voodoo, first, organize your application into subset of MVC structure which are 
 
 Modules improve maintainability by enforcing logical boundaries between components. By being Modular, Voodoo allows developers/designers to work on individual module at the same time, thus making development of program faster. New features or new sections can be implemented quickly without changing other sections. And when it's no longer needed, the module can be deleted and everything is still gravy.
 
-##### Features Highlight 
+---
+### Features Highlight 
 
 
 - Slim 
@@ -57,9 +60,9 @@ Modules improve maintainability by enforcing logical boundaries between componen
 
 
 ---
-## Download
+## Clone & Download
 
-Voodoo is hosted on Github. You can clone the repo or download as zip or tar.gz
+If you are interested at Voodo, you can clone the repo or download as zip or tar.gz
 
 Git Clone (notice the dot at the end)
 
@@ -76,6 +79,8 @@ Git Clone (notice the dot at the end)
 
 After you download Voodoo, you will need to set it up via command line with the Voodooist. 
 
+Enter the command below
+
 		> cd $WHERE_IT_IS/src/Voodoo/Voodooist
  		> php do-voodoo.php
 
@@ -83,7 +88,7 @@ After you download Voodoo, you will need to set it up via command line with the 
 
 ## FileSystem
 
-This is what your directory should look like (at least) after you setup Voodoo
+Once Voodoo has been setup, you will have a filesystem that looks like this:
 
 
 	|
@@ -137,11 +142,11 @@ This is what your directory should look like (at least) after you setup Voodoo
 
 ---
 
-## The Voodooist
+## Voodooist
 
 Voodooist is a command line tool that generates controllers, controllers' actions, views, models. Technically it setup your MVC application. 
 
-Voodooist requires App/Config/app-schema.json for it to setup your MVC environment. (Read more below)
+Voodooist requires App/Config/app-schema.json for it to setup your MVC environment. (Read more below). If app-schema.json doesn't exist, Voodooist will create one.
 
 This code execute the Voodooist
 
@@ -151,7 +156,7 @@ This code execute the Voodooist
 
 #### - App/Config/app-schema.json
 
-App/Config/app-schema.json is a JSON file that contains the layout of your application. It is ran by Voodooist to setup your appliaction. A simple app-schema.json looks like this:
+App/Config/app-schema.json is a JSON file that contains the layout of your application, including modules, controllers, controller's action etc. It is ran by Voodooist to setup your appliaction. A simple app-schema.json looks like this:
 
 	{
 	    "createPublicAssets" : true,
@@ -327,11 +332,11 @@ You can create a new route path in your Config.ini file like this
 
 Now when someoneone enters `site.com/profile/mardix` , the visitor will be re-routed to `/Main/Profile/Info/mardix`. 
 
-The routes can have as many directives as you want and you they supports regex for more advanced options.
+The routes can have as many directives as you want and they support regex for more advanced matching.
 
 Stuff to understand:
 
-- To reduce overhead, Application's routes are run before the call of any MVC application 
+- To reduce overhead, Application's routes are run before the call to any MVC application 
 
 - Re-routing is not a redirect. It routes a path to a new path without changing the URL in the address bar
 
@@ -460,6 +465,25 @@ With this file in place, when people accesses your application, they are sent to
 
 	http://site.com/index.php?/Module/Controller/Action/Segments/?paramName=paramValue
 
+On Apache, by adding the following in your .htaccess
+
+	#.htaccess
+	Options +FollowSymlinks
+	RewriteEngine on
+
+	RewriteBase /
+	
+	# Route everything to index.php
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !\.(js|css|gif|jpg|jpeg|png|ico|swf|pdf)$
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^(.*)$ index.php?/$1 [L,NC]
+ 
+All the urls will be rerouted to index.php unless the file or directory exist.
+
+	http://site.com/Module/Controller/Action/Segments/?paramName=paramValue
+
+
 Let's break the url above down relative to our index.php bootstrap file.
 
 In the bootsrap file, we set `$application = "www";` `www` could be `site1`, `site2` or any other application's name. 
@@ -472,13 +496,13 @@ So if you have a url: `http://site.com/profile/mardix`  it will return: `profile
 
 And from there, Voodoo is going to do it's magic
 
-We have the application and the boostrap set, let's get to know the about the modules.
+We have the application and the boostrap set, let's get to know about the modules.
 
 ---
 
 ### Modules
 
-Modules are the second level of your application. Application are sets of Modules, well, Modules are set of MVC application. 
+Modules are the second level of your application. Application are sets of Modules and Modules are set of MVC application. 
 
 Each module contains one set of MVC. By default Voodoo will fall back to `Main` module if a module is not specified. 
 
@@ -644,11 +668,11 @@ As you can see, Voodoo avoids mixing database calls, HTML tags and business logi
 
 ## First Voodoo App
 
-Now that you learned how Voodoo works, let's create a simple application: Hello World at the path: `site.com/hello-world/` and `site.com/about-us`
+Now that you learned how Voodoo works, let's create a simple application: Hello World at the path: `site.com/hello-world/` and `site.com/articles`
 
 To do so, we will use Voodooist to setup our files. 
 
-Open in your editor: `App/Config/app-schema.json `
+Edit the file: `App/Config/app-schema.json `
 
 	{
 	    "createPublicAssets" : true,
@@ -667,6 +691,16 @@ Open in your editor: `App/Config/app-schema.json `
 	                            "name" : "Index",
 	                            "actions" : ["index", "hello-world", "articles"]
 	                        }						
+	                    ],
+
+	                    "models" : [
+	                        {
+	                            "name" : "Articles",
+	                            "dbAlias" : "MyDB",
+	                            "table" : "articles",
+	                            "primaryKey" : "id",
+	                            "foreignKey" : "%s_id"
+	                        }
 	                    ]
 	                }           
 	            ]
@@ -857,7 +891,7 @@ And you will see the following filesystem:
 
 
 ##### *App/Www/Main/Views/Index/container.html*
-By default, Voodoo requires a container template file. The container is a place holder for the action's view. The container may contain  header, footer, sidebar etc.. but must include the tag below to include the action's view page
+Voodoo requires a container template file. The container is a place holder for the action's view. The container may contain  header, footer, sidebar etc.. but must include the tag below to include the action's view page
   
 		{{%include @PageBody}}  
 
@@ -875,7 +909,7 @@ So let's create the container. It is placed at:
 		<body>
 			{{%include _includes/header}}
 			
-				{{%include PageBody}}
+				{{%include @PageBody}}
 				
 			{{%include _includes/footer}}
 		</body>
@@ -888,7 +922,11 @@ Now everything is setup and ready to go.
 If someone accesses `site.com/articles/`
 
 
-Voodoo will load the action: `App/Www/Main/Controller/Index::action_articles()`. Upon rendering, Voodoo will load the view: `App/Www/Main/Views/Index/articles.html`. `articles.html` will be automatically included in `App/Www/Main/Views/_includes/container.html`
+Voodoo will load the action: `App/Www/Main/Controller/Index::action_articles()`. 
+
+Upon rendering, Voodoo will load the view: `App/Www/Main/Views/Index/articles.html`. 
+
+`articles.html` will be automatically included in `App/Www/Main/Views/_includes/container.html`
 
 ---
 
@@ -897,8 +935,10 @@ Go to [VoodooPHP.org](http://voodoophp.org) for ta more in depth documentation.
 
 ---
 
-VoodooPHP is created by Mardix and released under the MIT License. 
+VoodooPHP was created by Mardix and released under the MIT License. 
 
 Enjoy!
+
+(c) 2012 Mardix 
 
 ---
