@@ -96,8 +96,8 @@ class Router
     private $wildCards = [
                             ":any"=>".*",
                             ":num"=>"[0-9]+",
-                            ":alpha"=>"[A-Za-z]+",
-                            ":alphanum"=>"[A-Za-z0-9]+",
+                            ":alpha"=>"[A-Za-z\-]+",
+                            ":alphanum"=>"[A-Za-z0-9\-]+",
                             ":hex"=>"[A-Fa-f0-9]+"
                         ];
 
