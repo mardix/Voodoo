@@ -32,7 +32,7 @@ use ArrayIterator,
 class VoodOrm implements IteratorAggregate
 {
     const NAME              = "VoodOrm";
-    const VERSION           = "0.5";
+    const VERSION           = "0.5.1";
 
     // RELATIONSHIP CONSTANT
     const REL_HASONE        =  1;       // OneToOne. Eager Load data
@@ -203,7 +203,7 @@ class VoodOrm implements IteratorAggregate
             $_time = microtime(true) - $_stime;
 
             // query profiler
-            if (!isset($this->$this->query_profiler["total_time"])){
+            if (! isset($this->query_profiler["total_time"])){
                 $this->query_profiler["total_time"] = 0;
             }
 
