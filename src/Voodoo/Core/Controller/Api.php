@@ -47,12 +47,11 @@ abstract class Api extends Core\Controller
      */
     protected function finalize()
     {
-      parent::finalize();
+        parent::finalize();
 
-      if($this->view()->hasError()) {
-          $this->view()->assign("error", $this->view()->getMessage("error"));
-      }
-
+        if($this->view()->hasError()) {
+            $this->view()->assign("error", $this->view()->getMessage("error"));
+        }
     }
 
 
@@ -166,6 +165,5 @@ abstract class Api extends Core\Controller
         } else {
             return parent::getAction($action);
         }
-
     }
 }
