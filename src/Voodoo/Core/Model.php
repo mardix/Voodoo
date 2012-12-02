@@ -95,20 +95,11 @@ abstract class Model extends Model\VoodOrm
    */
     public static function create($obj = null)
     {
-        $Instance = new static;
-
-        if ($obj) {
-            // A single row will return an array
-            if (is_array($obj)) {
-                $Instance->_toRow($obj);
-                $Instance->is_single = true;
-
-            } else if ($obj instanceof Model\VoodOrm) {
-            // TODO: implement
-            }
+        if(is_array($obj)) { // fill the object with new data
+            return (new static)->_toRow($obj);
+        } else {
+            return new static;
         }
-
-        return $Instance;
     }
 
     /**
@@ -181,6 +172,7 @@ abstract class Model extends Model\VoodOrm
 
     /**
      * To execute a code only if $this->is_single
+     * 
      * @param Closure $fn
      * @return mixed
      * @throws Exception
