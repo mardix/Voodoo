@@ -11,7 +11,7 @@
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
- * @name        DB\Connect
+ * @name        Model\AliasConnection
  * @desc        Create a single instance of a db connection based on DBAlias
  *
  */
@@ -21,13 +21,13 @@ namespace Voodoo\Core\Model;
 use Voodoo\Core,
     PDO;
 
-class Connect
+class AliasConnection
 {
     /**
      * Holds all the connection
      * @var type
      */
-    private static $dbConnections = array();
+    private static $dbConnections = [];
 
     /**
      * To establish the connection based on the DBAlias provided in the DB.ini
@@ -37,7 +37,7 @@ class Connect
      * @return \PDO|\Redisent\Redis
      * @throws Core\Exception
      */
-    public static function alias($dbAlias)
+    public static function connect($dbAlias)
     {
         if (!isset(self::$dbConnections[$dbAlias])) {
 
@@ -71,23 +71,18 @@ class Connect
 
                     // @FIXME: TO TEST WITH MONGO
                     case "mongodb":
-
                         $Options = array();
-
                         if($db["username"]){
                             $Options["username"] = $db["user"];
                         }
-                        
                         if($db["password"]){
                             $Options["password"] = $db["password"];
                         }
-                        
                         if($db["replicaset"]){
                             $Options["replicaset"] = true;
                         }
-
+                        
                         $Mongo = new Mongo($db["host"],$Options);
-
                         if($db["slaveOk"]){
                             $Mongo->slaveOkay(true);
                         }
@@ -97,19 +92,15 @@ class Connect
 
                     // @FIXME: TO TEST WITH REDISENT
                     case "redis":
-
                         $host = $db["host"].($db["Port"] ? ":{$db["Port"]}" : "");
-
                         $Redis = new Redis($host);
-
                         $Redis->setDB($db["DbNumber"]);
-
                         self::$dbConnections[$dbAlias] = $Redis;
-
                     break;
                 }
-            } else
+            } else {
                 throw new Core\Exception("Invalid dbms for Alias: '{$dbAlias}'. dbms: {$db["dbms"]} was provided. Must be MySQL, PostgreSQL, SQLite, MongoDB, Redis ");
+            }
         }
 
         return self::$dbConnections[$dbAlias];
