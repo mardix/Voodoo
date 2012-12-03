@@ -1,6 +1,14 @@
 Voodoo Changelog
 ================================================================================
+0.8
+Dec 2 2012
+- Refactor View
+- Merge ThickMustache with View
+- Remove ThickMustache
+- Fixed Model::create($obj)
+- Fix style
 
+----
 0.7
 Nov 22 2012
 - Implement annotation: @request in Core\Controller\Api
