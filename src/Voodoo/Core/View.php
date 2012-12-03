@@ -14,13 +14,26 @@
  *
  * @name        Core\View
  * @desc        The controller's view class
+ * 
+ * Mustache Extension
+ * == New Markups
+ *      - Include
+ *              {{%include filename.html}} : include the file from the working dir
+ *              {{%include !/my/other/path/file.html}} : include fiel outside of the working dir
+ *              {{%include @TemplateName}} : include a file reference name, which was loaded with ThickMustache::addTemplate($name,$src)
  *
+ *      - Raw: Mustache tags between {{%raw}}{{/raw}} will not be parsed
+ *              {{%raw}}
+ *                  {{}}
+ *              {{/raw}}
  */
 
 namespace Voodoo\Core;
 
-class View extends View\ThickMustache
+class View 
 {
+    use View\TView;
+    
     public $isDisabled = false;
     public $isRendered = false;
 
@@ -37,14 +50,19 @@ class View extends View\ThickMustache
                 $config,
                 $renderedContent,
                 $controllersViewPath;
-
+    
+    protected $templates =  [];
+    protected $templateDir = "";
+    protected $parsed = false;
+    protected $definedRaws = [];  
+    
     private $pageTitle,
             $pageDescription;
-
     private $controller = null;
     private $paginator = null;
     private $form = null;
 
+  
 //------------------------------------------------------------------------------
     /**
      * The constructor
@@ -65,7 +83,7 @@ class View extends View\ThickMustache
 
         $this->controllersViewPath = $this->viewsPath . "/{$this->controllerName}";
 
-        parent::__construct($this->controllersViewPath);
+        $this->setDir($this->controllersViewPath);
 
         $this->assign([
             "App" => [
@@ -88,7 +106,19 @@ class View extends View\ThickMustache
     }
 
     /**
+     * Set the working directory. By default files will be loaded from there
+     * @param  string         $dir
+     * @return Voodoo\Core\View
+     */
+    public function setDir($dir)
+    {
+        $this->templateDir =   preg_match("!/$!",$dir) ? $dir : "{$dir}/";
+        return $this;
+    } 
+    
+    /**
      * Return the module full path
+     * 
      * @return string
      */
     public function getModulePath()
@@ -98,6 +128,7 @@ class View extends View\ThickMustache
 
     /**
      * Return the controller full path
+     * 
      * @return string
      */
     public function getControllerPath()
@@ -107,6 +138,7 @@ class View extends View\ThickMustache
 
     /**
      * Check if the views directory exists
+     * 
      * @return bool
      */
     final public function exists()
@@ -116,6 +148,7 @@ class View extends View\ThickMustache
 
     /**
      * Set the extension to use
+     * 
      * @param  type             $extension
      * @return Voodoo\Core\View
      */
@@ -127,6 +160,7 @@ class View extends View\ThickMustache
 
     /**
      * Set the view container to use. By default it will user the contain set in config.
+     * 
      * @param  string           $filename
      * @param  bool             $absolute - true, it will use the full path of filename, or it will look in the current Views
      * @return Voodoo\Core\View
@@ -140,6 +174,7 @@ class View extends View\ThickMustache
 
     /**
      * Set the view body  to use. By default it will use the the action view => $action.html
+     * 
      * @param  string           $filename
      * @param  bool             $absolute - true, it will use the full path of filename, or it will look in the current Views
      * @return Voodoo\Core\View
@@ -153,6 +188,7 @@ class View extends View\ThickMustache
 
     /**
      * Render the template
+     * 
      * @return String
      */
     public function render()
@@ -204,46 +240,19 @@ class View extends View\ThickMustache
             $renderName = "PageContainer";
             $this->addTemplate("PageContainer", $this->container, $this->isContainerAbsolute);
         }
-
         $this->isRendered = true;
 
-        $this->renderedContent = parent::renderMustache($renderName);
-
+        $this->parse();
+        if (isset($this->templates[$renderName])) {
+            $template = (new View\Mustache($this->templates[$renderName], $this->assigned))->render();
+            // replace the raws and return
+            $this->renderedContent =
+                    str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$template);
+        }
         return $this->renderedContent;
     }
 
-    /**
-     * To render partial content
-     * @param  string $Content     - TEXT or filepath
-     * @param  array  $assignments
-     * @param  type   $isFile      - if true, $Content must be a path
-     * @return string
-     */
-    public function renderPartial($Content, Array $assignments = array(), $isFile = false)
-    {
-        if ($isFile) {
-            $tplName = "TEMP_" . md5($Content);
-            $this->addTemplate($tplName, $Content);
-        } else {
-            $tplName = "TEMP_" . time();
-            $this->addTemplateString($tplName, $Content);
-        }
-
-        if (count($assignments)){
-            $this->assign($assignments);
-        }
-
-        $content = $this->getContent($tplName);
-
-        if (count($assignments)){
-            $this->unassign($assignments);
-        }
-
-        parent::removeTemplate($tplName)->reparse();
-
-        return $content;
-    }
-
+   
     /**
      * Return the complete file path of the template in the current view.
      * It can be used to access another views from another module
@@ -255,8 +264,6 @@ class View extends View\ThickMustache
         return $this->controllersViewPath . "/" . strtolower($path) . $this->ext;
     }
 
-
-// Mehod affecting the header and meta data
     /**
      * Set the page title
      * @param type $title
@@ -369,9 +376,9 @@ class View extends View\ThickMustache
     {
         if (!$this->paginator) {
             $uri = $this->controller->getRequestURI();
-            $pattern = $this->getConfig("Views.Pagination.PagePattern");
-            $itemsPerPage = $this->getConfig("Views.Pagination.ItemsPerPage");
-            $navigationSize = $this->getConfig("Views.Pagination.NavigationSize");
+            $pattern = $this->controller->getConfig("views.pagination.pagePattern");
+            $itemsPerPage = $this->controller->getConfig("views.pagination.itemsPerPage");
+            $navigationSize = $this->controller->getConfig("views.pagination.navigationSize");
 
             $this->paginator = new View\Paginator($uri, $pattern);
             $this->paginator->setItemsPerPage($itemsPerPage)
@@ -390,19 +397,18 @@ class View extends View\ThickMustache
         }
         return $this->form;
     }
-//------------------------------------------------------------------------------
-// ERROR HANDLING
-//------------------------------------------------------------------------------
+
+    
     /**
      * To add a template file
      * @param  type             $name     - the name of the template. Can be used to call it: {{%include @name}}
      * @param  type             $src      - the filepath relative to the working dir
-     * @param  bool             $absolute - If true, $src will be the absolute
      * @return Voodoo\Core\View
      */
     public function addTemplate($name, $src, $absolutePath = false)
     {
         /**
+         * To add a template file
          * To make it easy, you can load views of other modules in the current template
          * To do so, there are are two rules:
          *
@@ -421,13 +427,11 @@ class View extends View\ThickMustache
         if (preg_match("/^\//", $src)) {
 
             // Current Module
-            if (preg_match("/^\/([a-z0-9]+)/i", $src))
+            if (preg_match("/^\/([a-z0-9]+)/i", $src)) {
                 $src = $this->moduleName . $src;
-
-            // Outter module
-            else if (preg_match("/^\/\/([a-z0-9]+)/i", $src))
+            } else if (preg_match("/^\/\/([a-z0-9]+)/i", $src)) {// Outter module
                 $src = preg_replace("/^\/\//", "", $src);
-
+            }
 
             $segments = explode("/", $src, 3);
 
@@ -452,16 +456,61 @@ class View extends View\ThickMustache
          * Second cond: to add the extension if it's missing
          */
         $src = ($absolutePath || preg_match("/^({$this->controllerName}|_[\w]+)/", $src)) ? $src : "{$this->controllerName}/{$src}";
-
         $src = $this->addFileExtension($src);
-
         $src = ($absolutePath) ? $src : ($this->viewsPath . "/{$src}");
-
-        parent::addTemplate($name, $src, true);
-
+        $this->addTemplateString($name, $this->loadFile($src, true));
+        return $this;
+    }
+  
+    /**
+     * To add a template string
+     * @param  type           $name
+     * @param  type           $content
+     * @return Voodoo\Core\View
+     */
+    public function addTemplateString($name, $content)
+    {
+        $this->templates[$name] = $this->parseTemplate($content);
         return $this;
     }
 
+    /**
+     * To remove a template name
+     * @param  type           $name
+     * @return Voodoo\Core\View
+     */
+    public function removeTemplate($name)
+    {
+        if (isset($this->templates[$name])) {
+            unset($this->templates[$name]);
+        }
+        return $this;
+    }    
+    
+    
+    /**
+     * To reset the parsing
+     * @return Voodoo\Core\View
+     */
+    public function reparse()
+    {
+        $this->parsed = false;
+        return $this;
+    }
+
+    /**
+     * Load the template file
+     * @param  type   $src
+     * @param  type   $absolute
+     * @return string
+     */
+    protected function loadFile($src, $absolute=false)
+    {
+         $src = ($absolute == true) ? $src : $this->templateDir.$src;
+         return (file_exists($src)) ? file_get_contents($src) : "";
+    }
+    
+    
     /**
      * To create the module's assets dir
      * Base on the config file
@@ -527,8 +576,90 @@ class View extends View\ThickMustache
         return $file;
     }
 
+    /**
+     * parseTemplate
+     * Once we receive template we'll want to parse it and get it ready
+     * @param  string $template
+     * @return string
+     */
+    private function parseTemplate($template)
+    {
+        /**
+         * Raw
+         * {{%raw}}{{/raw}}
+         * extract everything between raw, and replace them on render
+         */
+        if (preg_match_all("/{{%raw}}(.*?){{\/raw}}/si",$template,$matches)) {
+            $rawCount = count($this->definedRaws);
+            foreach ($matches as $k=>$v) {
+                if (isset($matches[1][$k])) {
+                    ++$rawCount;
+                    $name = "__TM::RAW{$rawCount}__";
+                    $this->definedRaws[$name] = $matches[1][$k];
+                    $template = str_replace($matches[0][$k],$name,$template);
+                }
+            }
+        }
+
+        /**
+         * Include
+         * {{%include file.html}}
+         * To include other template file into the current one
+         * {{%include file.html}} will load file in the working directory of the system
+         * {{%include !/my/outside/dir/file.html}} will load file from the absolute path
+         */
+        if (preg_match_all("/{{%include\s+(.*?)\s*}}/i",$template,$matches)) {
+
+            foreach ($matches[1] as $k => $src) {
+                if (!preg_match("/^@/",$src)) {
+                    $absolute = preg_match("/^!/",$src) ? true : false;
+
+                    $src = preg_replace("/^!/","",$src);
+
+                    $tkey = md5($src);
+
+                    if(!isset($this->templates[$tkey])) {
+                        $this->addTemplate($tkey, $src, $absolute);
+                    }
+                    $template = $this->parseTemplate(str_replace($matches[0][$k],$this->templates[$tkey],$template));
+                }
+            }
+        }
+        return $template;
+    }
+
+    /**
+     * Parse the template
+     * 
+     * @return $this
+     */
+    private function parse()
+    {
+        if ($this->parsed){
+            return false;
+        }
+
+        $this->parsed = true;
+        foreach ($this->templates as $kk => $template) {
+            if (preg_match_all("/{{%include\s+(.*?)\s*}}/i",$template,$matches)) {
+                foreach ($matches[1] as $k=>$src) {
+                    // Anything with @Reference
+                    if (preg_match("/^@/",$src)) {
+                        $tplRef = preg_replace("/^@/","",$matches[1][$k]);
+                        if (isset($this->templates[$tplRef])) {
+                            $this->templates[$kk] = str_replace($matches[0][$k],$this->templates[$tplRef],$this->templates[$kk]);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $this;
+    }    
+    
     public function __string()
     {
         return $this->render();
     }
+
 }
