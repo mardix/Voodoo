@@ -157,8 +157,9 @@ class Paginator
      */
     public function __construct($queryUrl = "", $pagePattern = "/page/(:num)", $totalItems = 0, $itemPerPage = 10, $navigationSize = 10)
     {
-        if ($queryUrl)
+        if ($queryUrl) {
             $this->setQueryUrl($queryUrl, $pagePattern);
+        }
 
         $this->setTotalItems($totalItems);
 
@@ -186,31 +187,21 @@ class Paginator
          * This way a url http://xyz.com/?q=boom , becomes http://xyz.com/?q=boom&page=2
          */
         if (count($m) == 0) {
-
             $pag_ = str_replace("(:num)", 0, $pagePattern);
 
             /**
              * page pattern contain the equal sign, we'll add it to the query ?page=123
              */
             if (strpos($pagePattern, "=") !== false) {
-
-                if (strpos($url, "?") !== false)
+                if (strpos($url, "?") !== false) {
                     $url .= "&" . $pag_;
-                else
+                } else {
                     $url .= "?" . $pag_;
-
-                return
-                        $this->setQueryUrl($url, $pagePattern);
-            }
-
-            /**
-             * Friendly url : /page/123
-             */
-            else if (strpos($pagePattern, "/") !== false) {
-
+                }
+                return $this->setQueryUrl($url, $pagePattern);
+            } else if (strpos($pagePattern, "/") !== false) { //Friendly url : /page/123
                 if (strpos($url, "?") !== false) {
                     list($segment, $query) = explode("?", $url, 2);
-
                     if (preg_match("/\/$/", $segment)) {
                         $url = $segment . (preg_replace("/^\//", "", $pag_));
                         $url .= ((preg_match("/\/$/", $pag_)) ? "" : "/") . "?{$query}";
@@ -219,14 +210,13 @@ class Paginator
                         $url .= ((preg_match("/\/$/", $pag_)) ? "" : "/") . "?{$query}";
                     }
                 } else {
-                    if (preg_match("/\/$/", $segment))
+                    if (preg_match("/\/$/", $segment)) {
                         $url .= (preg_replace("/^\//", "", $pag_));
-                    else
+                    } else {
                         $url .= $pag_;
+                    }
                 }
-
-                return
-                        $this->setQueryUrl($url, $pagePattern);
+                return $this->setQueryUrl($url, $pagePattern);
             }
         }
 
@@ -241,8 +231,7 @@ class Paginator
 
         $this->setCurrentPage($page);
 
-        return
-                $this;
+        return $this;
     }
 
     /**
@@ -255,9 +244,7 @@ class Paginator
     {
         $this->params["prevTitle"] = $prev;
         $this->params["nextTitle"] = $next;
-
-        return
-                $this;
+        return $this;
     }
 
     /**
@@ -268,9 +255,7 @@ class Paginator
     public function setTotalItems($items = 0)
     {
         $this->params["totalItems"] = $items;
-
-        return
-                $this;
+        return $this;
     }
 
     /**
@@ -279,8 +264,7 @@ class Paginator
      */
     public function getTotalItems()
     {
-        return
-                $this->params["totalItems"];
+        return $this->params["totalItems"];
     }
 
     /**
@@ -291,9 +275,7 @@ class Paginator
     public function setItemsPerPage($ipp = 10)
     {
         $this->params["itemsPerPage"] = $ipp;
-
-        return
-                $this;
+        return $this;
     }
 
     /**
@@ -302,8 +284,7 @@ class Paginator
      */
     public function getItemsPerPage()
     {
-        return
-                $this->params["itemsPerPage"];
+        return $this->params["itemsPerPage"];
     }
 
     /**
@@ -314,9 +295,7 @@ class Paginator
     public function setCurrentPage($page = 1)
     {
         $this->params["currentPage"] = $page;
-
-        return
-                $this;
+        return $this;
     }
 
     /**
@@ -325,8 +304,7 @@ class Paginator
      */
     public function getCurrentPage()
     {
-        return
-                ($this->params["currentPage"] <= $this->getTotalPages()) ? $this->params["currentPage"] : $this->getTotalPages();
+        return ($this->params["currentPage"] <= $this->getTotalPages()) ? $this->params["currentPage"] : $this->getTotalPages();
     }
 
     /**
@@ -335,8 +313,7 @@ class Paginator
      */
     public function getStartCount()
     {
-        return
-                (int) ($this->getItemsPerPage() * ($this->getCurrentPage() - 1));
+        return (int) ($this->getItemsPerPage() * ($this->getCurrentPage() - 1));
     }
 
     /**
@@ -345,8 +322,7 @@ class Paginator
      */
     public function getEndCount()
     {
-        return
-                (int) ((($this->getItemsPerPage() - 1) * $this->getCurrentPage()) + $this->getCurrentPage() );
+        return (int) ((($this->getItemsPerPage() - 1) * $this->getCurrentPage()) + $this->getCurrentPage() );
     }
 
     /**
@@ -358,8 +334,7 @@ class Paginator
      */
     public function getSQLOffset()
     {
-        return
-                $this->getStartCount() . "," . $this->getItemsPerPage();
+        return $this->getStartCount() . "," . $this->getItemsPerPage();
     }
 
     /**
@@ -368,8 +343,7 @@ class Paginator
      */
     public function getTotalPages()
     {
-        return
-                @ceil($this->getTotalItems() / $this->getItemsPerPage());
+        return @ceil($this->getTotalItems() / $this->getItemsPerPage());
     }
 
     /**
@@ -380,9 +354,7 @@ class Paginator
     public function setNavigationSize($set = 10)
     {
         $this->params["navSize"] = $set;
-
-        return
-                $this;
+        return $this;
     }
 
     /**
@@ -391,8 +363,7 @@ class Paginator
      */
     public function getNavigationSize()
     {
-        return
-                $this->params["navSize"];
+        return $this->params["navSize"];
     }
 
     /*     * **************************************************************************** */
@@ -414,8 +385,9 @@ class Paginator
     {
         $Navigation = array();
 
-        if ($totalItems)
+        if ($totalItems){
             $this->setTotalItems($totalItems);
+        }
 
         $totalPages = $this->getTotalPages();
         $navSize = $this->getNavigationSize();
@@ -472,9 +444,7 @@ class Paginator
                 );
             }
         }
-
-        return
-                $Navigation;
+        return $Navigation;
     }
 
     /**
@@ -501,14 +471,12 @@ class Paginator
         foreach ($this->toArray($totalItems) as $page) {
             $pagination .= $this->wrapList($this->aHref($page["Url"], $page["Label"]), $page["isCurrent"], false);
         }
-
         return
                 "<div class=\"{$paginationClsName}\">
                 <{$this->wrapTag}>{$pagination}</{$this->wrapTag}>
             </div>";
     }
 
-    /*     * **************************************************************************** */
 
     /**
      * Parse a page number in the template url
@@ -517,8 +485,7 @@ class Paginator
      */
     protected function parseTplUrl($pageNumber)
     {
-        return
-                str_replace("(#pageNumber)", $pageNumber, $this->templateUrl);
+        return str_replace("(#pageNumber)", $pageNumber, $this->templateUrl);
     }
 
     /**
@@ -529,8 +496,7 @@ class Paginator
      */
     protected function aHref($url, $txt)
     {
-        return
-                "<a href=\"{$url}\">{$txt}</a>";
+        return "<a href=\"{$url}\">{$txt}</a>";
     }
 
     /**
@@ -544,9 +510,7 @@ class Paginator
     {
         $activeCls = $isActive ? " active " : "";
         $disableCls = $isDisabled ? " disabled " : "";
-
-        return
-                "<{$this->listTag} class=\"{$activeCls} {$disableCls}\">{$html}</{$this->listTag}>\n";
+        return "<{$this->listTag} class=\"{$activeCls} {$disableCls}\">{$html}</{$this->listTag}>\n";
     }
 
     /*     * **************************************************************************** */
@@ -559,14 +523,11 @@ class Paginator
 
     public function __get($key)
     {
-        return
-                $this->params[$key];
+        return $this->params[$key];
     }
 
     public function __toString()
     {
-        return
-                $this->render();
+        return $this->render();
     }
-
 }
