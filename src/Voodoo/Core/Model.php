@@ -57,7 +57,8 @@
 
 namespace Voodoo\Core;
 
-use Closure;
+use Closure,
+    PDO;
 
 abstract class Model extends Model\VoodOrm
 {
@@ -103,23 +104,28 @@ abstract class Model extends Model\VoodOrm
     }
 
     /**
-     * Constructor
-     *
-     * @throws Core\Exception
+     * The constructor
+     * 
+     * @param PDO $pdo
+     * @throws Exception
      */
-    public function __construct()
+    public function __construct(PDO $pdo = null)
     {
-        if(!$this->tableName){
+        if(! $this->tableName){
             throw new Exception("TableName is null in ".get_called_class());
-        } else if (!$this->primaryKeyName){
-            throw new Exception("PrimaryKeyName is null in ".get_called_class());
-        } else if (!$this->dbAlias){
-            throw new Exception("DB Alias is missing in ".get_called_class());
         }
-
-        $PDO = Model\Connect::alias($this->dbAlias);
-
-        parent::__construct($PDO, $this->primaryKeyName, $this->foreignKeyName);
+        if (! $this->primaryKeyName){
+            throw new Exception("PrimaryKeyName is null in ".get_called_class());
+        }  
+        
+        if (! $pdo) {
+            if (! $this->dbAlias){
+                throw new Exception("DB Alias is missing in ".get_called_class());
+            }
+            $pdo = Model\Connect::alias($this->dbAlias);
+        }
+        
+        parent::__construct($pdo, $this->primaryKeyName, $this->foreignKeyName);
 
         $instance = parent::table($this->tableName);
 
