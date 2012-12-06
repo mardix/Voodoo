@@ -32,7 +32,7 @@ use ArrayIterator,
 class VoodOrm implements IteratorAggregate
 {
     const NAME              = "VoodOrm";
-    const VERSION           = "0.5.1";
+    const VERSION           = "0.5.2";
 
     // RELATIONSHIP CONSTANT
     const REL_HASONE        =  1;       // OneToOne. Eager Load data
@@ -159,6 +159,8 @@ class VoodOrm implements IteratorAggregate
         $instance->primary_key_name = $this->formatTableKeyName($this->table_structure["primaryKeyName"], $tableName);
 
         $instance->foreign_key_name = $this->formatTableKeyName($this->table_structure["foreignKeyName"], $tableName);
+        
+        $instance->reset();
 
         return $instance;
     }
