@@ -173,7 +173,7 @@ Class Helpers{
      return self::truncate(strip_tags($str),$truncateLen);
     }
 
-    
+
     # CLEAN DIRTY WORD
    public static function filterDirtyWords($list,$hidden="",$str="")
    {
@@ -240,24 +240,17 @@ Class Helpers{
     }
 
 
+    /**
+     * Calculate an age
+     *
+     * @param Datetime $dob
+     * @return int
+     */
     public static function getAge($dob)
     {
-    /*
-     $dob: YYYY-MM-DD
-
-     return the age
-     */
-
-      list($year,$month,$date)=explode("-",$dob);
-
-      $Aprox_age= date(Y) - $year ;
-
-      if(date(m)<$month) return ($Aprox_age-1);
-
-      else if(date(m)==$month)  return ((date(d)<$date) ? ($Aprox_age-1) : $Aprox_age);
-
-      else return ($Aprox_age);
-
+        return (new \DateTime($dob))
+                ->diff(new \DateTime)
+                ->format("%y");
     }
 
 
@@ -444,7 +437,7 @@ Class Helpers{
         return  preg_replace("/^\-|\-$/","",trim($O));
     }
 
-    
+
     public static function multiArraySearch($needle, $haystack,$index_starter=0)
     {
        // Search value in multi array
@@ -555,7 +548,7 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
           if($print==true) {
               echo $content;
           } else {
-             return $content; 
+             return $content;
           }
       }
     }
@@ -1119,7 +1112,7 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
                 $a[$k] = (!isset($a[$k])) ? $v : self::arrayExtend($a[$k], $v);
             } else {
                 $a[$k] = $v;
-            } 
+            }
         }
 
         return $a;
@@ -1139,7 +1132,7 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
                 $f= self::arrayFlatten($v,$f);
             } else {
                 $f[$k]=$v;
-            } 
+            }
         }
         return $f;
     }
@@ -1192,10 +1185,10 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
         return $tzlist;
     }
 
-    
+
     /**
      * Get json last error after json_decode()
-     * 
+     *
      * @return Array if error or FALSE
      */
     public static function getJsonLastError()
@@ -1230,4 +1223,43 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
           "message" => $msg
         );
     }
+
+    /**
+     * To get the total pages from set values in pagination
+     *
+     * @param int $totalItems
+     * @param int $itemsPerPage
+     * @return int
+     */
+    public static function paginationGetTotalPages($totalItems, $itemsPerPage)
+    {
+        return @ceil($totalItems / $itemsPerPage);
+    }
+
+
+    /**
+     * Get the max limit in a pagination
+     *
+     * @param int $pageNumber
+     * @param inte $itemsPerPage
+     * @return int
+     */
+    public static function paginationGetMaxLimit($pageNumber = 1, $itemsPerPage)
+    {
+        return (($pageNumber - 1) * $itemsPerPage);
+    }
+
+
+    /**
+     * Get the min limit in a pagination
+     *
+     * @param int $pageNumber
+     * @param inte $itemsPerPage
+     * @return int
+     */
+    public static function paginationGetMinLimit($pageNumber = 1, $itemsPerPage)
+    {
+        return ($pageNumber <= 1) ? 0 : ((($pageNumber -1) * $itemsPerPage) - 1);
+    }
+
 }
