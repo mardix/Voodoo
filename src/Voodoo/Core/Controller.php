@@ -374,6 +374,10 @@ abstract class Controller
      * i.e $this->getAction("index");
      * @param  string     $action       - The action name without Action as suffix. ie: action_index() =  getAction("index")
      * @return Controller
+     * 
+     * This method also accepts @view annotation
+     *      @view string
+     *      To change the view instead of using the default action-name view
      */
     public function getAction($action = "index")
     {
@@ -382,7 +386,16 @@ abstract class Controller
         $actionName = $this->getActionMethodName();
 
         if (method_exists($this, $actionName)) {
-            $this->setActionView($this->getActionName());
+            $actionView = $this->getActionName();
+            
+            /**
+             * @view $view-file-name
+             */
+            if($this->getActionAnnotation("view")) {
+               $actionView =  $this->getActionAnnotation("view");
+            }
+            
+            $this->setActionView($actionView);
             $this->{$actionName}();
         } else {
             throw new Exception("Action '{$actionName}' doesn't exist in " . get_called_class());
