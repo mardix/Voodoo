@@ -87,7 +87,7 @@ trait TView {
      */
     public function setError($message)
     {
-       return $this->setMessage("error", $message);
+       return $this->setMessage($message, "error");
     }
 
     /**
@@ -101,12 +101,12 @@ trait TView {
 
     /**
      * To set a message
-     *
-     * @param string $type - The type of message: error, success
+     * 
      * @param string $message - the message
+     * @param string $type - The type of message: error, success
      * @return TView
      */
-    protected function setMessage($type, $message)
+    public function setMessage($message, $type)
     {
         $this->messages[$type] = $message;
         return $this;
