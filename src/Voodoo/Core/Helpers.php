@@ -1262,4 +1262,17 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
         return ($pageNumber <= 1) ? 0 : ((($pageNumber -1) * $itemsPerPage) - 1);
     }
 
+    
+    /**
+     * To strip html comments. 
+     * But will leave conditionals comments such as <!-- [if IE 7]><![endif]-->
+     * 
+     * @param string $content
+     * @return string
+     */
+    public static function stripHtmlComments($content)
+    {
+        $stripHtmlCommentsRegex = "/<!--(?!\s*(?:\[if [^\]]+]|<!|>))(?:(?!-->).)*-->/Uis";
+        return preg_replace($stripHtmlCommentsRegex, "", $content);        
+    }
 }
