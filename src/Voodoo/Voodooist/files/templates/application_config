@@ -72,10 +72,10 @@
     ; It will be loaded in there by default
     dateFormat = "D, M d Y" 
 
-    ; Voodoo by default requires your site (if that's what you are doing) to have a container
-    ; The container technically contains the header, footer of your site and a placeholder for the body
+    ; Voodoo by default requires your site (if that's what you are doing) to have a layout
+    ; The layout technically contains the header, footer of your site and a placeholder for the body
     ; The body will be including upon rendering
-    container = "_includes/container.html" 
+    layout = "_layouts/default.html" 
 
     ; Module Assets contains all css, js, static files, etc that can be used by the module.
     ; The path is relative to the Module's Views directory or be a url
@@ -89,6 +89,8 @@
     ; To access it in your view files use: {{App.Assets}}
     publicAssetsDir = "assets" 
 
+    ; To remove HTML comments in the HTML page
+    stripHtmlComments = true
 
     ; pagination
     ; Settings for the pagination
@@ -105,9 +107,9 @@
 
     ; loadTemplate
     ; Voodoo will automatically load the files and assign them so the can be included with their alias. 
-    ; ie: {{%include @PageMessage}}, this will include the file _includes/message.html
+    ; ie: {{%include @pageFlashMessage}}, this will include the file _includes/flash-message.html
     ; Format: LoadTemplate[AliasNameOfTheFileToLoad] = "filename"
-    loadTemplate[PageFlashMessage] = "_includes/flash-message.html"
-    loadTemplate[PagePagination] = "_includes/pagination.html"
+    loadTemplate[pageFlashMessage] = "_includes/flash-message.html"
+    loadTemplate[pagePagination] = "_includes/pagination.html"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
