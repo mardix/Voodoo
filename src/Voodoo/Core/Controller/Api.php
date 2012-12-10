@@ -90,7 +90,7 @@ abstract class Api extends Core\Controller
      *
      * @return Core\View\Api
      */
-    protected function view(Closure $callback = null)
+    protected function view()
     {
         if ($this->restView == null) {
             $this->restView = new Core\View\Api;
