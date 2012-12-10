@@ -1160,7 +1160,19 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
      */
     public static function toUnderscore($str)
     {
-        return preg_replace("/([a-z])([A-Z])/",'$1_$2',$str);
+        $str = trim(ucwords($str));
+        return preg_replace("/(^_|\s)/","", preg_replace("/([a-z])?([A-Z])/",'$1_$2',$str));
+    }
+    
+    /**
+     * To dasherize
+     * HelloWorld = Hello-World
+     * @param type $str
+     * @return type
+     */
+    public static function dasherize($str) 
+    {
+        return str_replace("-","_", self::toUnderscore($str));
     }
 
     /**
