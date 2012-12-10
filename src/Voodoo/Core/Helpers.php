@@ -1172,7 +1172,7 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
      */
     public static function dasherize($str) 
     {
-        return str_replace("-","_", self::toUnderscore($str));
+        return str_replace("_","-", self::toUnderscore($str));
     }
 
     /**
