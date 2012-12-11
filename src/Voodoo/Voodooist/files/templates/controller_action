@@ -1,7 +1,6 @@
 
     /**
-     * Action: {{METHODNAME}}
-     * 
+     * @action {{METHODNAME}}
      */
     public function action_{{METHODNAME}}()
     {

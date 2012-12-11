@@ -15,9 +15,8 @@ use Voodoo;
 class {{CONTROLLER}} extends Voodoo\Core\Controller\Api
 {
     /**
-     * Action: Index
-     * This is the index action.
-     * It is loaded by default or when  action is missing
+     * @action index
+     * @desc This is the index action. Loaded by default or when action is missing
      */
     public function action_index()
     {
