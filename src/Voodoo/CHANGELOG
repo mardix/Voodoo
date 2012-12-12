@@ -1,5 +1,26 @@
 Voodoo Changelog
 ================================================================================
+
+
+0.10 (backward incompatible)
+Dec 10 2012
+- Implement annotation @view in Core\Controller::getAction() to change the view
+- Implement annotation @layout to change the layout
+- Change Config: views.container to views.layout *break BC
+- Added Views/_layouts *break BC
+- Fix TView argument order for setMessage, setFlash
+- Made public TView::setFlash 
+- Views remove comments
+- Controller::getModuleUrl now returns the lowercase and dashed module name of the url
+- View::setLayout (*break BC)
+- View::setView (*break BC)
+- {{%layout _layouts/default}} in the @pageView, will change the layout.  
+    This directive works only on @pageView
+- Remove Controller::view(Closure)
+- Lowercase all views variable
+- Core\Controller now executes annotation @request
+
+
 0.8
 Dec 2 2012
 - Refactor View
