@@ -3,7 +3,7 @@ Voodoo Changelog
 
 
 0.10 (backward incompatible)
-Dec 10 2012
+Dec 12 2012
 - Implement annotation @view in Core\Controller::getAction() to change the view
 - Implement annotation @layout to change the layout
 - Change Config: views.container to views.layout *break BC
