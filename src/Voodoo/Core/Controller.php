@@ -23,7 +23,6 @@ namespace Voodoo\Core;
 use ReflectionClass,
     Closure;
 
-
 abstract class Controller
 {
     use Controller\TAnnotation;
@@ -71,7 +70,7 @@ abstract class Controller
     private $config = null;
 
     /**
-     * On destruct render view
+     * Local vars
      * @var bool
      */
     private $disableView = false;
@@ -81,11 +80,32 @@ abstract class Controller
     private $controllerNamespace = "";
     private $modelNamespace = "";
 
+    /**
+     * The default status code
+     * @var int
+     */
     protected $httpStatusCode = 200;
 
     protected $exit = false;
 
+    /**
+     * The reflection of the called class
+     * @var \Reflection
+     */
     protected $reflection = null;
+    
+    /**
+     * Error page for not found action
+     * @var string 
+     */
+    protected $view_404 = "_includes/error/404"; 
+    
+    /**
+     * Error page for invalid method
+     * @var string
+     */
+    protected $view_405 = "_includes/error/405";
+
 //------------------------------------------------------------------------------
     /**
      * This is the index action.
@@ -320,9 +340,36 @@ abstract class Controller
      */
     public function getModuleUrl()
     {
-        return preg_replace("/\/$/", "", $this->getBaseUrl() . "/" . (($this->moduleName == "Main") ? "" : $this->moduleName));
+        $module = (($this->moduleName == "Main") ? "" : $this->moduleName);
+        $module = $this->dasherizeUrl($module);
+        return preg_replace("/\/$/", "", $this->getBaseUrl() . "/" . $module );
+    }
+    
+    /**
+     * Return the url for the controller
+     * 
+     * @return string
+     */
+    public function getControllerUrl()
+    {
+        $url = $this->getModuleUrl();
+        $controller = (($this->controllerName == "Index") ? "" : $this->controllerName);
+        if($controller) {
+            $url .= "/".($this->dasherizeUrl($controller));
+        }
+        return preg_replace("/\/$/", "", $url );
     }
 
+    /**
+     * Dasherize part for a url
+     * 
+     * @param type $str
+     * @return string
+     */
+    private function dasherizeUrl($str)
+    {
+        return strtolower(Helpers::dasherize($str));
+    }
     /*     * **************************************************************************** */
 
 // CONTROLLER
@@ -381,6 +428,8 @@ abstract class Controller
      */
     public function getAction($action = "index")
     {
+        $executeAction = true;
+        $layout = "";
         $this->setActionName($action);
 
         $actionName = $this->getActionMethodName();
@@ -388,15 +437,55 @@ abstract class Controller
         if (method_exists($this, $actionName)) {
             $actionView = $this->getActionName();
             
-            /**
-             * @view $view-file-name
-             */
-            if($this->getActionAnnotation("view")) {
-               $actionView =  $this->getActionAnnotation("view");
+            /** @Actions Annotations **/
+                // @view $view-file-name : To change the default view
+                if($this->getActionAnnotation("view")) {
+                   $actionView =  $this->getActionAnnotation("view");
+                }
+                // @layout $layout-file-name (_layout/main): to change the layout
+                if($this->getActionAnnotation("layout")) {
+                   $layout =  $this->getActionAnnotation("layout");
+                }              
+            
+                /**
+                 * @request
+                 * Requires an action to accept a request method: POST | GET | PUT | DELETE
+                 * The @request annotation is array containing the keys: method, response, view
+                 * - Annotation
+                 *      @request Array
+                 * - arguments
+                 *      method (POST|GET|PUT|DELETE) - The request method to accept
+                 *      response - a message to display if the request method fails
+                 *      view -  a view to display instead of the _includes/error/405
+                 * - example: 
+                 *      @request [method=POST, response="This is an error message", view="_includes/error/405"]
+                 */
+                $request = $this->getActionAnnotation("request");
+                if(is_array($request) && $request["method"]) {
+                    if (! Http\Request::is($request["method"])) {
+                        $this->setHttpCode(405);
+                        $this->view()->setError($request["response"]);
+                        $this->view()->assign("error", $request["response"]);
+                        $actionView = $request["view"] ?: $this->view_405;
+                        $executeAction = false;
+                    }
+                }                
+             /** ~~~~~~ **/
+                
+            $this->setActionView($actionView);
+            
+            if ($this->view() instanceof View) {
+                $this->view()->setView($actionView);
+
+                if ($layout) {
+                   $this->view()->setLayout($layout); 
+                }                
+            }
+
+            if ($executeAction) {
+                $this->{$actionName}();
             }
             
-            $this->setActionView($actionView);
-            $this->{$actionName}();
         } else {
             throw new Exception("Action '{$actionName}' doesn't exist in " . get_called_class());
         }
@@ -458,14 +547,15 @@ abstract class Controller
      * Return the View instance
      * @return Core\View
      */
-    protected function view(Closure $vendorCallback = null)
+    protected function view()
     {
         if (!$this->view){
-            if (is_callable($vendorCallback)) {
-                $this->view = $vendorCallback();
-            } else {
-                $this->view = new View($this);
-                $this->view->setContainer($this->getConfig("views.container"));
+            $this->view = new View($this);
+            
+            // Set the layout
+            $layout = $this->getConfig("views.layout");    
+            if($layout) {
+                $this->view->setLayout($layout);
             }
         }
         return $this->view;
@@ -481,7 +571,6 @@ abstract class Controller
         if ($this->disableView || !$this->viewExists()) {
             return false;
         } else {
-            $this->view()->setBody($this->actionView);
             $render = $this->view()->render();
             return ($echoView) ? print($render) : $render;
         }
@@ -634,14 +723,18 @@ abstract class Controller
      * @param string $path
      * @param int $httpCode
      */
-    public function redirect($path = "", $httpCode = 302)
+    public function redirect($url = "", $httpCode = 302)
     {
-        if (preg_match("/^http/", $path)) { // http://xyz
-            $url = $path;
-        } else if(preg_match("/^\//", $path)) { // we'll add the ? if possible
-            $url = $this->getBaseUrl().$path;
+        if (! $url) {
+            $url = $this->getControllerUrl();
+        }
+        
+        if (preg_match("/^http/", $url)) { // http://xyz
+            $url = $url;
+        } else if(preg_match("/^\//", $url)) { // we'll add the ? if possible
+            $url = $this->getBaseUrl().$url;
         } else { // go to the current module
-            $url = $this->getModuleUrl()."/{$path}";
+            $url = $this->getModuleUrl()."/{$url}";
         }
 
         $this->_exit();
