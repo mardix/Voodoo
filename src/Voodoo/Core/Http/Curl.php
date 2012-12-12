@@ -16,13 +16,14 @@
  *
  */
 
-namespace Voodoo\Core\HTTP;
+namespace Voodoo\Core\Http;
 
+use Voodoo\Core;
 /**
  * Make sure curl_init is enabled
  */
 if (!function_exists('curl_init')) {
-  throw new Core\Exception('Class Voodo\Core\HTTP\Curl requires the CURL PHP extension.');
+  throw new Core\Exception('Class '.__CLASS__.' requires the CURL PHP extension.');
 }
 //------------------------------------------------------------------------------
 
@@ -31,46 +32,35 @@ class Curl
    private $response = "";
    private $headers = "";
 
-//------------------------------------------------------------------------------
-
-    public function __construct()
-    {  
-    }
-   
    /**
     * To make the curl request
     * @param string $url
-    * @param array $params
+    * @param mixed $params
     * @param string $method (GET | POST | DELETE | PUT)
     * @param array $curlOptions
     * @return Voodoo\Core\Curl
     * @throws Core\Exception
     */
-    public function call($url, Array $params = array(), $method = "GET", Array $curlOptions = array())
+    public function call($url, $params = [], $method = "GET", Array $curlOptions = [])
     {
         $ch = curl_init();
         $strParams = (is_array($params)) ? http_build_query($params) : $params;
 
         // Method
         switch (strtoupper($method)) {
-
             default:
             case "GET":
-                $url .= (strpos($this->url,"?") === FALSE ? "?" : "&").$strParams;
+                $url .= (strpos($url,"?") === FALSE ? "?" : "&").$strParams;
             break;
 
             case "POST":
                 curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $this->params);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
             break;
 
             case "PUT":
-                curl_setopt($ch,CURLOPT_CUSTOMREQUEST,"PUT");
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $strParams);
-            break;
-
             case "DELETE":
-                curl_setopt($ch,CURLOPT_CUSTOMREQUEST,"DELETE");
+                curl_setopt($ch,CURLOPT_CUSTOMREQUEST,strtoupper($method));
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $strParams);
             break;
         }
@@ -89,7 +79,6 @@ class Curl
             curl_setopt_array($ch, $curlOptions);
         }
         
-        
         $this->response = curl_exec($ch);
         $this->headers = curl_getinfo($ch);
         $error = curl_error($ch);
@@ -98,7 +87,7 @@ class Curl
         curl_close ($ch);
 
         if($this->response === FALSE) {
-            throw new Exception($error, $errorNo);
+            throw new Core\Exception($error, $errorNo);
         }
            
        return $this;
