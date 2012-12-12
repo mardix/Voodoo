@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------------------
  *
  * @name        Core\View
- * @desc        The controller's view class
+ * @desc        Core View. 
  * 
  * Mustache Extension
  * == New Markups
@@ -26,6 +26,10 @@
  *              {{%raw}}
  *                  {{}}
  *              {{/raw}}
+ * 
+ *      - Layout
+ *              {{%layout _layouts/default}}
+ *              
  */
 
 namespace Voodoo\Core;
@@ -40,29 +44,32 @@ class View
     // View file extension
     protected $ext = ".html";
 
-    protected $moduleName,
-                $controllerName,
-                $applicationPath,
-                $viewsPath,
-                $controllerPath,
-                $body,
-                $container,
-                $config,
-                $renderedContent,
-                $controllersViewPath;
+    protected $moduleName;
+    protected $controllerName;
+    protected $applicationPath;
+    protected $viewsPath;
+    protected $controllerPath;
+    protected $body;
+    protected $layout;
+    protected $config;
+    protected $renderedContent;
+    protected $controllersViewPath;
     
     protected $templates =  [];
     protected $templateDir = "";
     protected $parsed = false;
     protected $definedRaws = [];  
     
-    private $pageTitle,
-            $pageDescription;
+    private $pageTitle;
+    private $pageDescription;
     private $controller = null;
     private $paginator = null;
     private $form = null;
-
-  
+ 
+    private $templateKeys = [
+        "view" => "pageView",
+        "layout" => "pageLayout"
+    ];
 //------------------------------------------------------------------------------
     /**
      * The constructor
@@ -85,36 +92,81 @@ class View
 
         $this->setDir($this->controllersViewPath);
 
-        $this->assign([
-            "App" => [
-                "Copyright" => "Copyright &copy; " . date("Y"), // Copyright (c) 2012
-                "CurrentYear" => date("Y"), // The current year
-
-                "SiteUrl" => $this->controller->getSiteUrl(),
-                "Url" => $this->controller->getBaseUrl(),
-
-                "Module" => [
-                    "Name"      => $this->moduleName,
-                    "Url"       => $this->controller->getModuleUrl(),
-                    "Assets"    => $this->getModuleAssetsDir()
+        $this->assign("this", [
+                "url"       =>  $this->controller->getControllerUrl(),
+                "assets"    =>  $this->getModuleAssetsDir(),
+                
+                "module"    => [
+                    "name"      => $this->moduleName,
+                    "url"       => $this->controller->getModuleUrl(),
+                    "assets"    => $this->getModuleAssetsDir()
                 ],
-
-                "Assets"    => $this->getPublicAssetsDir()
-            ],
+                
+                "controller" => [
+                    "name"      => $this->controller->getControllerName(),
+                    "url"       => $this->controller->getControllerUrl()
+                ],
+                
+                
+                "app"       => [
+                    "url"   => $this->controller->getBaseUrl(),
+                    "assets"    =>  $this->getPublicAssetsDir()
+                ],
+            
+                "year"      => date("Y"),
+                "siteUrl"   => $this->controller->getSiteUrl(),
         ]);
 
     }
-
+    
     /**
-     * Set the working directory. By default files will be loaded from there
-     * @param  string         $dir
-     * @return Voodoo\Core\View
+     * Ser the working dir. By default files will be loaded from there
+     * @param string $dir
+     * @return \Voodoo\Core\View
      */
     public function setDir($dir)
     {
         $this->templateDir =   preg_match("!/$!",$dir) ? $dir : "{$dir}/";
         return $this;
     } 
+    
+    /**
+     * Set the extension to use
+     * 
+     * @param  string $extension
+     * @return Voodoo\Core\View
+     */
+    final public function setExtension($extension = ".html")
+    {
+        $this->ext = $extension;
+        return $this;
+    }
+    
+    /**
+     * Set the page title
+     * 
+     * @param string $title
+     * @return ViewController
+     */
+    final public function setPageTitle($title = "")
+    {
+        $this->pageTitle = $title;
+        return $this;
+    }
+
+    /**
+     * Set the page description
+     * 
+     * @param string $desc
+     * @return ViewController
+     */
+    final public function setPageDescription($desc = "")
+    {
+        $this->pageDescription = $desc;
+        return $this;
+    }
+    
+    
     
     /**
      * Return the module full path
@@ -146,40 +198,30 @@ class View
         return is_dir($this->controllersViewPath);
     }
 
-    /**
-     * Set the extension to use
-     * 
-     * @param  type             $extension
-     * @return Voodoo\Core\View
-     */
-    final public function setExtension($extension = ".html")
-    {
-        $this->ext = $extension;
-        return $this;
-    }
+
 
     /**
-     * Set the view container to use. By default it will user the contain set in config.
+     * Set the view layout to use. By default it will user the contain set in config.
      * 
-     * @param  string           $filename
-     * @param  bool             $absolute - true, it will use the full path of filename, or it will look in the current Views
+     * @param  string $filename
+     * @param  bool  $absolute - true, it will use the full path of filename, or it will look in the current Views
      * @return Voodoo\Core\View
      */
-    public function setContainer($filename, $absolute = false)
+    public function setLayout($filename, $absolute = false)
     {
-        $this->container = $filename;
-        $this->isContainerAbsolute = $absolute;
+        $this->layout = $filename;
+        $this->isLayoutAbsolute = $absolute;
         return $this;
     }
 
     /**
      * Set the view body  to use. By default it will use the the action view => $action.html
      * 
-     * @param  string           $filename
-     * @param  bool             $absolute - true, it will use the full path of filename, or it will look in the current Views
+     * @param  string $filename
+     * @param  bool $absolute - true, it will use the full path of filename, or it will look in the current Views
      * @return Voodoo\Core\View
      */
-    public function setBody($filename, $absolute = false)
+    public function setView($filename, $absolute = false)
     {
         $this->body = $filename;
         $this->isBodyAbsolute = $absolute;
@@ -205,49 +247,58 @@ class View
             }
         }
 
-        if ($this->renderedContent && $this->isRendered)
+        if ($this->renderedContent && $this->isRendered) {
             return $this->renderedContent;
+        }
 
         // App.Page.Title
         if ($this->pageTitle) {
-            $this->assign("App.Page.Title", $this->pageTitle);
+            $this->assign("this.title", $this->pageTitle);
             $this->setMetaTag("TITLE", $this->pageTitle);
         }
 
         // App.Page.Description
         if ($this->pageDescription) {
-            $this->assign("App.Page.Description", $this->pageDescription);
+            $this->assign("this.description", $this->pageDescription);
             $this->setMetaTag("Description", $this->pageDescription);
         }
 
         // App.Pagination
         if ($this->paginator && $this->paginator->getTotalItems()) {
-            $this->assign("App.Pagination", $this->paginator()->toArray());
+            $this->assign("this.app.pagination", $this->paginator()->toArray());
         }
         
          // App.FlashMessage
         $flashMessage = $this->getFlashMessage();
         if ($flashMessage) {
-            $this->assign("App.FlashMessage", $flashMessage);
+            $this->assign("this.app.flashMessage", $flashMessage);
             $this->clearFlash();
         }
 
-        $renderName = "PageBody";
+        $renderName = $this->templateKeys["view"];
+        $this->addTemplate($this->templateKeys["view"], $this->body, $this->isBodyAbsolute);
 
-        $this->addTemplate("PageBody", $this->body, $this->isBodyAbsolute);
-
-        if ($this->container !== false && $this->container) {
-            $renderName = "PageContainer";
-            $this->addTemplate("PageContainer", $this->container, $this->isContainerAbsolute);
+        if ($this->layout) {
+           $renderName = $this->templateKeys["layout"];
+           $this->addTemplate($this->templateKeys["layout"], $this->layout, $this->isLayoutAbsolute);
         }
+        
         $this->isRendered = true;
 
         $this->parse();
+        
         if (isset($this->templates[$renderName])) {
             $template = (new View\Mustache($this->templates[$renderName], $this->assigned))->render();
             // replace the raws and return
-            $this->renderedContent =
+            $content =
                     str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$template);
+            
+            // Strip HTML Comments
+            if ($this->controller->getConfig("views.stripHtmlComments")) {
+               $content = Helpers::stripHtmlComments($content);
+            }
+            
+            $this->renderedContent = $content;
         }
         return $this->renderedContent;
     }
@@ -256,7 +307,8 @@ class View
     /**
      * Return the complete file path of the template in the current view.
      * It can be used to access another views from another module
-     * @param  type   $path
+     * 
+     * @param  strin   $path
      * @return string
      */
     public function getPath($path = "index")
@@ -264,64 +316,37 @@ class View
         return $this->controllersViewPath . "/" . strtolower($path) . $this->ext;
     }
 
-    /**
-     * Set the page title
-     * @param type $title
-     * @access Page::Title
-     * @return ViewController
-     */
-    final public function setPageTitle($title = "")
-    {
-        $this->pageTitle = $title;
-        return $this;
-    }
 
-    /**
-     * Set the page description
-     * @param type $desc
-     * @access Page::Description
-     * @return ViewController
-     *
-     */
-    final public function setPageDescription($desc = "")
-    {
-        $this->pageDescription = $desc;
-        return $this;
-    }
 
     /**
      * Create meta tags
-     * @param  string     $tag     - the tag name
-     * @param  string     $content - content
+     * 
+     * @param  string $tag     - the tag name
+     * @param  string $content - content
      * @return \Core\View
      *
      * @example
-     * {{#Page.MetaTags}}
+     * {{#app.metaTags}}
      *     {{{.}}}
-     * {{/Page.MetaTags}}
+     * {{/app.metaTags}}
      */
     public function setMetaTag($tag, $content = "")
     {
         switch (strtolower($tag)) {
-
             case "keywords":
                 $tagName = "keywords";
                 $content = implode(",", array_unique(array_map("trim", explode(",", $content))));
                 break;
-
             case "lang":
                 $metaTag = "<META HTTP-EQUIV=\"CONTENT-LANGUAGE\" CONTENT=\"{$content}\">";
                 break;
-
             case "noindex":
                 $tagName = "robots";
                 $content = "NOINDEX,NOFOLLOW";
                 break;
-
             case "canonical":
                 $metaTag = "<link rel=\"canonical\" href=\"{$content}\">";
                 break;
-
             default:
                 $tagName = $tag;
                 break;
@@ -331,7 +356,7 @@ class View
             $metaTag = "<META NAME=\"$tagName\" CONTENT=\"$content\">";
         }
         if ($metaTag) {
-            $this->assign("App.Page.MetaTags",array($metaTag));
+            $this->assign("this.metaTags",array($metaTag));
         }
 
         return $this;
@@ -342,16 +367,14 @@ class View
      * To create FB opengraph properties
      *
      * @example
-     * {{#Page.OpenGraphTags}}
+     * {{#app.openGraphTags}}
      *     {{{.}}}
-     * {{/Page.OpenGraphTags}}
+     * {{/app.openGraphTags}}
      */
     public function setOpenGraphTag($Prop, $content = "")
     {
         if (is_array($Prop)) {
-
             foreach ($Prop as $property => $content) {
-
                 if (is_array($content)) {
                     foreach ($content as $cv) {
                         $this->setOpenGraphTag($property, $cv);
@@ -361,7 +384,7 @@ class View
                 }
             }
         } elseif (is_string($Prop) && $content) {
-            $this->assign("App.Page.MetaTags", 
+            $this->assign("this.openGraphTags", 
                     array("<meta property=\"$property\" content=\"$content\"/>"));
         }
     }
@@ -370,11 +393,12 @@ class View
 
     /**
      * Access the Paginator object
+     * 
      * @return Core\View\Paginator
      */
     public function paginator()
     {
-        if (!$this->paginator) {
+        if (! $this->paginator) {
             $uri = $this->controller->getRequestURI();
             $pattern = $this->controller->getConfig("views.pagination.pagePattern");
             $itemsPerPage = $this->controller->getConfig("views.pagination.itemsPerPage");
@@ -389,6 +413,7 @@ class View
 
     /**
      * Return the Forms object
+     * 
      * @return Core\View\Forms
      */
     public function form(){
@@ -401,27 +426,57 @@ class View
     
     /**
      * To add a template file
-     * @param  type             $name     - the name of the template. Can be used to call it: {{%include @name}}
-     * @param  type             $src      - the filepath relative to the working dir
+     * 
+     * @param  type $name - the name of the template. Can be used to call it: {{%include @name}}
+     * @param  type  $src - the filepath relative to the working dir
      * @return Voodoo\Core\View
      */
     public function addTemplate($name, $src, $absolutePath = false)
+    {
+        $src = $this->getRealPath($src, $absolutePath);
+        $content = $this->loadFile($src, true);
+        
+        /**
+         * {{%layout path}}
+         * Only @pageView checks for the layout
+         * It parses the template first to make sure it doesn't contain any raw tags
+         */
+        if ($name == $this->templateKeys["view"]) {
+            $content = $this->parseTemplate($content);
+            if(preg_match("/{{%layout\s+(.*?)\s*}}/i", $content, $matches)){
+               $content = str_replace($matches[0], "", $content);
+               $this->setLayout($matches[1]);
+           }           
+        }
+        
+        $this->addTemplateString($name, $content);
+        return $this;
+    }
+  
+    /**
+     * Get the real path of the file to include
+     * 
+     * @param string $src
+     * @param bool $absolutePath
+     * @return string
+     */
+    private function getRealPath($src, $absolutePath = false)
     {
         /**
          * To add a template file
          * To make it easy, you can load views of other modules in the current template
          * To do so, there are are two rules:
          *
-         * 1. Double leading slash // means to access another module. ie: //ModuleName/Controller/view-file
-         * 2. Single leading slash / mean to access another controller in the current module. ie: /Controller/view-file
+         * 1. Single leading slash / mean to access another controller in the current module. ie: /Controller/view-file
+         * 2. Double leading slash // means to access another module. ie: //ModuleName/Controller/view-file
+         * 3. Triple leading slash !/ means to access another app module. ie: !/AppName/ModuleName/Controller/view-file
          * 3. If there are no slash, it will just call it from the current controller
          *
          * Access to absolute dir:
          * Absolute directory start with _WHATEVERNAME. These name will always be access from the root of the template.
-         * They are but not limited to: _includes
+         * They are but not limited to: _includes, _layouts ...
          *
          * Access _includes from other modules, to do so:
-         *
          *     //ModuleName/_includes/file.html
          */
         if (preg_match("/^\//", $src)) {
@@ -458,14 +513,14 @@ class View
         $src = ($absolutePath || preg_match("/^({$this->controllerName}|_[\w]+)/", $src)) ? $src : "{$this->controllerName}/{$src}";
         $src = $this->addFileExtension($src);
         $src = ($absolutePath) ? $src : ($this->viewsPath . "/{$src}");
-        $this->addTemplateString($name, $this->loadFile($src, true));
-        return $this;
+        
+        return $src;
     }
-  
+    
     /**
      * To add a template string
-     * @param  type           $name
-     * @param  type           $content
+     * @param  string           $name
+     * @param  string           $content
      * @return Voodoo\Core\View
      */
     public function addTemplateString($name, $content)
@@ -661,5 +716,4 @@ class View
     {
         return $this->render();
     }
-
 }
