@@ -69,9 +69,9 @@ Git Clone (notice the dot at the end)
 	git clone git://github.com/VoodooPHP/Voodoo.git .
 
 
-[Download Zip](https://github.com/VoodooPHP/Voodoo/zipball/master)
+[Download Zip](https://github.com/VoodooPHP/Voodoo/archive/master.zip)
 
-[Download Tar](https://github.com/VoodooPHP/Voodoo/tarball/master)
+[Download Tar](https://github.com/VoodooPHP/Voodoo/archive/master.tar.gz)
     
 ---
 
@@ -81,8 +81,8 @@ After you download Voodoo, you will need to set it up via command line with the 
 
 Enter the command below
 
-		> cd $WHERE_IT_IS/src/Voodoo/Voodooist
- 		> php do-voodoo.php
+		> cd $PATH/Voodoo/Voodooist
+ 		> php -f ./do-voodoo.php
 
 ---
 
@@ -110,7 +110,7 @@ Once Voodoo has been setup, you will have a filesystem that looks like this:
 				|
 				+-- Model/
 				|
-				+-- View/
+				+-- Views/
 	|
 	+-- assets/
 		|
@@ -150,8 +150,8 @@ Voodooist requires App/Config/app-schema.json for it to setup your MVC environme
 
 This code execute the Voodooist
 
-		> cd $VOODOO_PATH/src/Voodoo/Voodooist
- 		> php do-voodoo.php
+		> cd $PATH/Voodoo/Voodooist
+ 		> php -f ./do-voodoo.php
 
 
 #### - App/Config/app-schema.json
@@ -198,8 +198,9 @@ App/Config/app-schema.json is a JSON file that contains the layout of your appli
 
 Running the code below will execute and create, if not exist, the files and paths
 
-		> cd $VOODOO_PATH/src/Voodoo/Voodooist
- 		> php do-voodoo.php
+
+		> cd $PATH/Voodoo/Voodooist
+ 		> php -f ./do-voodoo.php
 
 	|
 	+-- App/
@@ -259,15 +260,20 @@ Running the code below will execute and create, if not exist, the files and path
 					|
 					+-- _includes/
 						|
-						+-- container.html
-						|
 						+-- flash-message.html
+						|
+						+-- pagination.html
+					|
+					+-- _layouts/
+						|
+						+-- default.html
+						|
+						+-- head-tag.html
 						|
 						+-- footer.html
 						|
 						+-- header.html
-						|
-						+-- pagination.html
+
 	|
 	+-- assets/ [+]
 	|
@@ -388,7 +394,7 @@ That's how multiple applications looks like:
 				|
 				+-- Model/
 				|
-				+-- View/
+				+-- Views/
 		|
 		+-- Site2
 			|
@@ -400,7 +406,7 @@ That's how multiple applications looks like:
 				|
 				+-- Model/
 				|
-				+-- View/
+				+-- Views/
 		|
 		+-- SiteX
 			|
@@ -412,7 +418,7 @@ That's how multiple applications looks like:
 				|
 				+-- Model/
 				|
-				+-- View/			
+				+-- Views/			
 	|
 	+-- assets/ [+]
 	|
@@ -547,15 +553,19 @@ That's how the module **Main** looks like in the **Www** application.
 					|
 					+-- _includes/
 						|
-						+-- container.html
-						|
 						+-- flash-message.html
+						|
+						+-- pagination.html
+					|
+					+-- _layouts/
+						|
+						+-- default.html
+						|
+						+-- head-tag.html
 						|
 						+-- footer.html
 						|
 						+-- header.html
-						|
-						+-- pagination.html
 	|
 	+-- assets/ [+]
 	|
@@ -649,7 +659,7 @@ That's how a template file looks like with mustache template:
 
 	<html>
 		<head>
-			<title>{{App.Page.Title}}</title>
+			<title>{{this.title}}</title>
 		</head>
 		
 		<body>
@@ -711,8 +721,9 @@ Edit the file: `App/Config/app-schema.json `
 
 This code execute the Voodooist
 
-		> cd $VOODOO_PATH/src/Voodoo/Voodooist
- 		> php do-voodoo.php
+
+		> cd $PATH/Voodoo/Voodooist
+ 		> php -f ./do-voodoo.php
 
 
 And you will see the following filesystem:
@@ -756,15 +767,19 @@ And you will see the following filesystem:
 					|
 					+-- _includes/
 						|
-						+-- container.html
-						|
 						+-- flash-message.html
+						|
+						+-- pagination.html
+					|
+					+-- _layouts/
+						|
+						+-- default.html
+						|
+						+-- head-tag.html
 						|
 						+-- footer.html
 						|
 						+-- header.html
-						|
-						+-- pagination.html
 	|
 	+-- assets/ [+]
 	|
@@ -893,7 +908,7 @@ And you will see the following filesystem:
 ##### *App/Www/Main/Views/Index/container.html*
 Voodoo requires a container template file. The container is a place holder for the action's view. The container may contain  header, footer, sidebar etc.. but must include the tag below to include the action's view page
   
-		{{%include @PageBody}}  
+		{{%include @pageView}}  
 
 Technically, the container is the layout of your application, and your action files are files to be included in the layout. 
 
@@ -903,15 +918,15 @@ So let's create the container. It is placed at:
 		
 	<html>
 		<head>
-			<title>{{App.Page.Title}}</title>
+			<title>{{this.title}}</title>
 		</head>
 		
 		<body>
-			{{%include _includes/header}}
+			{{%include _layouts/header}}
 			
-				{{%include @PageBody}}
+				{{%include @pageView}}
 				
-			{{%include _includes/footer}}
+			{{%include _layouts/footer}}
 		</body>
 	</html>
 
