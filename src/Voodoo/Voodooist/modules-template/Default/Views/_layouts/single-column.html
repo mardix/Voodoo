@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--
+single-column.html
+-->
+<HTML>
+    {{%include _layouts/head-tag}}
+
+    <body>
+        
+        {{%include _layouts/header}}
+
+        <div class="container">
+            <!-- for flashed messages -->
+            {{%include @pageFlashMessage}}
+
+            <div class="row">
+                <div class="span12">
+                    <!-- REQUIRED to show the content -->
+                    {{%include @pageView}}               
+                </div>
+            </div>
+        </div>
+
+        {{%include _layouts/footer}}
+        
+    </body>
+</HTML>

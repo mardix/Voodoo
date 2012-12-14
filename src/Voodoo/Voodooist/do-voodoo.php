@@ -25,7 +25,7 @@ if(!Core\Env::isCli()) {
 } else {
 
     $jsonFile = Core\Path::Config()."/app-schema.json";
-    $BlackMagic = new Voodooist\Lib\BlackMagic;
+    $BlackMagic = new Voodooist\BlackMagic;
 
     e(Core\Voodoo::NAME." ".Core\Voodoo::VERSION." : The Voodooist!");
     e("-----------------------------------------------------------------------");

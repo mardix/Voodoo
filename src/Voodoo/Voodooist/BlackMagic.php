@@ -11,12 +11,12 @@
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
- * @name        Voodooist\Lib\BlackMagic
+ * @name        Voodooist\BlackMagic
  * @desc        This file automatically setup files properly for voodoo
  *
  */
 
-namespace Voodoo\Voodooist\Lib;
+namespace Voodoo\Voodooist;
 
 use Voodoo\Core,
     ReflectionClass;   
@@ -187,16 +187,18 @@ class BlackMagic
                 $this->mkdir($viewsDir); 
                 $this->mkdir($viewsDir."/_assets");
                 $this->mkdir($viewsDir."/_includes");
+                $this->mkdir($viewsDir."/_layouts");
             }
             
             if ($templateDir) {
                 
-                $viewsTpl = Core\Path::Voodooist()."/files/modules/{$templateDir}/Views";
+                $modulesTemplate = Core\Path::Voodooist()."/modules-template/{$templateDir}";
+                $viewsTpl = "{$modulesTemplate}/Views";
                 if (is_dir($viewsTpl) && is_dir($viewsDir)) {
                     Core\Helpers::recursiveCopy($viewsTpl, $viewsDir);
                 }  
                 
-                $controlTpl = Core\Path::Voodooist()."/files/modules/{$templateDir}/Controller";
+                $controlTpl = "{$modulesTemplate}/Controller";
                 if (is_dir($controlTpl)) {
                     Core\Helpers::recursiveCopy($controlTpl,$appControllerDir);
                     $controllerNameSpace = $this->applicationNS."\\{$module}\\Controller";
@@ -209,7 +211,7 @@ class BlackMagic
                     }
                 }
                 
-                $modelTpl = Core\Path::Voodooist()."/files/modules/{$templateDir}/Model";
+                $modelTpl = "{$modulesTemplate}/Model";
                 if (is_dir($modelTpl)) {
                     Core\Helpers::recursiveCopy($modelTpl,$appModelDir);
                     $modelNameSpace = $this->applicationNS."\\{$module}\\Model";

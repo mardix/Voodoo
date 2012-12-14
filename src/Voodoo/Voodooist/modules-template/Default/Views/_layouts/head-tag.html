@@ -1,0 +1,25 @@
+<!-- head-tag.html -->
+
+    <head>
+        <META NAME="Copyright" CONTENT="{{this.year}}">
+        <META NAME="revisit-after" CONTENT="1 days">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        {{#this.metaTags}}
+            {{{.}}}
+        {{/this.metaTags}}
+
+        <title>{{this.title}}</title>
+
+        <link href="{{this.app.assets}}/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="{{this.app.assets}}/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="{{this.assets}}/css/style.css" rel="stylesheet">
+
+        <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+          <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->    
+
+        <script src="{{this.app.assets}}/jquery/jquery-1.8.min.js"></script>
+        <script src="{{this.app.assets}}/bootstrap/js/bootstrap.min.js"></script>
+        <script src="{{this.assets}}/js/application.js"></script>    
+    </head>
