@@ -375,26 +375,17 @@ Class Helpers{
 
     /**
      * Delete file recursively
-     * @param <type> $dirname
-     * @return <type>
+     * 
+     * @param strin $dir
+     * @return bool
      */
-    public static function recursiveDelete($dirname)
+    public static function recursiveDelete($dir)
     {
-      // recursive function to delete
-      // all subdirectories and contents:
-      if(is_dir($dirname))$dir_handle=opendir($dirname);
-          while ($file=readdir($dir_handle)) {
-            if ($file!="." && $file!="..") {
-              if(!is_dir($dirname."/".$file))
-                    unlink ($dirname."/".$file);
-              else
-                    self::recursiveDelete($dirname."/".$file);
-            }
-          }
-      closedir($dir_handle);
-      rmdir($dirname);
-
-      return true;
+        foreach (array_diff(scandir($dir), ['.','..']) as $file) { 
+          (is_dir("$dir/$file")) ? self::recursiveDelete("$dir/$file") 
+                                   : unlink("$dir/$file"); 
+        } 
+        return rmdir($dir);
     }
 
     /**
