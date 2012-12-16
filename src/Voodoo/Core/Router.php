@@ -76,13 +76,13 @@ class Router
      * Holds the route settings
      * @var type
      */
-    protected $routes = array();
+    protected $routes = [];
 
     /**
      * Holds extra routes info that were generated
      * @var type
      */
-    protected $routesExtended = array();
+    protected $routesExtended = [];
 
     /**
      * Allow Query
@@ -107,7 +107,8 @@ class Router
      */
     private $requestMethod = "";
 
-
+    private $allowedMethods = "(POST|GET|PUT|DELETE)";
+    
     /**
      * Statically instantiate the class
      * @param  array  $Routes
@@ -122,7 +123,7 @@ class Router
      * The constructor
      * @param array $Routes - Set the routes
      */
-    public function __construct(Array $Routes = array())
+    public function __construct(Array $Routes = [])
     {
         $this->setRoutes($Routes);
         $this->requestMethod = strtoupper($_SERVER["REQUEST_METHOD"]);
@@ -135,8 +136,8 @@ class Router
      */
     public function setRoutes(Array $Routes)
     {
-        $nR = array();
-        $nR2 = array();
+        $nR = [];
+        $nR2 = [];
         foreach ($Routes as $k => $v) {
             $nR[$this->removeLeadingSlash($k)] = $this->removeLeadingSlash($v);
 
@@ -189,7 +190,7 @@ class Router
                     $val = preg_replace("#^{$key}$#i",$val,$uri);
                 }
                 $route = $val.$qs;
-                return ($method && $this->requestMethod =! $method) ? $originalUri : $route;
+                return ($method && $this->requestMethod != $method) ? $originalUri : $route;
             }
         }
         return $originalUri;
@@ -216,9 +217,9 @@ class Router
         $arr = [];
         foreach (($addExtendedRoutes ? $this->routesExtended : $this->routes) as $key => $val) {
             $method = "";
-            if (preg_match("/^(POST|GET)\s+/i",$key,$m)) {
+            if (preg_match("/^{$this->allowedMethods}\s+/i",$key,$m)) {
                 $method = strtoupper($m[1]);
-                $key = preg_replace("/^(POST|GET)\s+/i","",$key);
+                $key = preg_replace("/^{$this->allowedMethods}\s+/i","",$key);
             }
             $arr[] = [
                 "RequestMethod" => $method,
@@ -232,10 +233,10 @@ class Router
     /**
      * Will remove the leading slash
      * @param  type $str
-     * @return type
+     * @return string
      */
     private function removeLeadingSlash($str)
     {
-        return preg_replace("/^((POST |GET ))?\/(.+)/","$2$3",$str);
+        return preg_replace("/^({$this->allowedMethods}\s)?\/(.+)/","$2$3",$str);
     }
 }
