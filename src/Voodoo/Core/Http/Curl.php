@@ -41,7 +41,7 @@ class Curl
     * @return Voodoo\Core\Curl
     * @throws Core\Exception
     */
-    public function call($url, $params = [], $method = "GET", Array $curlOptions = [])
+    public function call($url, $params = [], $method = Request::GET, Array $curlOptions = [])
     {
         $ch = curl_init();
         $strParams = (is_array($params)) ? http_build_query($params) : $params;
