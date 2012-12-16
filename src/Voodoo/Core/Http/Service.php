@@ -16,7 +16,7 @@
  *
  */
 
-namespace Voodoo\Core;
+namespace Voodoo\Core\Http;
 
 class Service
 {
@@ -168,7 +168,7 @@ class Service
      */
     protected function call()
     {
-        $curl = new Http\Curl;
+        $curl = new Curl;
         $curl->call($this->endpoint, $this->params, $this->method, $this->headers);
         $this->response = $curl->getResponse();
         $this->httpCode = $curl->getHttpCode();
