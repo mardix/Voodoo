@@ -125,7 +125,7 @@ class Router
     public function __construct(Array $Routes = array())
     {
         $this->setRoutes($Routes);
-        $this->requestMethod = @strtoupper($_SERVER["REQUEST_METHOD"]);
+        $this->requestMethod = strtoupper($_SERVER["REQUEST_METHOD"]);
     }
 
     /**
