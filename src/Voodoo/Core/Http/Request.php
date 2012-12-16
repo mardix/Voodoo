@@ -19,7 +19,12 @@ namespace Voodoo\Core\Http;
 
 class Request
 {
-    private static $params = array();
+    CONST GET = "GET";
+    CONST POST = "POST";
+    CONST DELETE = "DELETE";
+    CONST PUT = "PUT";
+    
+    private static $params = [];
 
     
     /**
@@ -28,7 +33,7 @@ class Request
      */
     public static function getGetParams()
     {
-        $params = array();
+        $params = [];
         $query = (parse_url($_SERVER["REQUEST_URI"],PHP_URL_QUERY));
         parse_str($query, $params);
         return $params;
