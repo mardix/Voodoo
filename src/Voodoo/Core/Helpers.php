@@ -283,7 +283,7 @@ Class Helpers{
      */    
     public static function validLogin($str, $min = 6, $max = 64)
     {
-        return preg_match("/[^[:alnum:]_]{{$min}, {$max}}$/i",$str);
+        return preg_match("/^[\w_]{{$min},{$max}}$/",$str);
     }
 
     public static function validZipCode($zip)
