@@ -261,53 +261,49 @@ Class Helpers{
     }
 
     /**
-     * to validate a password by accepting a certain lenth and characers
-     * @param <type> $str
-     * @return <type>
+     * Check if a password is valid
+     * 
+     * @param string $str
+     * @param int $min
+     * @param int $max
+     * @return bool
      */
-    public static function validPassword($str, $min = 6, $max = 16)
+    public static function validPassword($str, $min = 6, $max = 32)
     {
-        return (!preg_match("/^[.a-z_0-9\-!@#\$%]{{$min}, {$max}}$/ui",$str) ? FALSE : TRUE);
+        return preg_match("/^[.a-z_0-9\-!@#\$%]{{$min}, {$max}}$/ui",$str);
     }
 
-    public static function validLogin($str)
+    /**
+     * Check if a login is valid
+     * 
+     * @param string $str
+     * @param int $min
+     * @param int $max
+     * @return bool
+     */    
+    public static function validLogin($str, $min = 6, $max = 64)
     {
-        return ( ! preg_match("/[^[:alnum:]_]{4,16}$/",$str)) ? FALSE : TRUE;
+        return preg_match("/[^[:alnum:]_]{{$min}, {$max}}$/i",$str);
     }
 
     public static function validZipCode($zip)
     {
-     return preg_match("/^[0-9]{5}([- ]?[0-9]{4})?$/",$zip)? TRUE : FALSE;
+        return preg_match("/^[0-9]{5}([- ]?[0-9]{4})?$/",$zip);
     }
 
     public static function validIP($str)
     {
-     return ( ! preg_match("/\d{1,3}(?:\.\d{1,3}){3}/", $str)) ? FALSE : TRUE;
+        return preg_match("/\d{1,3}(?:\.\d{1,3}){3}/", $str);
     }
 
     public static function validUrl($str)
     {
-        return ( ! preg_match("#^((http|https)://(\S*?\.\S*?))(\s|\;|\)|\]|\[|\{|\}|,|\"|'|:|\<|$|\.\s)#ie", $str)) ? FALSE : TRUE;
-    }
-
-    public static function isAlpha($str)
-    {
-      return ( ! preg_match("/^([a-z])+$/i", $str)) ? FALSE : TRUE;
-    }
-
-    public static function isAlphaNumeric($str)
-    {
-        return ( ! preg_match("/^([a-z0-9])+$/i", $str)) ? FALSE : TRUE;
-    }
-
-    public static function isAlphaDash($str)
-    {
-        return ( ! preg_match("/^([-a-z0-9_-])+$/i", $str)) ? FALSE : TRUE;
+        return preg_match("#^((http|https)://(\S*?\.\S*?))(\s|\;|\)|\]|\[|\{|\}|,|\"|'|:|\<|$|\.\s)#ie", $str);
     }
 
     public static function isMatch($field1, $field2)
     {
-        return (!isset($field1)) ? false : (($field1!== $field2) ? false : true);
+        return ($field1 === $field2);
     }
 
     /**
