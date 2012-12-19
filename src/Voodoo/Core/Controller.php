@@ -77,7 +77,6 @@ abstract class Controller
     private $applicationDir = "";
     private $moduleNamespace = "";
     private $controllerNamespace = "";
-    private $modelNamespace = "";
 
     /**
      * The default status code
@@ -124,7 +123,6 @@ abstract class Controller
         $this->moduleDir = dirname(dirname($this->reflection->getFileName()));
         $this->applicationDir = dirname($this->moduleDir);
         $this->moduleNamespace = $this->getParentNamespace($namespace);
-        $this->modelNamespace = $this->moduleNamespace."\\Model";
 
         $this->segments = $segments;
 
@@ -589,33 +587,6 @@ abstract class Controller
     {
         $this->disableView = $bool;
         return $this;
-    }
-
-    /*     * **************************************************************************** */
-
-// MODEL
-    /**
-     * Access the module's model, or load it from another module
-     * @param string $modelName  - The name of the model to use.
-     * If it starts with a \ (blackslah), it will load the model from there
-     * Otherwise it loads the model from the current NS
-     * @return Model
-     * @throws Exception
-     * @example $this->getModel("Users");
-     *          $this->getModel("Bands");
-     */
-    protected function getModel($modelName)
-    {
-        $model = (strpos('\\',$modelName) === 0)
-                        ? $model
-                        : $this->modelNamespace."\\"
-                            .Helpers::camelize($modelName, true);
-
-        if (class_exists($model)) {
-            return new $model;
-        } else {
-            throw new Exception("Model doesn't exist: {$model}");
-        }
     }
 
     /*     * **************************************************************************** */
