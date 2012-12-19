@@ -20,8 +20,7 @@
 
 namespace Voodoo\Core;
 
-use ReflectionClass,
-    Closure;
+use ReflectionClass;
 
 abstract class Controller
 {
@@ -93,18 +92,6 @@ abstract class Controller
      * @var \Reflection
      */
     protected $reflection = null;
-    
-    /**
-     * Error page for not found action
-     * @var string 
-     */
-    protected $view_404 = "_includes/error/404"; 
-    
-    /**
-     * Error page for invalid method
-     * @var string
-     */
-    protected $view_405 = "_includes/error/405";
 
 //------------------------------------------------------------------------------
     /**
@@ -466,7 +453,14 @@ abstract class Controller
                         $this->setHttpCode(405);
                         $this->view()->setError($request["response"]);
                         $this->view()->assign("error", $request["response"]);
-                        $actionView = $request["view"] ?: $this->view_405;
+                        if ($request["view"]) {
+                            $actionView = $request["view"];
+                        } else {
+                            if ($this->view() instanceof View) {
+                                $this->view()->setViewError(405);    
+                            }
+                            return $this;
+                        }
                         $executeAction = false;
                     }
                 }                
@@ -476,7 +470,6 @@ abstract class Controller
             
             if ($this->view() instanceof View) {
                 $this->view()->setView($actionView);
-
                 if ($layout) {
                    $this->view()->setLayout($layout); 
                 }                
