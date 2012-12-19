@@ -2,22 +2,22 @@
 /** {{GENERATOR}} (autogen date: {{DATE}})
  ******************************************************************************
  * @desc        The default controller. It shows a coming soon page
- * @package     {{NAMESPACE}}
+ * @package     {{MODULENAMESPACE}}
  * @name        Index
  * @copyright   (c) {{YEAR}}
  ******************************************************************************/
 
-namespace {{NAMESPACE}};
+namespace {{MODULENAMESPACE}}\Controller;
 
-use Voodoo;
-
+use Voodoo,
+    {{MODULENAMESPACE}}\Model,
+    {{MODULENAMESPACE}}\Exception;
+    
 class Index extends Voodoo\Core\Controller
 {
-
     /**
-     * Action: Index
-     * This is the index action.
-     * It is loaded by default or when  action is missing
+     * @action index
+     * @desc This is the index action. Loaded by default or when action is missing
      */
     public function action_index()
     {
