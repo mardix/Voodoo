@@ -173,13 +173,17 @@ class BlackMagic
         $module = $this->moduleName = $this->formatName($module);
         $appControllerDir = $this->applicationPath."/{$module}/Controller";
         $appModelDir = $this->applicationPath."/{$module}/Model";
-        
+        $this->moduleNamespace = $this->applicationNS."\\{$this->moduleName}";
+         
         $newModelDir = is_dir($appModelDir);
         $countModels = 0;
         
         $this->mkdir($appControllerDir);
         $this->mkdir($appModelDir);
 
+        $exception =  $this->applicationPath."/{$this->moduleName}"."/Exception.php";
+        $this->saveTpl("module_exception", $exception,["MODULENAMESPACE" => $this->moduleNamespace]);
+        
         if (! $isApi) {
             
             if (! $omitViews) {
@@ -201,12 +205,11 @@ class BlackMagic
                 $controlTpl = "{$modulesTemplate}/Controller";
                 if (is_dir($controlTpl)) {
                     Core\Helpers::recursiveCopy($controlTpl,$appControllerDir);
-                    $controllerNameSpace = $this->applicationNS."\\{$module}\\Controller";
                     //Let's go in each file and update some VARIABLE
                     $DirIt = new \DirectoryIterator($appControllerDir);
                     foreach ($DirIt as $Dir) {
                         if (!$Dir->isDot() && $Dir->isFile()) {
-                            $this->parseFile($Dir->getPathname(),array("MODULENAME"=>$module,"TEMPLATENAME"=>$templateDir,"NAMESPACE"=>$controllerNameSpace));
+                            $this->parseFile($Dir->getPathname(),array("MODULENAMESPACE" => $this->moduleNamespace,"TEMPLATENAME"=>$templateDir));
                         }
                     }
                 }
@@ -214,13 +217,12 @@ class BlackMagic
                 $modelTpl = "{$modulesTemplate}/Model";
                 if (is_dir($modelTpl)) {
                     Core\Helpers::recursiveCopy($modelTpl,$appModelDir);
-                    $modelNameSpace = $this->applicationNS."\\{$module}\\Model";
                     //Let's go in each file and update some VARIABLE
                     $DirIt = new \DirectoryIterator($appModelDir);
                     foreach ($DirIt as $Dir) {
                         if (!$Dir->isDot() && $Dir->isFile()) {
                             $countModels++;
-                            $this->parseFile($Dir->getPathname(),array("MODULENAME"=>$module,"TEMPLATENAME"=>$templateDir,"NAMESPACE"=>$modelNameSpace));
+                            $this->parseFile($Dir->getPathname(),array("MODULENAMESPACE" => $this->moduleNamespace,"TEMPLATENAME"=>$templateDir));
                         }
                     }
                 }                
@@ -239,7 +241,6 @@ class BlackMagic
 
     /**
      * To create a controller
-     * @param  type   $module         - The name of the module
      * @param  type   $controllerName - The controller name
      * @return bool
      */
@@ -247,11 +248,7 @@ class BlackMagic
     {
         $this->controllerName = $this->formatName($controllerName);
 
-        $module = $this->moduleName;
-
-        $controllerNameSpace = $this->applicationNS."\\{$module}\\Controller";
-
-        $file = $this->applicationPath."/{$module}"."/Controller/{$this->controllerName}.php";
+        $file = $this->applicationPath."/{$this->moduleName}"."/Controller/{$this->controllerName}.php";
 
         if(file_exists($file)) {
             return false;
@@ -263,7 +260,7 @@ class BlackMagic
 
         $tpl = ($isApi) ? "controller_api" : "controller";
 
-        $this->saveTpl($tpl, $file,array("CONTROLLER"=>$this->controllerName, "NAMESPACE"=>$controllerNameSpace));
+        $this->saveTpl($tpl, $file,array("CONTROLLER"=>$this->controllerName, "MODULENAMESPACE" => $this->moduleNamespace));
 
         return true;
     }
@@ -374,7 +371,7 @@ class BlackMagic
 
         $settings = array(
            "MODELNAME" => $modelName,
-           "NAMESPACE" => $modelNameSpace,
+           "MODULENAMESPACE" => $this->moduleNamespace,
            "TABLENAME" => $tableName,
            "PRIMARYKEY" => $primaryKey,
            "FOREIGNKEY" => $foreignKey,
