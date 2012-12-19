@@ -2,14 +2,16 @@
 /** {{GENERATOR}} (autogen date: {{DATE}})
  ******************************************************************************
  * @desc        
- * @package     {{NAMESPACE}}
+ * @package     {{MODULENAMESPACE}}\Model
  * @name        {{MODELNAME}}    
  * @copyright   (c) {{YEAR}}
  ******************************************************************************/ 
 
-namespace {{NAMESPACE}};
+namespace {{MODULENAMESPACE}}\Model;
 
-use Voodoo;
+use Voodoo,
+    {{MODULENAMESPACE}}\Exception;
+
 
 class {{MODELNAME}} extends Voodoo\Core\Model
 {

@@ -1,0 +1,16 @@
+<?php
+/** {{GENERATOR}} (autogen date: {{DATE}})
+ ******************************************************************************
+ * @desc        The Exception class for the module
+ * @package     {{MODULENAMESPACE}}
+ * @name        Exception
+ * @copyright   (c) {{YEAR}}
+ ******************************************************************************/
+
+namespace {{MODULENAMESPACE}};
+
+use Exception;
+
+class Exception extends Exception
+{
+}
