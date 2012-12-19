@@ -58,7 +58,7 @@ class View
     protected $templates =  [];
     protected $templateDir = "";
     protected $parsed = false;
-    protected $definedRaws = [];  
+    protected $definedRaws = []; 
     
     private $pageTitle;
     private $pageDescription;
@@ -67,8 +67,14 @@ class View
     private $form = null;
  
     private $templateKeys = [
-        "view" => "pageView",
-        "layout" => "pageLayout"
+        "view"      => "pageView",
+        "layout"    => "pageLayout"
+    ];
+    
+    private $path = [
+        "includes" => "_includes",
+        "layouts"   => "_layouts",
+        "error"    => "_includes/error"
     ];
 //------------------------------------------------------------------------------
     /**
@@ -108,7 +114,7 @@ class View
                 ],
                 
                 
-                "app"       => [
+                "global"       => [
                     "url"   => $this->controller->getBaseUrl(),
                     "assets"    =>  $this->getPublicAssetsDir()
                 ],
@@ -229,6 +235,23 @@ class View
     }
 
     /**
+     * To set the error page
+     *  
+     * @param int $errorCode
+     * @param string $errorMessage 
+     * @return Voodoo\Core\View
+     */
+    public function setViewError($errorCode, $errorMessage = "")
+    {
+        if($errorMessage) {
+            $this->setError($errorMessage);
+        }
+        $this->setView($this->path["error"]."/".$errorCode);
+        
+        return $this;
+    }
+    
+    /**
      * Render the template
      * 
      * @return String
@@ -251,30 +274,31 @@ class View
             return $this->renderedContent;
         }
 
-        // App.Page.Title
+        // this.title
         if ($this->pageTitle) {
             $this->assign("this.title", $this->pageTitle);
             $this->setMetaTag("TITLE", $this->pageTitle);
         }
-
-        // App.Page.Description
+        // this.description
         if ($this->pageDescription) {
             $this->assign("this.description", $this->pageDescription);
             $this->setMetaTag("Description", $this->pageDescription);
         }
-
-        // App.Pagination
+        // this.pagination
         if ($this->paginator && $this->paginator->getTotalItems()) {
-            $this->assign("this.app.pagination", $this->paginator()->toArray());
+            $this->assign("this.pagination", $this->paginator()->toArray());
         }
-        
-         // App.FlashMessage
+         // this.flashMessage
         $flashMessage = $this->getFlashMessage();
         if ($flashMessage) {
-            $this->assign("this.app.flashMessage", $flashMessage);
+            $this->assign("this.flashMessage", $flashMessage);
             $this->clearFlash();
         }
-
+        // this.error
+        if ($this->hasError()) {
+            $this->assign("this.error", $this->getMessage("error"));
+        }
+        
         $renderName = $this->templateKeys["view"];
         $this->addTemplate($this->templateKeys["view"], $this->body, $this->isBodyAbsolute);
 
@@ -297,7 +321,6 @@ class View
             if ($this->controller->getConfig("views.stripHtmlComments")) {
                $content = Helpers::stripHtmlComments($content);
             }
-            
             $this->renderedContent = $content;
         }
         return $this->renderedContent;
