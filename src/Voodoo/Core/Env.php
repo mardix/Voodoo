@@ -20,6 +20,11 @@
 namespace Voodoo\Core;
 
 class Env {
+    private static $appDir = "";
+    private static $privateDir = "";
+    private static $globalAssetsDir = "";
+    
+    private static $paths = [];
     
     /**
      * Check if the SAPI is CLI or not
@@ -107,6 +112,56 @@ class Env {
     {
         return dirname(dirname(__DIR__));
     }    
+    
+    
+    /**
+     * Set the app dir
+     * 
+     * @param string $appDir
+     */
+    public static function setAppPath($rootDir){
+        self::$paths["App"] = $rootDir."/App";
+    }
+    /**
+     * Get the app dir
+     * 
+     * @return string
+     */
+    public static function getAppPath()
+    {
+        return self::$paths["App"];
+    }
+    
+    /**
+     * set the private dir
+     * 
+     * @param string $privateDir
+     */
+    public static function setPrivatePath($path)
+    {
+        self::$paths["private"] = $path;
+    }
+    
+    /**
+     * Get the private dir
+     * 
+     * @return string
+     */
+    public function getPrivatePath()
+    {
+        return self::$paths["private"];
+    }
+    
+    public static function setPublicAssetsPath($path)
+    {
+        self::$paths["publicAssets"] = $path;
+    }
+    
+    public static function getPublicAssetsPath()
+    {
+        return self::$paths["publicAssets"];
+    }
+    
     
     /**
      * To start a session if it's not active
