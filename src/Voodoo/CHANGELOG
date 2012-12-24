@@ -1,8 +1,19 @@
 Voodoo Changelog
 ================================================================================
+0.12
+ - Move Core\Service to Core\Http\Service
+ - Added Request constants: Request::POST, Request::GET, Request::PUT, Request::DELETE
+ - Added Request::getIp()
+ - Refactor Helper::recursiveDelete()
+ - Controller: Remove $views_404, $views_405, use instead $this->view()->setViewError(error#)
+ - View: added setViewError(). Rename this.app.assets to this.global.assets. Added this.error
+ - Update views modules templates
+ - Remove Controller::getModel()
+ - Allow the move of Voodoo/ to anywhere
 
+0.11 -  Skipped - Backward incompatible
 
-0.10 (backward incompatible)
+0.10
 Dec 12 2012
 - Implement annotation @view in Core\Controller::getAction() to change the view
 - Implement annotation @layout to change the layout
@@ -20,6 +31,7 @@ Dec 12 2012
 - Lowercase all views variable
 - Core\Controller now executes annotation @request
 
+0.9 - Skipped - Backward incompatible
 
 0.8
 Dec 2 2012
