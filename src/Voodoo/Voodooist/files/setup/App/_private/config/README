@@ -1,0 +1,9 @@
+
+_private/config
+
+Save .ini config file in this directory.
+
+To access the config, Voodoo has the accessor Voodoo\Core\Config.
+Voodoo\Core\Config::FileName() to access. 
+ie: DB.ini
+Voodoo\Core\Config::DB();

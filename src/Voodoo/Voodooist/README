@@ -1,11 +1,26 @@
+============================ VoodooPHP : Voodooist =============================
 
---------------------------------------------------------------------------------
-README: Modules-Templates
---------------------------------------------------------------------------------
+/Voodoo/Voodooist
+    |
+    +-- do-voodoo.php ()
+    |
+    +-- BlackMagic.php ()
+    |
+    +-- files/
+            |
+            +-- setup/ ()
+            |
+            +-- templates/ ()
+    |
+    +-- modules-template/ (Contains pre-made templates)
+            |
+            +-- Default
+    
 
-This directory contains pre-made templates to create application's module
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+DO-VOODOO.PHP
 
-Upon creating a module, the template files will be copied to the new Module.
+    php -f ./do-voodoo.php
 
 
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1,0 +1,11 @@
+
+_private/vendor
+
+Use this directory to add 3rd party libraries
+
+Also it can be used for packages with composer. 
+In your composer.json file add the property:
+    "config": {
+        "vendor-dir": "App/_private/vendor",
+    },
+where 'App/_private/vendor' is this location, but can be changed to anything
