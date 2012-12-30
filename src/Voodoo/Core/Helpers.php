@@ -15,8 +15,8 @@
  * @since       Costant update....
  * @desc        A collection of useful function wrapped into class... Didn't feel like putting functions in their own file,
  *              so I know if call this static class, I will find my function anywhere... yeah yeah yeah... don't judge... it works... lol
- *
- *
+ *              Most of these functions was created for special task, but decided to leave them anyway. 
+ *              They may not be too clean or PSR-2, but it's ok... lol... my bad on that :)
  */
 
 namespace Voodoo\Core;
@@ -87,7 +87,7 @@ Class Helpers{
 
         else if (strlen($phone) == 10)return preg_replace("/([0-9a-zA-Z]{3})([0-9a-zA-Z]{3})([0-9a-zA-Z]{4})/", "($1) $2-$3", $phone);
 
-            else if (strlen($phone) == 11) return preg_replace("/([0-9a-zA-Z]{1})([0-9a-zA-Z]{3})([0-9a-zA-Z]{3})([0-9a-zA-Z]{4})/", "$1($2) $3-$4", $phone);
+        else if (strlen($phone) == 11) return preg_replace("/([0-9a-zA-Z]{1})([0-9a-zA-Z]{3})([0-9a-zA-Z]{3})([0-9a-zA-Z]{4})/", "$1($2) $3-$4", $phone);
 
         else return $phone;
     }
@@ -112,7 +112,7 @@ Class Helpers{
       $left_trimmedStr = preg_replace($initial_whitespace_rExp,"",$fullStr);
       $non_alphanumerics_rExp = "/[^A-Za-z0-9]+/i";
       $cleanedStr = preg_replace($non_alphanumerics_rExp, " ",$left_trimmedStr);
-      $splitString = split(" ",$cleanedStr);
+      $splitString = explode(" ",$cleanedStr);
       $word_count = count($splitString);
 
         return (count($splitString)<1) ? 0 : $word_count;
@@ -162,15 +162,14 @@ Class Helpers{
 
     /**
      * Will create an excerpt of the content. Will remove any html tags
-     * @param <type> $str
-     * @param <type> $truncateLen
-     * @return STRING plain text
+     * @param string $text
+     * @param int $wordCount
+     * @return string plain text
      */
-    public static function excerpt($str,$truncateLen)
+    public static function excerpt($text, $wordCount = 250)
     {
-     $str = htmlspecialchars_decode($str);
-
-     return self::truncate(strip_tags($str),$truncateLen);
+        $text = strip_tags(htmlspecialchars_decode($text));
+        return implode(" ",array_slice(explode(" ", $text), 0, $wordCount));
     }
 
 
@@ -211,31 +210,14 @@ Class Helpers{
     {
         // Alpha: valid chars. Numbers: 0 and 1 are removed since the look like i and o and capital letters
         $alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz23456789";
-
-        // However, we can still add 0 and 1 to the chars list
         $chars = $alpha.(($addZeroOne) ? "01_" : "");
-
-        // Length of the chars
         $charsLen = strlen($chars);
-
-        // Make the length of the new string. If randomLen==true will generate a random num
         $strLen = ($randomLen == true) ? rand($minLen,$strLen) : $strLen;
-
-        // String will always start with alpha, never _
         $newStr = $aplha{rand(0,strlen($alpha)-1)};
-
-        // Now let's get to work
         for ($i=1;$i<$strLen;$i=strlen($newStr)) {
-
-           // Boo! Pick a number!
            $r =  $chars{rand(0,$charsLen)};
-
-           // Create the new str
-           // If $noCloseSameChar: (leave it empty if a close char is found), else just add char
            $newStr .= ($noCloseSameChar) ? ((strtolower($r) != strtolower($newStr{$i - 1})) ? $r : "") : $r;
         }
-
-        // Return
         return $newStr;
     }
 
@@ -257,7 +239,7 @@ Class Helpers{
 
     public static function validEmail($email)
     {
-     return (bool) filter_var($email, FILTER_VALIDATE_EMAIL);
+        return (bool) filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 
     /**
@@ -281,7 +263,7 @@ Class Helpers{
      * @param int $max
      * @return bool
      */    
-    public static function validLogin($str, $min = 6, $max = 64)
+    public static function validLogin($str, $min = 4, $max = 64)
     {
         return preg_match("/^[\w_]{{$min},{$max}}$/",$str);
     }
@@ -300,12 +282,6 @@ Class Helpers{
     {
         return preg_match("#^((http|https)://(\S*?\.\S*?))(\s|\;|\)|\]|\[|\{|\}|,|\"|'|:|\<|$|\.\s)#ie", $str);
     }
-
-    public static function isMatch($field1, $field2)
-    {
-        return ($field1 === $field2);
-    }
-
     /**
      * Calculate the date diff between 2 dates
      * @param mixed $timeS: Time in time() of mysqlddatetime or date()
@@ -313,17 +289,13 @@ Class Helpers{
      * @param bool $abs: to calculate the date as absolute, all dates will be positive
      * @return Array(seconds,minutes,hours,days...)
      */
-    public static function dateDifference($date1, $date2, $abs= true)
+    public static function dateDifference($date1, $date2, $abs = true)
     {
         $d1 = (is_string($date1) ? strtotime($date1) : $date1);
         $d2 = (is_string($date2) ? strtotime($date2) : $date2);
-
         $diff_secs =($abs==true) ? (abs($d1 - $d2)) : ($d1 - $d2);
-
         $base_year = min(date("Y", $d1), date("Y", $d2));
-
         $diff = mktime(0, 0, $diff_secs, 1, 1, $base_year);
-
         return array
         (
             "years"         => abs(substr(date('Ymd', $d1) - date('Ymd', $d2), 0, -4)),
@@ -351,7 +323,6 @@ Class Helpers{
      public static function formatDate($datetime,$format="date")
      {
             if(!$datetime || $datetime == "0000-00-00 00:00:00")
-
                 return "";
 
             $mask = array(
@@ -407,7 +378,6 @@ Class Helpers{
             }
           }
       closedir($dir_handle);
-
       return true;
     }
 
@@ -417,10 +387,8 @@ Class Helpers{
     {
         // Clean up some words, concat 's
         $O = preg_replace("/\s+(a|an|the|and|or|of|for)\s+/i","-", str_replace("'s ","s ",$O));
-
         // replace non words with - and remove excessive -
         $O = preg_replace("/\-{2,}/","-",preg_replace("/[^a-z0-9_]/i","-",$O));
-
         return  preg_replace("/^\-|\-$/","",trim($O));
     }
 
@@ -517,20 +485,15 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
     {
         // Browser can handle gzip data so send it the gzip version
         if (strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
-
             $gzip = gzencode($content, 9, FORCE_GZIP);
-
             // output the data to the browser
             if ($print) {
              header ("Content-Encoding: gzip");
               header ("Content-Length: " . strlen($gzip));
               echo $gzip;
-            }
-
-            // To save on a $var
-            else
+            } else {
                 return $gzip;
-
+            }
         } else {
           if($print==true) {
               echo $content;
@@ -558,18 +521,14 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
     * */
     public static function formatTweets($status,$targetBlank=true,$linkMaxLen=250)
     {
-      $target=$targetBlank ? " target=\"_blank\" " : "";
-
+        $target=$targetBlank ? " target=\"_blank\" " : "";
         // convert link to url
         $status = preg_replace("/((http:\/\/|https:\/\/)[^ )\r\n]+)/e", "'<a href=\"$1\" title=\"$1\"  $target >'. ((strlen('$1')>=$linkMaxLen ? substr('$1',0,$linkMaxLen).'...':'$1')).'</a>'", $status);
-
-            // convert @ to follow
-            $status = preg_replace("/(@([_a-z0-9\-]+))/i","<a href=\"http://twitter.com/$2\" title=\"Follow $2\" $target >$1</a>",$status);
-
-            // convert # to search
-            $status = preg_replace("/(#([_a-z0-9\-\.]+))/i","<a href=\"http://search.twitter.com/search?q=%23$2\" title=\"Search $1\" $target >$1</a>",$status);
-
-            return $status;
+        // convert @ to follow
+        $status = preg_replace("/(@([_a-z0-9\-]+))/i","<a href=\"http://twitter.com/$2\" title=\"Follow $2\" $target >$1</a>",$status);
+        // convert # to search
+        $status = preg_replace("/(#([_a-z0-9\-\.]+))/i","<a href=\"http://search.twitter.com/search?q=%23$2\" title=\"Search $1\" $target >$1</a>",$status);
+        return $status;
     }
 
     /**
@@ -579,7 +538,6 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
      * @return string : the time since date
      * @since Dec 1 2009
      */
-
     public static function timeSince($time)
     {
         $unix_timestamp = (is_string($time)) ? strtotime($time) : $time;
@@ -631,7 +589,6 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
     private static function timeSince_read($num,$word)
     {
         $num = floor($num);
-
         return ("$num $word").(($num==1)? "" : "s" ). (" ago");
 
     }
@@ -689,7 +646,6 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
     {
         $ft = floor($val/12);
         $in = $val%12;
-
         return ($dumb) ? ("{$ft}ft. {$in}in.") : ("{$ft}'. {$in}\".");
     }
 
@@ -812,16 +768,12 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
     public static function time2Seconds($time)
     {
         $a = explode(":", $time);
-
         if(count($a) == 1)
             $r = $a[0];
-
        else if(count($a) == 2)
             $r = 60*$a[0] + 1*$a[1];
-
         else
             $r = 60*60*$a[0] + 60*$a[1] + 1*$a[2];
-
         return $r;
     }
 //------------------------------------------------------------------------------
@@ -834,19 +786,17 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
     public static function number_format_HumanReadable($number,$decimals=0)
     {
       if($number<1000)
-
           return number_format($number);
-
       $countSize = array('','K','M','T','G',"Whoa");
         $count=0;
         while($count<3)
         if ($number>1000) {
             $number=$number/1000;
             $count++;
-        } else break;
-
+        } else { 
+            break;
+        }
          $number = number_format($number,$decimals);
-
        return "{$number}{$countSize[$count]}";
     }
 
@@ -993,13 +943,10 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
           $dist = rad2deg($dist);
           $miles = $dist * 60 * 1.1515;
           $unit = strtoupper($unit);
-
           if ($unit == "K")
             return ($miles * 1.609344);
-
           else if ($unit == "N")
               return ($miles * 0.8684);
-
           else
               return $miles;
 
@@ -1022,21 +969,15 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
     {
         // Eliminate the last dot
         $dotNotationKeys = preg_replace("/\.$/","",$dotNotationKeys);
-
         if(!$dotNotationKeys)
-
             return $Data;
 
         $dotKeys = explode(".",$dotNotationKeys);
-
         foreach ($dotKeys as $key) {
-
             if (!isset($Data[$key]))
                 return $emptyValue;
-
             $Data = $Data[$key];
         }
-
         return $Data;
     }
 
@@ -1080,9 +1021,7 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
                 break;
                 }
             }
-
-        return
-            array($d2=>$val);
+        return array($d2=>$val);
     }
 //------------------------------------------------------------------------------
 
@@ -1101,7 +1040,6 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
                 $a[$k] = $v;
             }
         }
-
         return $a;
     }
 
@@ -1132,12 +1070,10 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
      */
     public static function camelize($string, $pascalCase = false)
     {
-      $string = str_replace(array('-', '_'), ' ', $string);
-      $string = ucwords($string);
-      $string = str_replace(' ', '', $string);
-
-      return ($pascalCase) ? $string : lcfirst($string);
-
+        $string = str_replace(array('-', '_'), ' ', $string);
+        $string = ucwords($string);
+        $string = str_replace(' ', '', $string);
+        return ($pascalCase) ? $string : lcfirst($string);
     }
 
     /**
@@ -1196,27 +1132,26 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
         switch ($errorCode) {
             case JSON_ERROR_NONE:
                 return false;
-            break;
+                break;
             case JSON_ERROR_DEPTH:
                 $msg = 'Maximum stack depth exceeded';
-            break;
+                break;
             case JSON_ERROR_STATE_MISMATCH:
                 $msg =  'Underflow or the modes mismatch';
-            break;
+                break;
             case JSON_ERROR_CTRL_CHAR:
                 $msg =  'Unexpected control character found';
-            break;
+                break;
             case JSON_ERROR_SYNTAX:
                 $msg =  'Syntax error, malformed JSON';
-            break;
+                break;
             case JSON_ERROR_UTF8:
                 $msg =  'Malformed UTF-8 characters, possibly incorrectly encoded';
-            break;
+                break;
             default:
                 $msg = 'Unknown error';
-            break;
+                break;
         }
-
         return array(
           "code" => $errorCode,
           "message" => $msg
