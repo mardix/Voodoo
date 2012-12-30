@@ -12,11 +12,12 @@
  * -----------------------------------------------------------------------------
  *
  * @name    autoload
- * @desc    Setup the voodoo autoload
+ * @desc    Setup the voodoo autoload. Include this file in your front controller 
+ *          or anywhere that is using Voodoo
  */
 
-use Voodoo\Core;
 CONST REQUIRE_PHP_VERSION = "5.4";
+ini_set('display_errors', '0');
 
 // Chek PHP Version
 if (version_compare(PHP_VERSION, REQUIRE_PHP_VERSION, '<') ) {
@@ -26,4 +27,4 @@ if (version_compare(PHP_VERSION, REQUIRE_PHP_VERSION, '<') ) {
 
 // Set the Voodoo Autoload
 require_once __DIR__."/Core/Autoloader.php";
-Core\Autoloader::register(dirname(__DIR__));
+\Voodoo\Core\Autoloader::register(dirname(__DIR__));
