@@ -3,7 +3,7 @@ Hello future Voodooist!
 
 Thank you for using or at least trying VoodooPHP. 
 
-Voodoo is a slim yet powerful Modular MVC PHP 5.3 framework, that will help you
+Voodoo is a slim yet powerful Modular MVC PHP 5.4 framework, that will help you
 create awesome web application efficiently.
 
 VoodooPHP is under the MIT license, so feel free to do whatever.
@@ -22,7 +22,7 @@ Thank you
 
 - Mardix
 
-(c) 2012
+(c) 2012 - 2013
 
 === SETUP VOODOO ===
 Voodoo can be set up with Voodooist. It will setup the basic structure for you app.
@@ -30,7 +30,7 @@ Go to your command line (terminal) and run the following code.
 Make sure you are in the right directory
 
 > cd ~/Voodoo/Voodooist
-> php -f do-voodoo.php
+> php -f ./do-voodoo.php
 
 
 Once done, you should have a structure that looks like this
