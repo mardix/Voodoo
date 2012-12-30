@@ -25,8 +25,7 @@ class Request
     CONST PUT = "PUT";
     
     private static $params = [];
-
-    
+    private static $segments = null;
     /**
      * Return the $_GET
      * @return array
@@ -119,4 +118,44 @@ class Request
         return $ip;
     }   
     
+    /**
+     * Segements are part of the URL separated by /
+     * ie: /gummy/bear/?q=hello 'gummy' and 'bear' are segments.
+     * 
+     * @param mixed (int | string) - if int, i will pick the index of the . If a string, it will return the k/v pair of the segemnt
+     * @param int Where to start the segment
+     * @param array $segmentsArr the array segments to use
+     * @return mixed
+     */
+    public static function getSegment($key = null, $offset = 0, Array $segmentsArr = null)
+    {
+        if (! $segmentsArr) {
+            if (self::$segments == null) {
+                self::$segments = self::getUrlSegments();
+            }
+            $segmentsArr = self::$segments;
+        } 
+        
+        if (is_numeric($key)) {
+           return $segmentsArr[$key - 1];
+        } else if (is_string($key)) {
+            $segments = array_slice($segmentsArr, $offset);
+            $i = 0;
+            $lastval = '';
+            $segs = array();
+
+            foreach ($segments as $seg) {
+                if ($i % 2) {
+                    $segs[$lastval] = $seg;
+                } else {
+                    $segs[$seg] = FALSE;
+                    $lastval = $seg;
+                }
+                $i++;
+            }
+            return ($key) ? $segs[$key] : $segs;
+        } else {
+            return $segmentsArr;
+        }
+    }    
 }

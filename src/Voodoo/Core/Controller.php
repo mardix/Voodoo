@@ -196,27 +196,7 @@ abstract class Controller
      */
     public function getSegment($key = null, $offset = 0)
     {
-        if (is_numeric($key)) {
-           return $this->segments[$key - 1];
-        } else if (is_string($key)) {
-            $segments = array_slice($this->segments, $offset);
-            $i = 0;
-            $lastval = '';
-            $segs = array();
-
-            foreach ($segments as $seg) {
-                if ($i % 2) {
-                    $segs[$lastval] = $seg;
-                } else {
-                    $segs[$seg] = FALSE;
-                    $lastval = $seg;
-                }
-                $i++;
-            }
-            return ($key) ? $segs[$key] : $segs;
-        } else {
-            return $this->segments;
-        }
+        return Http\Request::getSegment($key, $offset, $this->segments);
     }
 
     /**
