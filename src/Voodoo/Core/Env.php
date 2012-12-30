@@ -20,10 +20,7 @@
 namespace Voodoo\Core;
 
 class Env {
-    private static $appDir = "";
-    private static $privateDir = "";
-    private static $globalAssetsDir = "";
-    
+
     private static $paths = [];
     
     /**
@@ -111,8 +108,30 @@ class Env {
     public static function getRootDir()
     {
         return dirname(dirname(__DIR__));
-    }    
+    }   
     
+    public static function getVoodooistPath()
+    {
+        return dirname(__DIR__)."/Voodooist";
+    }
+    
+    /**
+     * Set the front controller path, where the index will be created
+     * 
+     * @param string $appDir
+     */
+    public static function setFrontControllerPath($rootDir){
+        self::$paths["FrontController"] = $rootDir;
+    }
+    /**
+     * Return the front controller path
+     * 
+     * @return string
+     */
+    public static function getFrontControllerPath()
+    {
+        return self::$paths["FrontController"];
+    }    
     
     /**
      * Set the app dir
@@ -133,28 +152,29 @@ class Env {
     }
     
     /**
-     * set the private dir
+     * set the config dir
      * 
      * @param string $privateDir
      */
-    public static function setPrivatePath($path)
+    public static function setConfigPath($path)
     {
-        self::$paths["private"] = $path;
+        self::$paths["config"] = $path;
     }
     
     /**
-     * Get the private dir
+     * Get the config
      * 
      * @return string
      */
-    public function getPrivatePath()
+    public static function getConfigPath()
     {
-        return self::$paths["private"];
+        return self::$paths["config"];
     }
+
     
-    public static function setPublicAssetsPath($path)
+    public static function setPublicAssetsPath($rootDir)
     {
-        self::$paths["publicAssets"] = $path;
+        self::$paths["publicAssets"] = $rootDir."/assets";
     }
     
     public static function getPublicAssetsPath()
