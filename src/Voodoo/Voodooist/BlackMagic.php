@@ -66,7 +66,7 @@ class BlackMagic
         $tpl = strtolower($templateName);
 
         if (! isset($this->tplContent[$tpl])) {
-            $this->tplContent[$tpl] = file_get_contents(Core\Path::Voodooist()."/files/templates/".strtolower($templateName));
+            $this->tplContent[$tpl] = file_get_contents(Core\Env::getVoodooistPath()."/files/templates/".strtolower($templateName));
         }
         
         $Data = array_merge($this->parseData,$Data);
@@ -150,7 +150,7 @@ class BlackMagic
     public function setApplication($name)
     {
         $this->applicationName = $this->formatName($name);
-        $this->applicationPath = Core\Path::App()."/{$this->applicationName}";
+        $this->applicationPath = Core\Env::getAppPath()."/{$this->applicationName}";
         $this->applicationNS = "App\\{$this->applicationName}";
         
         $this->mkdir($this->applicationPath);
@@ -196,7 +196,7 @@ class BlackMagic
             
             if ($templateDir) {
                 
-                $modulesTemplate = Core\Path::Voodooist()."/modules-template/{$templateDir}";
+                $modulesTemplate = Core\Env::getVoodooistPath()."/modules-template/{$templateDir}";
                 $viewsTpl = "{$modulesTemplate}/Views";
                 if (is_dir($viewsTpl) && is_dir($viewsDir)) {
                     Core\Helpers::recursiveCopy($viewsTpl, $viewsDir);
@@ -330,9 +330,7 @@ class BlackMagic
         // It's not a bare module
         if (is_dir($viewDir)) {
             $viewFile = "{$viewDir}/{$controllerName}/{$action}.html";
-
             $this->mkdir($viewFile);
-
             $this->saveTpl("view",$viewFile,array("NAME"=>$action));
         }
         return $this;
@@ -395,7 +393,7 @@ class BlackMagic
 /*******************************************************************************/
 
     public function createFrontController(){
-        Core\Helpers::recursiveCopy(Core\Path::Voodooist()."/files/setup/front-controller", Core\Path::Base());
+        Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup/front-controller", Core\Env::getFrontControllerPath());
     }
     
     /**
@@ -403,8 +401,8 @@ class BlackMagic
      */
     public function createPublicAssets()
     {
-      $this->mkdir(Core\Path::Assets());
-      Core\Helpers::recursiveCopy(Core\Path::Voodooist()."/files/setup/assets", Core\Path::Assets());         
+      $this->mkdir(Core\Env::getPublicAssetsPath());
+      Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup/assets", Core\Env::getPublicAssetsPath());         
     }
 
     /**
@@ -412,8 +410,8 @@ class BlackMagic
      */
     public function createVoodooApp()
     {
-      $this->mkdir(Core\Path::App());
-      Core\Helpers::recursiveCopy(Core\Path::Voodooist()."/files/setup/App", Core\Path::App());  
+      $this->mkdir(Core\Env::getAppPath());
+      Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup/App", Core\Env::getAppPath());  
     }
     
     /**
@@ -421,8 +419,6 @@ class BlackMagic
      */
     public function setup()
     {
-        Core\Helpers::recursiveCopy(Core\Path::Voodooist()."/files/setup", Core\Path::Base());
+        Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup", Core\Env::getFrontControllerPath());
     }
-
-
 }

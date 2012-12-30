@@ -2,7 +2,7 @@
     "name": "",
     "description": "",
     "config": {
-        "vendor-dir": "App/_private/vendor",
+        "vendor-dir": "_private/vendor",
     },
     "require": {
     }

@@ -1,5 +1,5 @@
 
-_private/config
+_config/
 
 Save .ini config file in this directory.
 

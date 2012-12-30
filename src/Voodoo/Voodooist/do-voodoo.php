@@ -4,11 +4,46 @@
  * It allows the creation of your application
  *
  */
+/*******************************************************************************/
+// EDIT THIS SECTION
+/*******************************************************************************/
 
-include_once(dirname(__DIR__)."/init.php");
+/**
+ * The root dir where index.php will reside
+ * @string
+ */
+$fontControllerRootDir = dirname(dirname(__DIR__));
+
+/**
+ * The root dir where to place the Voodoo App directory
+ * @string
+ */
+$appRootDir = dirname(dirname(__DIR__));
+
+/**
+ * The path of your config files. By default it's under App/_config
+ * @string 
+ */
+$appConfigDir = $appRootDir."/App/_config";
+
+/**
+ * The root dir where the assets (/assets/js|css|images etc...) exists
+ * @string
+ */
+$publicAssetsRootDir = dirname(dirname(__DIR__));
+
+/**
+ * Setup the time
+ */
+date_default_timezone_set("America/New_York");
+/*******************************************************************************/
+// DO NOT EDIT BELOW
+/*******************************************************************************/
 
 use Voodoo\Core,
     Voodoo\Voodooist;
+
+require_once dirname(__DIR__)."/autoload.php";
 
 // echo message
 function e($msg) {
@@ -19,20 +54,26 @@ function t($multiplier = 1){
     return str_repeat("\t",$multiplier ? : 1);
 }
 
+Core\Env::setAppPath($appRootDir);
+Core\Env::setConfigPath($appConfigDir);
+Core\Env::setFrontControllerPath($fontControllerRootDir);
+Core\Env::setPublicAssetsPath($publicAssetsRootDir);
+
+
 if(!Core\Env::isCli()) {
     e("Voodooist must run in CLI mode");
     exit;
 } else {
 
-    $jsonFile = Core\Path::Config()."/app-schema.json";
+    $jsonFile = Core\Env::getConfigPath()."/app-schema.json";
     $BlackMagic = new Voodooist\BlackMagic;
 
     e(Core\Voodoo::NAME." ".Core\Voodoo::VERSION." : The Voodooist!");
     e("-----------------------------------------------------------------------");
 
     // /VoodooApp
-     if (! file_exists(Core\Path::Config()."/System.ini")) {
-        e("> creating Dir: ".Core\Path::App());
+     if (! file_exists(Core\Env::getConfigPath()."/System.ini")) {
+        e("> creating Dir: ".Core\Env::getAppPath());
         $BlackMagic->createVoodooApp();
     }
 
@@ -56,8 +97,8 @@ if(!Core\Env::isCli()) {
 
 
     // /assets
-    if ($schema["createPublicAssets"] === true && !is_dir(Core\Path::Assets())) {
-        e("> creating Assets dir: ".Core\Path::Assets());
+    if ($schema["createPublicAssets"] === true && !is_dir(Core\Env::getPublicAssetsPath())) {
+        e("> creating Assets dir: ".Core\Env::getPublicAssetsPath());
         $BlackMagic->createPublicAssets();
     }
 
