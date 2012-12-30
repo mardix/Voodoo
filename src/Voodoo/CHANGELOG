@@ -1,6 +1,7 @@
 Voodoo Changelog
 ================================================================================
 0.12
+Jan 1 2013 (Happy New Year)
  - Move Core\Service to Core\Http\Service
  - Added Request constants: Request::POST, Request::GET, Request::PUT, Request::DELETE
  - Added Request::getIp()
@@ -8,11 +9,17 @@ Voodoo Changelog
  - Controller: Remove $views_404, $views_405, use instead $this->view()->setViewError(error#)
  - View: added setViewError(). Rename this.app.assets to this.global.assets. Added this.error
  - Update views modules templates
- - Remove Controller::getModel()
- - Allow the move of Voodoo/ to anywhere
+ - Removed Controller::getModel() instead use the full Model's path
+ - Voodoo library can now be placed anywhere. Voodoo\Core\Voodoo() get the config of the files
+ - Removed Voodoo/init.php, Voodoo/System.ini
+ - Added Voodoo/autoload.php which can be included anywhere to use the Voodoo lib
+ - Config is now placed un App/_config, and can be set Voodoo::setConfigPath(), which can be used fro different environment
+ - Added composer.json to add packages into _private/vendor
+ - Removed Core\Path, path environment are now in Core\Env
 
+--------
 0.11 -  Skipped - Backward incompatible
-
+---------
 0.10
 Dec 12 2012
 - Implement annotation @view in Core\Controller::getAction() to change the view
@@ -30,9 +37,9 @@ Dec 12 2012
 - Remove Controller::view(Closure)
 - Lowercase all views variable
 - Core\Controller now executes annotation @request
-
+-----------
 0.9 - Skipped - Backward incompatible
-
+----------
 0.8
 Dec 2 2012
 - Refactor View
