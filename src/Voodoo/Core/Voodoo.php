@@ -20,8 +20,7 @@
 
 namespace Voodoo\Core;
 
-use Voodoo\Core,
-    DirectoryIterator,
+use DirectoryIterator,
     ReflectionClass,
     ReflectionException;
 
@@ -39,8 +38,7 @@ class Voodoo
     
     
 /*******************************************************************************/
-    
-    
+
     private $routingSegments = [];
 
     private $moduleName = "";
@@ -49,7 +47,7 @@ class Voodoo
 
     private $action = "";
     
-    private $config = [];
+    private $config = null;
     
     private $appPath = "";
 
@@ -69,39 +67,51 @@ class Voodoo
     // default controller
     private $defaultController = "Index";
 
+
     /**
-     * The constructor
-     *
-     * @param string $modulesPath - The full path
-     * @param string $URI         : Use a URI string in this format: /Module/Controller/Action. ie: /Store/Items/Delete/1
-     * @param array  $Routes      : to override the default route
+     * The constructor 
+     * 
+     * @param string $appRootDir
+     * @param string $appName
+     * @param string $uri
+     * @throws Exception
      */
     public function __construct($appRootDir, $appName = "Www", $uri = "/") 
     {
         $this->appRootDir = $appRootDir;
         $this->setAppPath($appName);
+        
         if (! is_dir($this->appPath)) {
             throw new Exception("The App directory doesn't exist at: {$this->appPath}");
         }
-        // Register the autoloader
+        // Register the autoload for App\
         Autoloader::register(dirname($this->appRootDir));
-        Env::setAppPath($this->appRootDir);
-
-        $configFile = $this->appPath."/Config.ini";
-        $this->config = (new Core\Config("VoodooApp"))->loadFile($configFile);
         
-        if ($uri) {
-           $this->setUri($uri); 
+        // Application's config file
+        $configFile = $this->appPath."/Config.ini";
+        $this->config = (new Config("VoodooApp"))->loadFile($configFile);        
+        
+        Env::setAppPath($this->appRootDir);
+        $this->setConfigPath(Env::getAppPath()."/_config");
+        $this->setUri($uri); 
+        $this->setRouting($this->config->get("routes.path") ?: []);
+        
+        /**
+         * Set default Module and Controller
+         */
+        if ($this->config->get("application.defaultModule")) {
+            $this->defaultModule = $this->config->get("application.defaultModule");
         }
-
-        $this->setPrivatePath(Env::getAppPath()."/_private");
+        if ($this->config->get("application.defaultController")) {
+            $this->defaultController = $this->config->get("application.defaultController");
+        }        
     }
 
     /**
      * Set the default module
      * 
      * @param string $moduleName
-     * @return \Voodoo\Core\Voodoo
+     * @return \Voodoo\Voodoo
      */
     public function setDefaultModule($moduleName)
     {
@@ -113,7 +123,7 @@ class Voodoo
      * Set the default Controller
      * 
      * @param string $controllerName
-     * @return \Voodoo\Core\Voodoo
+     * @return \Voodoo\Voodoo
      */
     public function setDefaultController($controllerName)
     {
@@ -134,28 +144,28 @@ class Voodoo
     
   
     /**
-     * Private is restricted directory that contains the app config
-     * Also, it can contain scripts and cronjobs etc...
-     * By default it reside in the App/_private
+     * Config is restricted directory that contains the app config
+     * By default it reside in the App/_config
      * @param type $path
-     * @return \Voodoo\Core\Voodoo
+     * @return \Voodoo\Voodoo
      */
-    public function setPrivatePath($path)
+    public function setConfigPath($path)
     {
-        Env::setPrivatePath($path);
+        Env::setConfigPath($path);
         return $this;
     }
     
     
     public function setPublicAssetsPath($path)
     {
-        Env::setPublicAssetsPath();
+        Env::setPublicAssetsPath($path);
+        return $this;
     }
     /**
      * Set the URI to match the pattern : Module/Controller/Action
      * 
      * @param string $uri
-     * @return \Voodoo\Core\Voodoo
+     * @return \Voodoo\Voodoo
      */
     public function setUri($uri)
     {
@@ -171,17 +181,10 @@ class Voodoo
      * it will shift it and the segment will become the current
      * 
      * @return Voodoo
-     * @throws Core\Exception
+     * @throws Exception
      */
     public function doMagic()
     {
-        if($this->config->get("application.defaultModule")) {
-            $this->defaultModule = $this->config->get("application.defaultModule");
-        }
-        if($this->config->get("application.defaultController")) {
-            $this->defaultController = $this->config->get("application.defaultController");
-        }
-        
         $this->parseRoutes();
         
          /**
@@ -292,6 +295,7 @@ class Voodoo
 
     /**
      * Call the controller reflection
+     * 
      * @return \ReflectionClass
      */
     private function callControllerReflection()
@@ -301,7 +305,8 @@ class Voodoo
 
     /**
      * return the controller's namespace
-     * @return type
+     * 
+     * @return string
      */
     private function getControllerNS()
     {
@@ -311,21 +316,22 @@ class Voodoo
 
     /**
      * Format the name properly. Only accept letters, numbers, dash and underscore
+     * 
      * @param type $name
      * @param type $pascalCase
      */
-    private function formatName($name,$pascalCase = false)
+    private function formatName($name, $pascalCase = false)
     {
         $name = preg_replace("/[^a-z09_\-]/i","",$name);
-        return Helpers::camelize($name,$pascalCase);
+        return Helpers::camelize($name, $pascalCase);
     }
 
     
     /**
      * Set the modules path
      *
-     * @param  string      $path
-     * @return Core\Voodoo
+     * @param  string  $path
+     * @return Voodoo
      */
     private function setAppPath($appName)
     {
@@ -347,16 +353,15 @@ class Voodoo
         return $this->appPath.($module ? ("/".$module): "");
     }  
     
-    
+    /**
+     * Parse the routes and create the segment for: Module/Controller/Action
+     * 
+     * @return \Voodoo\Voodoo
+     */
     private function parseRoutes()
     {
-        $routes = (count($this->routes)) ? $this->routes : $this->config->get("routes.path");
-        $uri = (new Router($routes))->parse($this->uri);
-        
-        /**
-         * Build the URI routingSegments that will be used to redirect to wherever in the application
-         * /Module/Controller/Action
-         */
+        $uri = (new Router($this->routes))->parse($this->uri);
         $this->routingSegments = explode("/", preg_replace("|/*(.+?)/*$|", "\\1", $uri));       
+        return $this;
     }      
 }
