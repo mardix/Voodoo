@@ -62,11 +62,11 @@ class ConnectionManager
                     case "mysql":
                     case "pgsql":
                     case "sqlite":
-                        if ($dbType == "sqlite"){ // Requires: dbFile
-                            $PDO = new PDO("sqlite:{$db["dbFile"]}");
+                        if ($dbType == "sqlite"){ // Requires: dsn
+                            $PDO = new PDO("sqlite:{$db["dsn"]}");
                         } else {
                             $port = (isset($db["port"]) && $db["port"]) ? ";port={$db["port"]}" : "";
-                            $dsn = "{$dbType}:host={$db["host"]};dbname={$db["dbName"]}{$port}";
+                            $dsn = "{$dbType}:host={$db["host"]};dbname={$db["dbname"]}{$port}";
                             $PDO = new PDO($dsn, $db["user"], $db["password"]);
                         }
                         $PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
