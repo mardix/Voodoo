@@ -122,7 +122,7 @@ abstract class Model extends Model\VoodOrm
             if (! $this->dbAlias){
                 throw new Exception("DB Alias is missing in ".get_called_class());
             }
-            $pdo =  Model\AliasConnection::connect($this->dbAlias);
+            $pdo =  Model\ConnectionManager::connect($this->dbAlias);
         }
         
         parent::__construct($pdo, $this->primaryKeyName, $this->foreignKeyName);
