@@ -21,7 +21,13 @@ namespace Voodoo\Core;
 
 class Env {
 
+    CONST DEV           = 1;
+    CONST STAGING       = 2;    
+    CONST PRODUCTION    = 3;
+
     private static $paths = [];
+    private static $env = null;
+    
     
     /**
      * Check if the SAPI is CLI or not
@@ -31,6 +37,45 @@ class Env {
     public static function isCLI()
     {
         return php_sapi_name()=== "cli";
+    }
+    
+    /**
+     * Set the environment we're working on. ie: DEV, PRODUCTION, STAGING
+     * 
+     * @param int $env
+     */
+    public static function set($env = self::DEV)
+    {
+        self::$env = $env;
+    }
+    
+    /**
+     * Check if DEV enviroment
+     * 
+     * @return bool
+     */
+    public static function isDev()
+    {
+        return self::$env == self::DEV;
+    }
+    
+    /**
+     * Check if PRODUCTION enviroment
+     * @return bool
+     */    
+    public static function isProduction()
+    {
+        return self::$env == self::PRODUCTION;
+    }
+    
+    /**
+     * Check if STAGING enviroment
+     * 
+     * @return bool
+     */    
+    public static function isStaging()
+    {
+        return self::$env == self::STAGING;
     }
     
     /**
@@ -138,9 +183,14 @@ class Env {
      * 
      * @param string $appDir
      */
-    public static function setAppPath($rootDir){
+    public static function setAppPath($rootDir)
+    {
         self::$paths["App"] = $rootDir."/App";
+        if (! self::getConfigPath()) { // by default
+            self::setConfigPath(self::getAppPath()."/_config");    
+        }
     }
+    
     /**
      * Get the app dir
      * 
@@ -171,12 +221,21 @@ class Env {
         return self::$paths["config"];
     }
 
-    
+    /**
+     * Set the public assets
+     * 
+     * @param string $rootDir
+     */
     public static function setPublicAssetsPath($rootDir)
     {
         self::$paths["publicAssets"] = $rootDir."/assets";
     }
     
+    /**
+     * Get the public assets
+     * 
+     * @return string
+     */
     public static function getPublicAssetsPath()
     {
         return self::$paths["publicAssets"];
