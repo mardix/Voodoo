@@ -1,7 +1,7 @@
 Voodoo Changelog
 ================================================================================
 0.12
-Jan 1 2013 (Happy New Year)
+Jan 3 2013
  - Move Core\Service to Core\Http\Service
  - Added Request constants: Request::POST, Request::GET, Request::PUT, Request::DELETE
  - Added Request::getIp()
@@ -16,6 +16,10 @@ Jan 1 2013 (Happy New Year)
  - Config is now placed un App/_config, and can be set Voodoo::setConfigPath(), which can be used fro different environment
  - Added composer.json to add packages into _private/vendor
  - Removed Core\Path, path environment are now in Core\Env
+ - Core\Env, for convenience constant DEV, PRODUCTION, STAGING were added to know which environment we're on
+ - Renamed Model\AliasConnection to Model\ConnectionManager
+ - Model\ConnectionManager accept any connection. A new type 'dsn' has been added
+ - DB.ini 'dbms' has been renamed to 'type'
 
 --------
 0.11 -  Skipped - Backward incompatible
