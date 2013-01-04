@@ -11,17 +11,21 @@
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
- * @name        Model\AliasConnection
- * @desc        Create a single instance of a db connection based on DBAlias
+ * @name        Model\ConnectionManager
+ * @desc        ConnectionManager creates a single connection to your database
+ *              It statically hold each connection per aliasName.
+ *              For MySQL, PGSQL, SQlite it will return PDO
+ *              For DSN type, it return the class provided at dsnDependency
  *
  */
 
 namespace Voodoo\Core\Model;
 
 use Voodoo\Core,
-    PDO;
+    PDO,
+    ReflectionClass;
 
-class AliasConnection
+class ConnectionManager
 {
     /**
      * Holds all the connection
@@ -46,64 +50,54 @@ class AliasConnection
             if(!is_array($db)){
                 throw new Core\Exception("Database Alias: {$dbAlias} config doesn't exist.");
             }
-            if (preg_match("/mysql|pgsql|sqlite|mongodb|redis/i",$db["dbms"])) {
-
-                switch (strtolower($db["dbms"])) {
-
+            $dbType = strtolower($db["type"]);
+            if (preg_match("/mysql|pgsql|sqlite|dsn/i", $dbType)) {
+                switch ($dbType) {
+                    /**
+                     * To manage RDMS connection using PDO
+                     * Also creates EXCEPTION as error mode
+                     * 
+                     * @return PDO
+                     */
                     case "mysql":
                     case "pgsql":
                     case "sqlite":
-
-                        $dbms = strtolower($db["dbms"]);
-                        $port = (isset($db["port"]) && $db["port"]) ? ";port={$db["port"]}" : "";
-                        if ($dbms == "sqlite"){
-                            $PDO = new PDO("sqlite:".APPLICATION_DB_PATH."/{$db["dbName"]}.{$db["DBFileExt"]}");
-                        } else if ($dbms == "mysql") {
-                            $PDO = new PDO("mysql:host={$db["host"]};dbname={$db["dbName"]}{$port}",$db["user"],$db["password"]);
-                        } else if ($dbms == "pgsql") {
-                            $PDO = new PDO("pgsql:host={$db["host"]};dbname={$db["dbName"]}{$port}",$db["user"],$db["password"]);
+                        if ($dbType == "sqlite"){ // Requires: dbFile
+                            $PDO = new PDO("sqlite:{$db["dbFile"]}");
+                        } else {
+                            $port = (isset($db["port"]) && $db["port"]) ? ";port={$db["port"]}" : "";
+                            $dsn = "{$dbType}:host={$db["host"]};dbname={$db["dbName"]}{$port}";
+                            $PDO = new PDO($dsn, $db["user"], $db["password"]);
                         }
-                        
                         $PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+                        //@return PDO
                         self::$dbConnections[$dbAlias] = $PDO;
-                    break;
-
-                    // @FIXME: TO TEST WITH MONGO
-                    case "mongodb":
-                        $Options = array();
-                        if($db["username"]){
-                            $Options["username"] = $db["user"];
-                        }
-                        if($db["password"]){
-                            $Options["password"] = $db["password"];
-                        }
-                        if($db["replicaset"]){
-                            $Options["replicaset"] = true;
-                        }
-                        
-                        $Mongo = new Mongo($db["host"],$Options);
-                        if($db["slaveOk"]){
-                            $Mongo->slaveOkay(true);
-                        }
-
-                        self::$dbConnections[$dbAlias] = $Mongo->selectDB($db["dbName"]);
-                    break;
-
-                    // @FIXME: TO TEST WITH REDISENT
-                    case "redis":
-                        $host = $db["host"].($db["Port"] ? ":{$db["Port"]}" : "");
-                        $Redis = new Redis($host);
-                        $Redis->setDB($db["DbNumber"]);
-                        self::$dbConnections[$dbAlias] = $Redis;
-                    break;
+                        break;
+                    
+                    /**
+                     * DSN (Data Source Name)
+                     * To manage other connections such as MongoDB, Redis etc
+                     * It requires the 'dsn' and class to create the instance
+                     * For MongoDB
+                     *      dsn = 'mongodb://localhost:27017'
+                     *      dsnDependency = '\MongoClient'
+                     * 
+                     * For Redis
+                     *      dsn = '1.0.0.1:6379'
+                     *      dsnDependency = '\Redisent\Redis'
+                     * 
+                     * @return object dsnDependency
+                     */
+                    case "dsn":
+                        $dsnDependency = new ReflectionClass($db["dsnDependency"]);  
+                        //@return dsnDependency
+                        self::$dbConnections[$dbAlias] = $dsnDependency->newInstance($db["dsn"]);                        
+                        break;
                 }
             } else {
-                throw new Core\Exception("Invalid dbms for Alias: '{$dbAlias}'. dbms: {$db["dbms"]} was provided. Must be MySQL, PostgreSQL, SQLite, MongoDB, Redis ");
+                throw new Core\Exception("Invalid type for Alias: '{$dbAlias}'. Type: {$db["type"]} was provided");
             }
         }
-
         return self::$dbConnections[$dbAlias];
     }
-
 }
