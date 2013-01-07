@@ -28,7 +28,7 @@ class Voodoo
 {
     CONST NAME = "VoodooPHP";
     
-    CONST VERSION = "0.12.1";
+    CONST VERSION = "0.12.2";
     
     CONST AUTHOR = "Mardix < https://github.com/mardix >";
     
@@ -336,10 +336,11 @@ class Voodoo
     private function setAppPath($appName)
     {
         $appName = $this->formatName($appName, true);
-        $this->appPath = $this->appRootDir."/{$appName}";
+        Env::setAppPath($this->appRootDir);
+        $this->appPath = Env::getAppPath()."/{$appName}";
         $this->baseNamespace = "App\\{$appName}";
         return $this;
-    }    
+    }  
     
     /**
      * Get the modules path
