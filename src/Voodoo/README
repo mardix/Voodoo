@@ -29,8 +29,8 @@ Voodoo can be set up with Voodooist. It will setup the basic structure for you a
 Go to your command line (terminal) and run the following code.
 Make sure you are in the right directory
 
-> cd ~/Voodoo/Voodooist
-> php -f ./do-voodoo.php
+> cd /PATH/Voodoo/Voodooist
+> php -f ./setup.php
 
 
 Once done, you should have a structure that looks like this

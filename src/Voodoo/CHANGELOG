@@ -1,5 +1,10 @@
 Voodoo Changelog
 ================================================================================
+0.13
+Jan 8 2013
+ - Change Voodooist
+----
+
 0.12
 Jan 3 2013
  - Move Core\Service to Core\Http\Service

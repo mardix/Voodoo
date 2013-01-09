@@ -1,9 +1,6 @@
 {
-    "name": "",
-    "description": "",
-    "config": {
-        "vendor-dir": "_private/vendor",
-    },
+    "name": "voodoophp/myapp",
+    "description": "My awesome Voodoo App",
     "require": {
     }
 }
