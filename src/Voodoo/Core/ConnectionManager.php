@@ -11,18 +11,17 @@
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
- * @name        Model\ConnectionManager
- * @desc        ConnectionManager creates a single connection to your database
+ * @name        ConnectionManager
+ * @desc        ConnectionManager creates a single instance of the connection to your database
  *              It statically hold each connection per aliasName.
  *              For MySQL, PGSQL, SQlite it will return PDO
  *              For DSN type, it return the class provided at dsnDependency
  *
  */
 
-namespace Voodoo\Core\Model;
+namespace Voodoo\Core;
 
-use Voodoo\Core,
-    PDO,
+use PDO,
     ReflectionClass;
 
 class ConnectionManager
@@ -45,10 +44,10 @@ class ConnectionManager
     {
         if (!isset(self::$dbConnections[$dbAlias])) {
 
-            $db = Core\Config::DB()->get($dbAlias);
+            $db = Config::DB()->get($dbAlias);
 
             if(!is_array($db)){
-                throw new Core\Exception("Database Alias: {$dbAlias} config doesn't exist.");
+                throw new Exception("Database Alias: {$dbAlias} config doesn't exist.");
             }
             $dbType = strtolower($db["type"]);
             if (preg_match("/mysql|pgsql|sqlite|dsn/i", $dbType)) {
@@ -95,7 +94,7 @@ class ConnectionManager
                         break;
                 }
             } else {
-                throw new Core\Exception("Invalid type for Alias: '{$dbAlias}'. Type: {$db["type"]} was provided");
+                throw new Exception("Invalid type for Alias: '{$dbAlias}'. Type: {$db["type"]} was provided");
             }
         }
         return self::$dbConnections[$dbAlias];

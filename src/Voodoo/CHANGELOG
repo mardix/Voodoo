@@ -1,5 +1,11 @@
 Voodoo Changelog
 ================================================================================
+0.14
+Jan 9 2013
+ - Added voodoophp/VoodOrm as composer package 
+ - Added voodoophp/paginator as composer package
+
+---
 0.13
 Jan 8 2013
  - Change Voodooist

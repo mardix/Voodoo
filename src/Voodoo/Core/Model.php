@@ -57,10 +57,11 @@
 
 namespace Voodoo\Core;
 
-use Closure,
+use Voodoo\VoodOrm,
+    Closure,
     PDO;
 
-abstract class Model extends Model\VoodOrm
+abstract class Model extends VoodOrm
 {
   /**
    * The table name
@@ -122,7 +123,7 @@ abstract class Model extends Model\VoodOrm
             if (! $this->dbAlias){
                 throw new Exception("DB Alias is missing in ".get_called_class());
             }
-            $pdo =  Model\ConnectionManager::connect($this->dbAlias);
+            $pdo =  ConnectionManager::connect($this->dbAlias);
         }
         
         parent::__construct($pdo, $this->primaryKeyName, $this->foreignKeyName);

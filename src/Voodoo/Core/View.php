@@ -34,6 +34,8 @@
 
 namespace Voodoo\Core;
 
+use Voodoo\Paginator;
+
 class View 
 {
     use View\TView;
@@ -417,7 +419,7 @@ class View
     /**
      * Access the Paginator object
      * 
-     * @return Core\View\Paginator
+     * @return Voodoo\Paginator
      */
     public function paginator()
     {
@@ -427,7 +429,7 @@ class View
             $itemsPerPage = $this->controller->getConfig("views.pagination.itemsPerPage");
             $navigationSize = $this->controller->getConfig("views.pagination.navigationSize");
 
-            $this->paginator = new View\Paginator($uri, $pattern);
+            $this->paginator = new Paginator($uri, $pattern);
             $this->paginator->setItemsPerPage($itemsPerPage)
                             ->setNavigationSize($navigationSize);
         }
