@@ -1,0 +1,27 @@
+<?php
+/** {{GENERATOR}} (autogen date: {{DATE}})
+ ******************************************************************************
+ * @desc        
+ * @package     {{MODELNAMESPACE}}
+ * @name        {{MODELNAME}}    
+ * @copyright   (c) {{YEAR}}
+ ******************************************************************************/ 
+
+namespace {{MODELNAMESPACE}};
+
+use Voodoo,
+    {{MODULENAMESPACE}}\Exception;
+
+
+class {{MODELNAME}}
+{
+    /**
+     * Constructor
+     * 
+     */
+    public function __construct()
+    {
+        
+    }
+
+}

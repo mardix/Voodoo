@@ -35,16 +35,18 @@ date_default_timezone_set("America/New_York");
  * Edit your directory below
  */
 
-$rootDir = dirname(dirname(__DIR__));
+$baseDir = dirname(dirname(__DIR__));
 $options = [
     // The root dir where index.php will reside
-    "FrontController" => $rootDir,
+    "FrontController" => $baseDir,
     // The root dir where to place the Voodoo App directory
-    "App" => $rootDir,
+    "App" => $baseDir,
+    // The base dir of your files
+    "BaseDir" => $baseDir,
     // The path of your config files. By default it's under App/_config
-    "Config" => $rootDir."/App/_config",
+    "Config" => $baseDir."/App/_config",
     // The root dir where the assets (/assets/js|css|images etc...) exists
-    "PublicAssets" => $rootDir
+    "PublicAssets" => $baseDir
 ];
 
     try {

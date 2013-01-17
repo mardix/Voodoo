@@ -30,13 +30,14 @@ class Voodooist
     protected $tplContent = array();
     
     private static $appJson = "app.json";
-    
+    private static $baseDir = "";
 
     /**
      * Creates your Voodoo App
      * @param array $options
-     *      FrontController
+     *      BaseDir
      *      App
+     *      FrontController
      *      Config
      *      PublicAssets
      * @param bool - to display or not the process on the screen
@@ -47,13 +48,16 @@ class Voodooist
         $defaultBaseDir = dirname(dirname(__DIR__));
         $default = [
             "FrontController" => $defaultBaseDir,
-            "App" => $defaultBaseDir,
             "Config" => $defaultBaseDir."/App/_config",
-            "PublicAssets" => $defaultBaseDir
+            "PublicAssets" => $defaultBaseDir,
+            "BaseDir" => $defaultBaseDir,
+            "App" => $defaultBaseDir
         ];
 
         $options = array_merge($default, $options);
 
+        self::$baseDir = $options["BaseDir"];
+        
         // Set up the environment
         Core\Env::setAppPath($options["App"]);
         Core\Env::setConfigPath($options["Config"]);
@@ -156,7 +160,16 @@ class Voodooist
                             self::e(self::t(2)."|");
                             self::e(self::t(2)."|_ Model");
                             foreach ($module["models"] as $model) {
-                                $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"], $model["primaryKey"], $model["foreignKey"]);
+                                if($model["namespace"]) {
+                                    $ns = key($model["namespace"]);
+                                    $path = $model["namespace"][$ns];
+                                } else {
+                                    $ns = "";
+                                    $path = "";
+                                }
+                                $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"], 
+                                                        $model["primaryKey"], $model["foreignKey"],
+                                                        $path, $ns);
                                 self::e(self::t(3)."|");
                                 self::e(self::t(3)."|_{$model["name"]}");
                             }
@@ -322,9 +335,6 @@ class Voodooist
         $this->mkdir($appControllerDir);
         $this->mkdir($appModelDir);
 
-        $exception =  $this->applicationPath."/{$this->moduleName}"."/Exception.php";
-        $this->saveTpl("module_exception", $exception,["MODULENAMESPACE" => $this->moduleNamespace]);
-
         if (! $isApi) {
 
             if (! $omitViews) {
@@ -487,7 +497,7 @@ class Voodooist
      *
      * @TODO Add model template for MongoDb, Redis
      */
-    public function createModel($modelName, $alias, $tableName, $primaryKey="", $foreignKey="")
+    public function createModel($modelName, $alias, $tableName, $primaryKey="", $foreignKey="", $customModelPath = "", $customModelNamespace = "")
     {
         $nsModel = "";
         foreach (explode("/",$modelName) as $model) {
@@ -499,35 +509,36 @@ class Voodooist
 
         $modelName = basename($nsModel);
 
-        $modelNameSpace = $this->moduleNamespace."\\Model";
+        if($customModelPath && $customModelNamespace) {
+            $modelNameSpace = $customModelNamespace;
+            $file = str_replace("{{BASEDIR}}", self::$baseDir, $customModelPath);       
+        } else {
+            $modelNameSpace = $this->moduleNamespace."\\Model";
+            $file = $this->applicationPath."/{$this->moduleName}/Model";                    
+        }
+        $this->mkdir($file);
+        $this->saveTpl("exception", $file."/Exception.php", ["MODULENAMESPACE" => $modelNameSpace]);         
+        $file .= "/{$nsModel}.php";        
+        $moduleNameSpace = $modelNameSpace;
+        
         if (!in_array($nsModelN2 = dirname($nsModel), array(".",""))) {
             $modelNameSpace .= "\\".str_replace("/","\\",$nsModelN2);
         }
-
-        $file = $this->applicationPath."/{$this->moduleName}/Model/{$nsModel}.php";
-
         $this->mkdir($file);
 
         $settings = array(
             "MODELNAME" => $modelName,
             "MODELNAMESPACE" => $modelNameSpace,
-            "MODULENAMESPACE" => $this->moduleNamespace,
+            "MODULENAMESPACE" => $moduleNameSpace,
             "TABLENAME" => $tableName,
             "PRIMARYKEY" => $primaryKey,
             "FOREIGNKEY" => $foreignKey,
             "DBALIAS" => $alias
         );
 
-        $modelType = array(
-            "mysql" => "model",
-            "pgsql" => "model",
-            "sqlite" => "model",
-            "mongodb" => "model_mongodb",
-            "redis" => "model_redis"
-        );
-
-        $this->saveTpl("model",$file,$settings);
-
+        $type = Core\Config::DB()->get("{$alias}.type");
+        $rdbms = ["mysql", "pgsql", "sqlite"];
+        $this->saveTpl(in_array($type, $rdbms) ? "model_rdbms" : "model_simple", $file, $settings);
         return $this;
     }
 
