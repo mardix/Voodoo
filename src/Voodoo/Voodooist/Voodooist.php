@@ -335,6 +335,9 @@ class Voodooist
         $this->mkdir($appControllerDir);
         $this->mkdir($appModelDir);
 
+        $exception =  $this->applicationPath."/{$this->moduleName}"."/Exception.php";
+        $this->saveTpl("exception", $exception,["MODULENAMESPACE" => $this->moduleNamespace]);
+
         if (! $isApi) {
 
             if (! $omitViews) {
