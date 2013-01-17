@@ -2,12 +2,12 @@
 /** {{GENERATOR}} (autogen date: {{DATE}})
  ******************************************************************************
  * @desc        
- * @package     {{MODULENAMESPACE}}\Model
+ * @package     {{MODELNAMESPACE}}
  * @name        {{MODELNAME}}    
  * @copyright   (c) {{YEAR}}
  ******************************************************************************/ 
 
-namespace {{MODULENAMESPACE}}\Model;
+namespace {{MODELNAMESPACE}};
 
 use Voodoo,
     {{MODULENAMESPACE}}\Exception;

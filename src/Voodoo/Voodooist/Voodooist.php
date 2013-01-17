@@ -499,7 +499,7 @@ class Voodooist
 
         $modelName = basename($nsModel);
 
-        $modelNameSpace = $this->applicationNS."\\{$this->moduleName}\\Model";
+        $modelNameSpace = $this->moduleNamespace."\\Model";
         if (!in_array($nsModelN2 = dirname($nsModel), array(".",""))) {
             $modelNameSpace .= "\\".str_replace("/","\\",$nsModelN2);
         }
@@ -509,12 +509,13 @@ class Voodooist
         $this->mkdir($file);
 
         $settings = array(
-           "MODELNAME" => $modelName,
-           "MODULENAMESPACE" => $this->moduleNamespace,
-           "TABLENAME" => $tableName,
-           "PRIMARYKEY" => $primaryKey,
-           "FOREIGNKEY" => $foreignKey,
-           "DBALIAS" => $alias
+            "MODELNAME" => $modelName,
+            "MODELNAMESPACE" => $modelNameSpace,
+            "MODULENAMESPACE" => $this->moduleNamespace,
+            "TABLENAME" => $tableName,
+            "PRIMARYKEY" => $primaryKey,
+            "FOREIGNKEY" => $foreignKey,
+            "DBALIAS" => $alias
         );
 
         $modelType = array(
