@@ -252,7 +252,7 @@ Class Helpers{
      */
     public static function validPassword($str, $min = 6, $max = 32)
     {
-        return preg_match("/^[.a-z_0-9\-!@#\$%]{{$min}, {$max}}$/ui",$str);
+        return preg_match("/^[.a-z_0-9\-!@#\$%]{{$min},{$max}}$/ui",$str);
     }
 
     /**
