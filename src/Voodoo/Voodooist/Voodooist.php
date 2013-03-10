@@ -164,7 +164,7 @@ class Voodooist
                                 $namespace = isset($model["namespace"]) ? $model["namespace"] : "";
                                 $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"], 
                                                         $model["primaryKey"], $model["foreignKey"],
-                                                        $path, $ns);
+                                                        $path, $namespace);
                                 self::e(self::t(3)."|");
                                 self::e(self::t(3)."|_{$model["name"]}");
                             }

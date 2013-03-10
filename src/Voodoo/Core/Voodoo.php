@@ -28,7 +28,7 @@ class Voodoo
 {
     CONST NAME = "VoodooPHP";
     
-    CONST VERSION = "0.15.0";
+    CONST VERSION = "0.15.1";
     
     CONST AUTHOR = "Mardix < https://github.com/mardix >";
     
