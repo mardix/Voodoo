@@ -160,13 +160,8 @@ class Voodooist
                             self::e(self::t(2)."|");
                             self::e(self::t(2)."|_ Model");
                             foreach ($module["models"] as $model) {
-                                if($model["namespace"]) {
-                                    $ns = key($model["namespace"]);
-                                    $path = $model["namespace"][$ns];
-                                } else {
-                                    $ns = "";
-                                    $path = "";
-                                }
+                                $path = isset($model["path"]) ? $model["path"] : "";
+                                $namespace = isset($model["namespace"]) ? $model["namespace"] : "";
                                 $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"], 
                                                         $model["primaryKey"], $model["foreignKey"],
                                                         $path, $ns);
