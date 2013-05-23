@@ -114,7 +114,7 @@ class Config
     {
         if($keyName){
             if (!isset($this->getNamespace()["data"][$keyName])){
-                self::$Config[$this->namespace]["data"][$keyName] = array();
+                self::$Config[$this->namespace]["data"][$keyName] = [];
             }
             self::$Config[$this->namespace]["data"][$keyName] = Helpers::arrayExtend($this->getNamespace()["data"][$keyName], $data);
         } else {
