@@ -22,57 +22,42 @@ namespace Voodoo\Core;
 
 class Autoloader
 {
-    private $libPath;
+    private $includePath;
 
     /**
-     * Register a library where classes reside
-     * @param type $libPath
+     * Statically load register the class
+     * 
+     * @param string $includePath
      *
      */
-    public static function register($libPath)
+    public static function register($includePath)
     {
-        new self($libPath);
+        new self($includePath);
     }
-
-//------------------------------------------------------------------------------
 
     /**
      * Intiate the autoload
-     * @param type $libPath
+     * 
+     * @param string $includePath
      */
-    public function __construct($libPath)
+    public function __construct($includePath)
     {
-        $this->libPath = $libPath;
-        spl_autoload_register(array($this,"_register"));
+        $this->includePath = $includePath;
+        
+        spl_autoload_register(function($className){
+            $className = ltrim($className, '\\');
+            $fileName  = '';
+            $namespace = '';
+            if ($lastNsPos = strripos($className, '\\')) {
+                $namespace = substr($className, 0, $lastNsPos);
+                $className = substr($className, $lastNsPos + 1);
+                $fileName  = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+            }
+            $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+            $file = $this->includePath.DIRECTORY_SEPARATOR.$fileName;
+            if (file_exists($file)) {
+                require_once($file);
+            }            
+        });
     }
-
-    /**
-     * Register
-     * @param type $className
-     * PSR-0 compliant autoloader
-     */
-    private function _register($className)
-    {
-        $className = ltrim($className, '\\');
-        $fileName  = '';
-
-        $namespace = '';
-
-        if ($lastNsPos = strripos($className, '\\')) {
-            $namespace = substr($className, 0, $lastNsPos);
-
-            $className = substr($className, $lastNsPos + 1);
-
-            $fileName  = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-        }
-
-        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
-
-        $file = $this->libPath.DIRECTORY_SEPARATOR.$fileName;
-
-        if (file_exists($file)) {
-            require_once($file);
-        }
-    }
-
 }
