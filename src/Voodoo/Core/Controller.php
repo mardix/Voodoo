@@ -98,7 +98,7 @@ abstract class Controller
      * It is loaded by default or an action is missing
      * Every controller requires it
      */
-    abstract public function action_index();
+    abstract public function actionIndex();
 //------------------------------------------------------------------------------
 
     /**
@@ -144,7 +144,7 @@ abstract class Controller
      */
     protected function finalize()
     {
-        Http\Response::setStatus($this->httStatusCode);
+        Http\Response::setStatus($this->httpStatusCode);
         return $this;
     }
 
@@ -159,6 +159,8 @@ abstract class Controller
         if (! $this->exit) {
             $this->finalize();
             $this->renderView();
+        } else {
+            exit();
         }
     }
 
@@ -224,6 +226,10 @@ abstract class Controller
         return $this->moduleName;
     }
 
+    public function getModuleNamespace()
+    {
+        return $this->moduleNamespace;
+    }
     /**
      * Return the controller's name
      * @return string
@@ -391,7 +397,7 @@ abstract class Controller
      *      @view string
      *      To change the view instead of using the default action-name view
      */
-    public function getAction($action = "index")
+    public function getAction($action = "Index")
     {
         $executeAction = true;
         $layout = "";
@@ -470,7 +476,7 @@ abstract class Controller
      */
     protected function setActionName($action)
     {
-       $this->actionName = strtolower(Helpers::camelize($action, false));
+       $this->actionName = Helpers::camelize($action, true);
        return $this;
     }
 
@@ -480,7 +486,7 @@ abstract class Controller
      */
     public function getActionMethodName()
     {
-        return "action_".$this->getActionName();
+        return "action".$this->getActionName();
     }
 
     /**
@@ -580,9 +586,15 @@ abstract class Controller
     public function getConfig($key = null)
     {
         if (!$this->config) {
-            $configFile = "{$this->applicationDir}/Config.ini";
+            $appConfigFile = "{$this->applicationDir}/Config.ini";
             $this->config = (new Config($this->controllerNamespace))
-                                ->loadFile($configFile);
+                                ->loadFile($appConfigFile);
+            
+            // If a config file exist in the module, we'll load it
+            $moduleConfigFile = "{$this->moduleDir}/Config.ini";
+            if (file_exists($moduleConfigFile)) {
+                $this->config->loadFile($moduleConfigFile);    
+            }                  
         }
         return $this->config->get($key);
     }
