@@ -87,44 +87,12 @@ class View
     public function __construct(Controller $controller)
     {
         $this->controller = $controller;
-
         $this->moduleName = $this->controller->getModuleName();
-
         $this->controllerName = $this->controller->getControllerName();
-
         $this->applicationPath = $this->controller->getApplicationDir();
-
         $this->viewsPath = $this->controller->getModuleDir() . "/Views";
-
         $this->controllersViewPath = $this->viewsPath . "/{$this->controllerName}";
-
         $this->setDir($this->controllersViewPath);
-
-        $this->assign("this", [
-                "url"       =>  $this->controller->getControllerUrl(),
-                "assets"    =>  $this->getModuleAssetsDir(),
-                
-                "module"    => [
-                    "name"      => $this->moduleName,
-                    "url"       => $this->controller->getModuleUrl(),
-                    "assets"    => $this->getModuleAssetsDir()
-                ],
-                
-                "controller" => [
-                    "name"      => $this->controller->getControllerName(),
-                    "url"       => $this->controller->getControllerUrl()
-                ],
-                
-                
-                "global"       => [
-                    "url"   => $this->controller->getBaseUrl(),
-                    "assets"    =>  $this->getPublicAssetsDir()
-                ],
-            
-                "year"      => date("Y"),
-                "siteUrl"   => $this->controller->getSiteUrl(),
-        ]);
-
     }
     
     /**
@@ -301,6 +269,35 @@ class View
             $this->assign("this.error", $this->getMessage("error"));
         }
         
+        $this->assign("this", [
+                "url"       =>  $this->controller->getControllerUrl(),
+                "assets"    =>  $this->getModuleAssetsDir(),
+                
+                "module"    => [
+                    "name"      => $this->moduleName,
+                    "url"       => $this->controller->getModuleUrl(),
+                    "assets"    => $this->getModuleAssetsDir()
+                ],
+                
+                "controller" => [
+                    "name"      => $this->controller->getControllerName(),
+                    "url"       => $this->controller->getControllerUrl()
+                ],
+                
+                "action" => [
+                    "name"      => $this->controller->getActionName(),
+                    "url"       => $this->controller->getControllerUrl()."/".$this->controller->getActionName()
+                ],
+                
+                "global"       => [
+                    "url"   => $this->controller->getBaseUrl(),
+                    "assets"    =>  $this->getPublicAssetsDir()
+                ],
+            
+                "year"      => date("Y"),
+                "siteUrl"   => $this->controller->getSiteUrl(),
+        ]);
+        
         $renderName = $this->templateKeys["view"];
         $this->addTemplate($this->templateKeys["view"], $this->body, $this->isBodyAbsolute);
 
@@ -315,6 +312,7 @@ class View
         
         if (isset($this->templates[$renderName])) {
             $template = (new View\Mustache($this->templates[$renderName], $this->assigned))->render();
+            
             // replace the raws and return
             $content =
                     str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$template);
@@ -419,19 +417,24 @@ class View
     /**
      * Access the Paginator object
      * 
+     * @param int $totalItems - Set the total items 
+     * 
      * @return Voodoo\Paginator
      */
-    public function paginator()
+    public function paginator($totalItems = null)
     {
         if (! $this->paginator) {
             $uri = $this->controller->getRequestURI();
             $pattern = $this->controller->getConfig("views.pagination.pagePattern");
             $itemsPerPage = $this->controller->getConfig("views.pagination.itemsPerPage");
             $navigationSize = $this->controller->getConfig("views.pagination.navigationSize");
-
+            
             $this->paginator = new Paginator($uri, $pattern);
             $this->paginator->setItemsPerPage($itemsPerPage)
                             ->setNavigationSize($navigationSize);
+        }
+        if (is_numeric($totalItems)) {
+            $this->paginator->setTotalItems($totalItems);
         }
         return $this->paginator;
     }
@@ -460,7 +463,7 @@ class View
     {
         $src = $this->getRealPath($src, $absolutePath);
         $content = $this->loadFile($src, true);
-        
+
         /**
          * {{%layout path}}
          * Only @pageView checks for the layout
@@ -519,11 +522,8 @@ class View
 
             // Dont't convert absolute dir. Dir starts with _
             $Controller = preg_match("/^_[\w]+$/i", $segments[1]) ? $segments[1] : Helpers::camelize($segments[1], true);
-
             $viewAction = $segments[2];
-
             $src = ($absolutePath || preg_match("/^({$this->controllerName}|_[\w]+)/", $src)) ? $src : "{$this->controllerName}/{$src}";
-
             if ($Controller) {
                 $src = $this->addFileExtension($this->applicationPath . "/{$Module}/Views/{$Controller}/$viewAction");
                 $absolutePath = true;
@@ -535,7 +535,7 @@ class View
          * If absolute path or is in _includes or the controller dir, leave as is
          * Second cond: to add the extension if it's missing
          */
-        $src = ($absolutePath || preg_match("/^({$this->controllerName}|_[\w]+)/", $src)) ? $src : "{$this->controllerName}/{$src}";
+        $src = ($absolutePath || preg_match("/^({$this->controllerName}\/|_[\w]+)/", $src)) ? $src : "{$this->controllerName}/{$src}";
         $src = $this->addFileExtension($src);
         $src = ($absolutePath) ? $src : ($this->viewsPath . "/{$src}");
         
@@ -603,7 +603,8 @@ class View
         switch (true) {
             // Assets in current Module
             case preg_match("/^(_[\w]+)/", $path):
-                $path = "{$this->moduleName}/Views/{$path}";
+                $moduleNamespace = $this->controller->getModuleNamespace();
+                $path = "{$moduleNamespace}/Views/{$path}";
                 break;
             // Assets anywhere with current page. ie: /ModuleName/Views/_assets
             case preg_match("/^\/\/?/", $path):
@@ -614,13 +615,9 @@ class View
                 return $path;
                 break;
         }
-
-        $root = Env::getRootDir();
-        $baseDir = Config::Application()->get("VoodooApp.BaseDir") == "/" ? "" : Config::Application()->get("VoodooApp.BaseDir");
-        $modulePath = str_replace(array($root, "\\", $baseDir),  array("", "/",""),$this->applicationPath);
         $url = preg_replace("/\/$/","",$this->controller->getSiteUrl());
-        return $url.$modulePath."/$path";
-
+        $path = str_replace(["\\"],["/"], $path);
+        return "{$url}/{$path}";
     }
 
     /**
