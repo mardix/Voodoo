@@ -81,15 +81,4 @@ abstract class Api extends Core\Controller
         return $this->restView;
     }
 
-    /**
-     * action_404() will be invoked if an action is missing
-     */
-    public function action_404()
-    {
-        $errorCode = 404;
-        $message = Core\Http\Response::getHttpCode($errorCode);
-
-        $this->setHttpCode($errorCode);
-        $this->view()->setError($message, $errorCode);
-    }
 }
