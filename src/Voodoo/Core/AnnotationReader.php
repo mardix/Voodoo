@@ -159,7 +159,7 @@ class AnnotationReader
     public function __get($key)
     {
         $key = strtolower($key);
-        return $this->annotations[$key];
+        return isset($this->annotations[$key]) ? $this->annotations[$key] : null;
     }
 
     /**
