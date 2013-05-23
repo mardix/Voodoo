@@ -25,7 +25,12 @@ class Env {
     CONST STAGING       = 2;    
     CONST PRODUCTION    = 3;
 
-    private static $paths = [];
+    private static $paths = [
+        "FrontController" => "",
+        "App" => "",
+        "Config" => "",
+        "PublicAssets" => ""
+    ];
     private static $env = null;
     
     
@@ -123,17 +128,7 @@ class Env {
                 || ($_SERVER["SERVER_PORT"] == 443)  ;     
     }
     
-    
-    /**
-     * Return the current PHP version
-     * 
-     * @return string
-     */
-    public static function getPhpVersion()
-    {
-        return \PHP_VERSION;
-    } 
-    
+
     
     /**
      * Get the running application's base dir, usually the root where index.php is being run
@@ -208,7 +203,7 @@ class Env {
      */
     public static function setConfigPath($path)
     {
-        self::$paths["config"] = $path;
+        self::$paths["Config"] = $path;
     }
     
     /**
@@ -218,7 +213,7 @@ class Env {
      */
     public static function getConfigPath()
     {
-        return self::$paths["config"];
+        return self::$paths["Config"];
     }
 
     /**
@@ -228,7 +223,7 @@ class Env {
      */
     public static function setPublicAssetsPath($rootDir)
     {
-        self::$paths["publicAssets"] = $rootDir."/assets";
+        self::$paths["PublicAssets"] = $rootDir."/assets";
     }
     
     /**
@@ -238,7 +233,7 @@ class Env {
      */
     public static function getPublicAssetsPath()
     {
-        return self::$paths["publicAssets"];
+        return self::$paths["PublicAssets"];
     }
     
     
@@ -246,7 +241,7 @@ class Env {
      * To start a session if it's not active
      * Once set, you can use $_SESSION to work with your data
      */
-    public static function startSession()
+    public static function sessionStart()
     {
         if( session_status() !=  PHP_SESSION_ACTIVE) {
             session_start();
