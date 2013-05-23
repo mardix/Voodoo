@@ -14,10 +14,10 @@ require_once __DIR__."/Voodoo/autoload.php";
     /**
      * The root dir of your App directory
      * By default it is __DIR__ (NOT that __DIR__."/App")
-     * 
-     * @type string 
+     *
+     * @type string
      */
-    $rootAppDir = __DIR__;
+    $appBaseDir = __DIR__;
 
     /**
      * Set the application name to use. By default it's Www
@@ -25,11 +25,4 @@ require_once __DIR__."/Voodoo/autoload.php";
      */
     $appName = "www";
 
-    /**
-     * The URI
-     * @type string
-     */
-    $uri = implode("/", Voodoo\Core\Http\Request::getUrlSegments());
-
-    (new Voodoo\Core\Voodoo($rootAppDir, $appName, $uri))->doMagic();
-    
+    (new Voodoo\Core\Application($appBaseDir, $appName))->doVoodoo();

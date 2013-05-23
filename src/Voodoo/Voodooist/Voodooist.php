@@ -28,12 +28,13 @@ class Voodooist
     public static $SINCE = GEN_SINCE;
     private static $echoCreator = false;
     protected $tplContent = array();
-    
+
     private static $appJson = "app.json";
     private static $baseDir = "";
 
     /**
      * Creates your Voodoo App
+     * @param string $defaultBaseDir - The default base dir where App will be created
      * @param array $options
      *      BaseDir
      *      App
@@ -42,10 +43,9 @@ class Voodooist
      *      PublicAssets
      * @param bool - to display or not the process on the screen
      */
-    public static function create(Array $options = [], $echo = false)
+    public static function create($defaultBaseDir, Array $options = [], $echo = false)
     {
         self::$echoCreator = $echo;
-        $defaultBaseDir = dirname(dirname(__DIR__));
         $default = [
             "FrontController" => $defaultBaseDir,
             "Config" => $defaultBaseDir."/App/_config",
@@ -57,7 +57,9 @@ class Voodooist
         $options = array_merge($default, $options);
 
         self::$baseDir = $options["BaseDir"];
-        
+
+        Core\Autoloader::register($defaultBaseDir);
+
         // Set up the environment
         Core\Env::setAppPath($options["App"]);
         Core\Env::setConfigPath($options["Config"]);
@@ -67,7 +69,7 @@ class Voodooist
         $jsonFile = Core\Env::getConfigPath()."/".self::$appJson;
         $Voodooist = new self;
 
-        self::e(Core\Voodoo::NAME." ".Core\Voodoo::VERSION." : The Voodooist!");
+        self::e(Core\Application::NAME." ".Core\Application::VERSION." : The Voodooist!");
         self::e("-----------------------------------------------------------------------");
 
         // /VoodooApp
@@ -162,9 +164,8 @@ class Voodooist
                             foreach ($module["models"] as $model) {
                                 $path = isset($model["path"]) ? $model["path"] : "";
                                 $namespace = isset($model["namespace"]) ? $model["namespace"] : "";
-                                $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"], 
-                                                        $model["primaryKey"], $model["foreignKey"],
-                                                        $path, $namespace);
+                                $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"],
+                                                        $model["primaryKey"], $model["foreignKey"]);
                                 self::e(self::t(3)."|");
                                 self::e(self::t(3)."|_{$model["name"]}");
                             }
@@ -172,20 +173,38 @@ class Voodooist
                     }
                 }
             }
+            // Create detached models. Models that are placed outside of modules
+            if ($schema["models"]) {
+                self::e("|");
+                self::e("| Creating models..");
+                foreach ($schema["models"] as $model) {
+                    $path = $model["path"];
+
+                    if (!$path) {
+                        self::e("Detached models must have a path. \$path is empty for {$model["name"]}", true);
+                    }
+                    $namespace = isset($model["namespace"]) ? $model["namespace"] : "";
+                    $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"],
+                                            $model["primaryKey"], $model["foreignKey"],
+                                            $path, $namespace);
+                    self::e(self::t(1)."|");
+                    self::e(self::t(1)."|_{$model["name"]}");
+                }
+            }
         self::e("Done!");
-    }    
-  
+    }
+
 /*******************************************************************************/
 /*******************************************************************************/
 /*******************************************************************************/
-    
+
     public function __construct()
     {
        $this->parseData = array(
            "NAME" => "",
            "YEAR" => date("Y"),
            "DATE" => GEN_SINCE,
-           "GENERATOR" => Core\Voodoo::NAME." ".Core\Voodoo::VERSION,
+           "GENERATOR" => Core\Application::NAME." ".Core\Application::VERSION,
        );
     }
 
@@ -276,36 +295,15 @@ class Voodooist
         return $this;
     }
 
-
-    /**
-     * To prepare some name for the
-     * @param  string $str
-     * @param  bool   $camelCase       - To use UpperCamelCase or nor
-     * @param  bool   $lowercase - To lower case
-     * @return type
-     */
-    protected function formatName($str, $camelCase = true, $lowercase = false)
-    {
-        $str = preg_replace("/\W/","",trim($str));
-
-        $str = preg_replace("/^([0-9]+)/","",$str);
-
-        $str = Core\Helpers::camelize($str,$camelCase);
-
-        return $lowercase ? strtolower($str) : $str;
-    }
 /*******************************************************************************/
 
     public function setApplication($name)
     {
-        $this->applicationName = $this->formatName($name);
+        $this->applicationName = Core\Application::formatName($name);
         $this->applicationPath = Core\Env::getAppPath()."/{$this->applicationName}";
         $this->applicationNS = "App\\{$this->applicationName}";
-
         $this->mkdir($this->applicationPath);
-
         $file = $this->applicationPath."/Config.ini";
-
         $this->saveTpl("application_config",$file,["APPLICATIONNAME"=>$this->applicationName]);
     }
 
@@ -319,7 +317,7 @@ class Voodooist
      */
     public function createModule($module, $templateDir = "Default", $isApi = false, $omitViews = false)
     {
-        $module = $this->moduleName = $this->formatName($module);
+        $module = $this->moduleName = Core\Application::formatName($module);
         $appControllerDir = $this->applicationPath."/{$module}/Controller";
         $appModelDir = $this->applicationPath."/{$module}/Model";
         $this->moduleNamespace = $this->applicationNS."\\{$this->moduleName}";
@@ -328,7 +326,7 @@ class Voodooist
         $countModels = 0;
 
         $this->mkdir($appControllerDir);
-        $this->mkdir($appModelDir);
+
 
         $exception =  $this->applicationPath."/{$this->moduleName}"."/Exception.php";
         $this->saveTpl("exception", $exception,["MODULENAMESPACE" => $this->moduleNamespace]);
@@ -365,6 +363,7 @@ class Voodooist
 
                 $modelTpl = "{$modulesTemplate}/Model";
                 if (is_dir($modelTpl)) {
+                    $this->mkdir($appModelDir);
                     Core\Helpers::recursiveCopy($modelTpl,$appModelDir);
                     //Let's go in each file and update some VARIABLE
                     $DirIt = new \DirectoryIterator($appModelDir);
@@ -376,11 +375,6 @@ class Voodooist
                     }
                 }
             }
-        }
-
-        // Create a SampleModel
-        if (! $newModelDir && $countModels == 0) {
-            //$this->createModel("SampleModel", "MyDB", "sample_table", "id", "%s_id");
         }
 
         $this->createController("Index", $isApi);
@@ -395,9 +389,9 @@ class Voodooist
      */
     public function createController($controllerName, $isApi = false)
     {
-        $this->controllerName = $this->formatName($controllerName);
-
+        $this->controllerName = Core\Application::formatName($controllerName);
         $file = $this->applicationPath."/{$this->moduleName}"."/Controller/{$this->controllerName}.php";
+        $baseControllerFile = $this->applicationPath."/{$this->moduleName}"."/Controller/BaseController.php";
 
         if(file_exists($file)) {
             return false;
@@ -405,11 +399,13 @@ class Voodooist
 
         $this->mkdir($file);
 
+        $api_tpl = ($isApi) ? "_api" : "";
+        $this->saveTpl("base_controller".$api_tpl, $baseControllerFile , ["MODULENAMESPACE" => $this->moduleNamespace]);
+        $this->saveTpl("controller".$api_tpl, $file, ["CONTROLLER"=>$this->controllerName, "MODULENAMESPACE" => $this->moduleNamespace]);
+
+        $this->addAction("index");
         $this->addView("index");
 
-        $tpl = ($isApi) ? "controller_api" : "controller";
-
-        $this->saveTpl($tpl, $file,array("CONTROLLER"=>$this->controllerName, "MODULENAMESPACE" => $this->moduleNamespace));
 
         return true;
     }
@@ -422,15 +418,14 @@ class Voodooist
      */
     public function addAction($action)
     {
-        $this->actionName = $this->formatName($action,false, true);
-
+        $this->actionName = Core\Application::formatName($action);
         $clsControllerName = $this->applicationNS."\\{$this->moduleName}\\Controller\\{$this->controllerName}";
-
         $controller = $this->applicationPath."/{$this->moduleName}/Controller/{$this->controllerName}.php";
 
         try {
             $Reflection = new ReflectionClass($clsControllerName);
-            if (!$Reflection->hasMethod("action_{$this->actionName}")) {
+
+            if (!$Reflection->hasMethod("action{$this->actionName}")) {
 
                 $inlineCode = "";
                 if (!$Reflection->isSubclassOf("\Voodoo\Core\Controller\Api")) {
@@ -439,7 +434,7 @@ class Voodooist
 
                 $tpl  = $this->parseTpl("controller_action",array("METHODNAME"=>$this->actionName,"INLINECODE"=>$inlineCode));
 
-                $content = preg_replace("/}\s*$/",$tpl,file_get_contents($controller));
+                $content = preg_replace("/}\s*$/", $tpl, file_get_contents($controller));
 
                 file_put_contents($controller, $content);
 
@@ -465,20 +460,12 @@ class Voodooist
      */
     public function addView($action = "")
     {
-        $controllerName = $this->controllerName;
-
-        $module = $this->moduleName;
-
-        $action = $action ? : $this->actionName;
-
-        /**
-         * Create the view file
-         */
-        $viewDir = $this->applicationPath."/{$this->moduleName}/Views/{$nsModel}";
+        $viewDir = $this->applicationPath."/{$this->moduleName}/Views";
 
         // It's not a bare module
         if (is_dir($viewDir)) {
-            $viewFile = "{$viewDir}/{$controllerName}/{$action}.html";
+            $action = Core\Application::formatName($action ?: $this->actionName);
+            $viewFile = "{$viewDir}/{$this->controllerName}/{$action}.html";
             $this->mkdir($viewFile);
             $this->saveTpl("view",$viewFile,array("NAME"=>$action));
         }
@@ -502,23 +489,23 @@ class Voodooist
             if($nsModel) {
                 $nsModel .= "/";
             }
-            $nsModel .= $this->formatName($model);
+            $nsModel .= Core\Application::formatName($model);
         }
 
         $modelName = basename($nsModel);
 
         if($customModelPath && $customModelNamespace) {
             $modelNameSpace = $customModelNamespace;
-            $file = str_replace("{{BASEDIR}}", self::$baseDir, $customModelPath);       
+            $file = str_replace("{{BASEDIR}}", self::$baseDir, $customModelPath);
         } else {
             $modelNameSpace = $this->moduleNamespace."\\Model";
-            $file = $this->applicationPath."/{$this->moduleName}/Model";                    
+            $file = $this->applicationPath."/{$this->moduleName}/Model";
         }
         $this->mkdir($file);
-        $this->saveTpl("exception", $file."/Exception.php", ["MODULENAMESPACE" => $modelNameSpace]);         
-        $file .= "/{$nsModel}.php";        
+        $this->saveTpl("exception", $file."/Exception.php", ["MODULENAMESPACE" => $modelNameSpace]);
+        $file .= "/{$nsModel}.php";
         $moduleNameSpace = $modelNameSpace;
-        
+
         if (!in_array($nsModelN2 = dirname($nsModel), array(".",""))) {
             $modelNameSpace .= "\\".str_replace("/","\\",$nsModelN2);
         }

@@ -1,12 +1,11 @@
 <?php
 /** {{GENERATOR}} (autogen date: {{DATE}})
  ******************************************************************************
- * @desc
- * @package     {{MODULENAMESPACE}}\Controller
- * @name        {{CONTROLLER}}
+ * @desc        The default controller. It shows a coming soon page
+ * @package     {{MODULENAMESPACE}}
+ * @name        Index
  * @copyright   (c) {{YEAR}}
  ******************************************************************************/
-
 
 namespace {{MODULENAMESPACE}}\Controller;
 
@@ -14,16 +13,7 @@ use Voodoo,
     {{MODULENAMESPACE}}\Model,
     {{MODULENAMESPACE}}\Exception;
 
-class {{CONTROLLER}} extends BaseController
+abstract class BaseController extends Voodoo\Core\Controller
 {
-    /**
-     * @action index
-     * @desc This is the index action. Loaded by default or when action is missing
-     */
-    public function actionIndex()
-    {
-
-
-    }
 
 }

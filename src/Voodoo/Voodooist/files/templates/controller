@@ -1,11 +1,11 @@
 <?php
 /** {{GENERATOR}} (autogen date: {{DATE}})
  ******************************************************************************
- * @desc        
+ * @desc
  * @package     {{MODULENAMESPACE}}\Controller
- * @name        {{CONTROLLER}}    
+ * @name        {{CONTROLLER}}
  * @copyright   (c) {{YEAR}}
- ******************************************************************************/ 
+ ******************************************************************************/
 
 
 namespace {{MODULENAMESPACE}}\Controller;
@@ -14,16 +14,17 @@ use Voodoo,
     {{MODULENAMESPACE}}\Model,
     {{MODULENAMESPACE}}\Exception;
 
-class {{CONTROLLER}} extends Voodoo\Core\Controller
+class {{CONTROLLER}} extends BaseController
 {
     /**
      * @action index
      * @desc This is the index action. Loaded by default or when action is missing
      */
-    public function action_index()
+    public function actionIndex()
     {
         // Set the page title
         $this->view()->setPageTitle("");
-        
+
     }
+
 }

@@ -12,20 +12,19 @@
  * -----------------------------------------------------------------------------
  *
  * @name        Voodooist/setup
- * @desc        A setup file that create your Voodoo environment, include your 
+ * @desc        A setup file that create your Voodoo environment, include your
  *              App directory, your classes etc.
  *              /your-path/App/_config/app.json will be created. It a JSON file
  *              that contains your MVC stucture. setup.php will read it and create the files
  *              and directory if not exist.
- *              
- * @run         To execute this file, run the sode below in your command line 
- *              cd /PATH/Voodoo/Voodooist 
+ *
+ * @run         To execute this file, run the sode below in your command line
+ *              cd /PATH/Voodoo/Voodooist
  *              php -f ./setup.php
  *
  */
 
-use Voodoo\Core,
-    Voodoo\Voodooist;
+use Voodoo\Voodooist;
 
 require_once dirname(__DIR__)."/autoload.php";
 
@@ -50,7 +49,7 @@ $options = [
 ];
 
     try {
-        Voodooist\Voodooist::create($options, true);
+        Voodooist\Voodooist::create($baseDir, $options, true);
     } catch (\Exception $e) {
         echo "EXCEPTION: ".$e->getMessage();
     }

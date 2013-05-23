@@ -2,9 +2,12 @@
 /** {{GENERATOR}} (autogen date: {{DATE}})
  ******************************************************************************
  * @desc
- * @package     {{MODULENAMESPACE}}\Controller
+ * @package     {{MODULENAMESPACE}}\Controller\BaseController
  * @name        {{CONTROLLER}}
  * @copyright   (c) {{YEAR}}
+ *
+ * An abstract class to extends on your controllers.
+ * Add shared methods and action in here
  ******************************************************************************/
 
 
@@ -14,16 +17,8 @@ use Voodoo,
     {{MODULENAMESPACE}}\Model,
     {{MODULENAMESPACE}}\Exception;
 
-class {{CONTROLLER}} extends BaseController
+abstract class BaseController extends Voodoo\Core\Controller\Api
 {
-    /**
-     * @action index
-     * @desc This is the index action. Loaded by default or when action is missing
-     */
-    public function actionIndex()
-    {
 
-
-    }
 
 }
