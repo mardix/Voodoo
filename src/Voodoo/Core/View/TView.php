@@ -120,7 +120,8 @@ trait TView {
      */
     public function getMessage($type)
     {
-        return $this->getMessages()[$type] ?: null;
+        
+        return isset($this->getMessages()[$type]) ? $this->getMessages()[$type] : null;
     }
 
     /**
@@ -148,7 +149,7 @@ trait TView {
      */
     public function setFlash($message, $type = "success", Array $data = array())
     {
-        Core\Env::startSession();
+        Core\Env::sessionStart();
         $_SESSION["flashData"] = [
             "message" => ["type" => $type, "message" => $message],
             "data" => $data
@@ -163,7 +164,7 @@ trait TView {
      */
     public function clearFlash()
     {
-        Core\Env::startSession();
+        Core\Env::sessionStart();
         unset($_SESSION["flashData"]);
         return $this;
     }
@@ -175,8 +176,8 @@ trait TView {
      */
     public function getFlash()
     {
-        Core\Env::startSession();
-        return $_SESSION["flashData"] ?: null;    
+        Core\Env::sessionStart();
+        return isset($_SESSION["flashData"]) ? $_SESSION["flashData"] : null;    
     }
     
     /**
