@@ -30,7 +30,7 @@
 
     // For One to One. Will get only one entry
     public function getAuthor(){
-        $table = Author::create()->getTableName();
+        $table = (new Author)->getTableName();
          return $this->{$table}(self::REL_HASONE, function($res){
                     return Author::create($res);
                 });
@@ -39,7 +39,7 @@
 
     // For One to Many. Will get all the tags entry
     public function getTags(){
-        $table = Tags::create()->getTableName();
+        $table = (new Tags)->getTableName();
          return $this->{$table}(self::REL_HASMANY, function($res){
                     return Tags::create($res);
                 });
@@ -48,7 +48,7 @@
  }
 
  * Now that's how you access them
-   $book = new Model\Book::findOne(1234);
+   $book = (new Model\Book)->findOne(1234);
    $author = $book->getAuthor()->name;
    $tags = $book->getTags();
 
@@ -82,7 +82,7 @@ abstract class Model extends VoodOrm
   protected $foreignKeyName = "%s_id";
 
   /**
-   * The DB Alias to use. It is saved in Application/Config/DB.ini
+   * The DB Alias to use. It is saved in App/Config/DB.ini
    * @var string
    */
   protected $dbAlias = "";
@@ -106,7 +106,7 @@ abstract class Model extends VoodOrm
 
     /**
      * The constructor
-     * 
+     *
      * @param PDO $pdo
      * @throws Exception
      */
@@ -117,80 +117,20 @@ abstract class Model extends VoodOrm
         }
         if (! $this->primaryKeyName){
             throw new Exception("PrimaryKeyName is null in ".get_called_class());
-        }  
-        
+        }
+
         if (! $pdo) {
             if (! $this->dbAlias){
                 throw new Exception("DB Alias is missing in ".get_called_class());
             }
             $pdo =  ConnectionManager::connect($this->dbAlias);
         }
-        
+
         parent::__construct($pdo, $this->primaryKeyName, $this->foreignKeyName);
 
         $instance = parent::table($this->tableName);
 
-        $this->table_name = $instance->table_name;
-
-        $this->table_token = $instance->table_token;
-
-        $this->table_alias = $instance->table_alias;
-
-        $this->primary_key_name = $instance->primary_key_name;
-
-        $this->foreign_key_name = $instance->foreign_key_name;
-    }
-
-
-    /**
-     * Returns the table name
-     *
-     * @param ModelName
-     * @return string
-     */
-    public function getTableName(Model\VoodOrm $model = null)
-    {
-        if ($model != null) {
-            return $model->getTableName();
-        } else {
-            return $this->table_name;
-        }
-    }
-
-    /**
-     * Returns the primary key name
-     *
-     * @return string
-     */
-    public function getPrimaryKeyName()
-    {
-        return $this->primary_key_name;
-    }
-
-    /**
-     * Returns the foreign key name
-     *
-     * @return string
-     */
-    public function getForeignKeyName()
-    {
-        return $this->foreign_key_name;
-    }
-
-    /**
-     * To execute a code only if $this->is_single
-     * 
-     * @param Closure $fn
-     * @return mixed
-     * @throws Exception
-     */
-    public function ifSingle(\Closure $fn)
-    {
-        if ($this->is_single) {
-            return $fn();
-        } else {
-            throw new Exception("Not a single Object");
-        }
+        $this->table_name = $instance->getTablename();
     }
 
 
