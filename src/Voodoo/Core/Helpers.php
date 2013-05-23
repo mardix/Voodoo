@@ -15,7 +15,7 @@
  * @since       Costant update....
  * @desc        A collection of useful function wrapped into class... Didn't feel like putting functions in their own file,
  *              so I know if call this static class, I will find my function anywhere... yeah yeah yeah... don't judge... it works... lol
- *              Most of these functions was created for special task, but decided to leave them anyway. 
+ *              Most of these functions was created for special task, but decided to leave them anyway.
  *              They may not be too clean or PSR-2, but it's ok... lol... my bad on that :)
  */
 
@@ -244,7 +244,7 @@ Class Helpers{
 
     /**
      * Check if a password is valid
-     * 
+     *
      * @param string $str
      * @param int $min
      * @param int $max
@@ -257,12 +257,12 @@ Class Helpers{
 
     /**
      * Check if a login is valid
-     * 
+     *
      * @param string $str
      * @param int $min
      * @param int $max
      * @return bool
-     */    
+     */
     public static function validLogin($str, $min = 4, $max = 64)
     {
         return preg_match("/^[\w_]{{$min},{$max}}$/",$str);
@@ -342,16 +342,16 @@ Class Helpers{
 
     /**
      * Delete file recursively
-     * 
+     *
      * @param strin $dir
      * @return bool
      */
     public static function recursiveDelete($dir)
     {
-        foreach (array_diff(scandir($dir), ['.','..']) as $file) { 
-          (is_dir("$dir/$file")) ? self::recursiveDelete("$dir/$file") 
-                                   : unlink("$dir/$file"); 
-        } 
+        foreach (array_diff(scandir($dir), ['.','..']) as $file) {
+          (is_dir("$dir/$file")) ? self::recursiveDelete("$dir/$file")
+                                   : unlink("$dir/$file");
+        }
         return rmdir($dir);
     }
 
@@ -793,7 +793,7 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
         if ($number>1000) {
             $number=$number/1000;
             $count++;
-        } else { 
+        } else {
             break;
         }
          $number = number_format($number,$decimals);
@@ -1086,14 +1086,14 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
         $str = trim(ucwords($str));
         return preg_replace("/(^_|\s)/","", preg_replace("/([a-z])?([A-Z])/",'$1_$2',$str));
     }
-    
+
     /**
      * To dasherize
      * HelloWorld = Hello-World
      * @param type $str
      * @return type
      */
-    public static function dasherize($str) 
+    public static function dasherize($str)
     {
         return str_replace("_","-", self::toUnderscore($str));
     }
@@ -1196,17 +1196,32 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
         return ($pageNumber <= 1) ? 0 : ((($pageNumber -1) * $itemsPerPage) - 1);
     }
 
-    
+
     /**
-     * To strip html comments. 
+     * To strip html comments.
      * But will leave conditionals comments such as <!-- [if IE 7]><![endif]-->
-     * 
+     *
      * @param string $content
      * @return string
      */
     public static function stripHtmlComments($content)
     {
         $stripHtmlCommentsRegex = "/<!--(?!\s*(?:\[if [^\]]+]|<!|>))(?:(?!-->).)*-->/Uis";
-        return preg_replace($stripHtmlCommentsRegex, "", $content);        
+        return preg_replace($stripHtmlCommentsRegex, "", $content);
+    }
+
+    /**
+     * To generate a nonce token
+     *
+     * @param int $size - 32bytes = 256bit
+     * @return string
+     */
+    public static function getNonce($size = 32)
+    {
+        $ret="";
+        for ($x=0; $x<$size; $x++) {
+            $ret.=chr(mt_rand(0, 255));
+        }
+        return base64_encode($ret);
     }
 }
