@@ -11,7 +11,7 @@ Design: Modular MVC
 
 Requirements: PHP 5.4
 
-Compliance: PSR-0, PSR-1, PSR-2
+Compliance: PSR-2
 
 Author: [Mardix](http://github.com/mardix)
 
@@ -35,13 +35,13 @@ Voodoo, first, organize your application into subset of MVC structure which are 
 Modules improve maintainability by enforcing logical boundaries between components. By being Modular, Voodoo allows developers/designers to work on individual module at the same time, thus making development of program faster. New features or new sections can be implemented quickly without changing other sections. And when it's no longer needed, the module can be deleted and everything is still gravy.
 
 ---
-### Features Highlight 
+### Features Highlight
 
 
-- Slim 
+- Slim
 - RESTful
 - API ready
-- MVC 
+- MVC
 - Shared Application
 - Modular MVC
 - Namespaced
@@ -62,7 +62,7 @@ Modules improve maintainability by enforcing logical boundaries between componen
 ---
 ## Clone & Download
 
-If you are interested at Voodo, you can clone the repo or download as zip or tar.gz
+If you are interested at Voodoo, you can clone the repo or download as zip or tar.gz
 
 Git Clone (notice the dot at the end)
 
@@ -72,12 +72,12 @@ Git Clone (notice the dot at the end)
 [Download Zip](https://github.com/VoodooPHP/Voodoo/archive/master.zip)
 
 [Download Tar](https://github.com/VoodooPHP/Voodoo/archive/master.tar.gz)
-    
+
 ---
 
 ## Setup
 
-After you download Voodoo, you will need to set it up via command line with the Voodooist. 
+After you download Voodoo, you will need to set it up via command line with the Voodooist.
 
 Enter the command below
 
@@ -98,7 +98,7 @@ Once Voodoo has been setup, you will have a filesystem that looks like this:
 		|
 		+-- Config
 			|
-			+-- 
+			+--
 		|
 		+-- Www
 			|
@@ -144,7 +144,7 @@ Once Voodoo has been setup, you will have a filesystem that looks like this:
 
 ## Voodooist
 
-Voodooist is a command line tool that generates controllers, controllers' actions, views, models. Technically it setup your MVC application. 
+Voodooist is a command line tool that generates controllers, controllers' actions, views, models. Technically it setup your MVC application.
 
 Voodooist requires App/Config/app-schema.json for it to setup your MVC environment. (Read more below). If app-schema.json doesn't exist, Voodooist will create one.
 
@@ -169,7 +169,7 @@ App/Config/app-schema.json is a JSON file that contains the layout of your appli
 	                    "template" : "Default",
 	                    "isApi" : false,
 	                    "omitViews" : false,
-	                    
+
 	                    "controllers" : [
 	                        {
 	                            "name" : "Index",
@@ -178,21 +178,28 @@ App/Config/app-schema.json is a JSON file that contains the layout of your appli
 	                        {
 	                            "name" : "Account",
 	                            "actions" : ["index", "info", "preferences"]
-	                        } 						
+	                        }
 	                    ],
-	                
+
 	                    "models" : [
 	                        {
-	                            "name" : "MySampleModel",
+	                            "name" : "User",
 	                            "dbAlias" : "MyDB",
-	                            "table" : "my_table_name",
+	                            "table" : "user",
+	                            "primaryKey" : "id",
+	                            "foreignKey" : "%s_id"
+	                        },
+	                        {
+	                            "name" : "User/Preference",
+	                            "dbAlias" : "MyDB",
+	                            "table" : "user_preference",
 	                            "primaryKey" : "id",
 	                            "foreignKey" : "%s_id"
 	                        }
 	                    ]
-	                }           
+	                }
 	            ]
-	        }  
+	        }
 	    ]
 	}
 
@@ -208,47 +215,51 @@ Running the code below will execute and create, if not exist, the files and path
 		+-- .htaccess
 		|
 		+-- Www
+                        |
+                        +-- Config.ini
 			|
 			+-- Main
 				|
-				+-- Config.ini
-				|
 				+-- Controller/
+                                        |
+                                        +-- BaseController.php
 					|
 					+-- Index.php
-							::action_index()
-							::action_login()
-							::action_logout()
-							::action_about()
+							::actionIndex()
+							::actionLogin()
+							::actionLogout()
+							::actionAbout()
 					|
 					+-- Account.php
-							::action_index()
-							::action_info()
-							::action_preferences()					
+							::actionIndex()
+							::actionInfo()
+							::actionPreferences()
 				|
 				+-- Model/
 					|
-					+-- MySampleModel.php
+					+-- User.php
+                                        |
+                                        +-- User/Preference.php
 				|
-				+-- View/
+				+-- Views/
 					|
 					+-- Index/
 						|
-						+-- index.html
+						+-- Index.html
 						|
-						+-- login.html
+						+-- Login.html
 						|
-						+-- logout.html
+						+-- Logout.html
 						|
-						+-- about.html
+						+-- About.html
 					|
 					+-- Account/
 						|
-						+-- index.html
+						+-- Index.html
 						|
-						+-- info.html
+						+-- Info.html
 						|
-						+-- preferences.html			
+						+-- Preferences.html
 					|
 					+-- _assets/
 						|
@@ -281,13 +292,13 @@ Running the code below will execute and create, if not exist, the files and path
 	|
 	+-- index.php
 	|
-	+-- .htaccess  
+	+-- .htaccess
 
 ---
 
 ## Routing & Execution
 
-Voodoo cleverly routes to the right module of the application by using the URL schema 
+Voodoo cleverly routes to the right module of the application by using the URL schema
 
 		site.com/Module/Controller/Action/Segments/?paramName=paramValue
 
@@ -303,13 +314,15 @@ Voodoo cleverly routes to the right module of the application by using the URL s
 
 ##### *How does Voodoo excute your application?*
 
-It first checks for the **Module**, if found, it accesses the directory 
+The very first thing Voodoo requires is an App name. The app name contains all the modules for the application.
 
-Then checks the **Controller**, which is a class, if exists it loads it 
+Then it checks for the **Module**, if found, it accesses the directory
+
+Then checks the **Controller**, which is a class, if exists it loads it
 
 Then checks the **Action**, a method in the Controller. If exists it executed the method
 
-But if the Action doesn't exist, it will fall back to the *Controller::action_index()* method
+But if the Action doesn't exist, it will fall back to the *Controller::actionIndex()* method
 
 If Controller doesn't exist, it will fall back to the *Index.php* controller
 
@@ -317,11 +330,11 @@ If Module doesn't exist, it will fall back to *Main/* module
 
 #### Application Routes (Customed Routes)
 
-If you want to alter the way your urls are displayed: 
+If you want to alter the way your urls are displayed:
 
 	site.com/Module/Controller/Action/Segments/?paramName=paramValue
 
-you need to alter your application `routes`. The routes are located in your application Config.ini file. 
+you need to alter your application `routes`. The routes are located in your application Config.ini file.
 
 Voodoo lets you create customed url to where ever you want.
 
@@ -336,19 +349,19 @@ You can create a new route path in your Config.ini file like this
 	[routes]
 		path["/profile/(:any)"] = "/Main/Profile/Info/$1"
 
-Now when someoneone enters `site.com/profile/mardix` , the visitor will be re-routed to `/Main/Profile/Info/mardix`. 
+Now when someoneone enters `site.com/profile/mardix` , the visitor will be re-routed to `/Main/Profile/Info/mardix`.
 
 The routes can have as many directives as you want and they support regex for more advanced matching.
 
 Stuff to understand:
 
-- To reduce overhead, Application's routes are run before the call to any MVC application 
+- To reduce overhead, Application's routes are run before the call to any MVC application
 
 - Re-routing is not a redirect. It routes a path to a new path without changing the URL in the address bar
 
 - Voodoo routes are case incensitive. So accessing */Profile/info/mardix* and */pRofile/inFo/mardix* will result to the same place
 
-- Only alphanumeric [AZ-09] characters are accepted. All the other one will be ignored when routing. So */pro-file/info/mardix* will still result to */Profile/Info/mardix/*. Same as */about-us/* which result to */aboutus/*. So you can cleverly write your SEO friendly url and still keep your application running with no headache. 
+- Only alphanumeric [AZ-09] characters are accepted. All the other one will be ignored when routing. So */pro-file/info/mardix* will still result to */Profile/Info/mardix/*. Same as */about-us/* which result to */aboutus/*. So you can cleverly write your SEO friendly url and still keep your application running with no headache.
 
 
 *It is important to understand that routes are matched in the order they are added, and as soon as a URL matches a route, routing is essentially "stopped" and the remaining routes are never tried. Because the default route matches almost anything, including an empty url, new routes must be place before it.*
@@ -368,16 +381,16 @@ Voodoo applications are divided into Applications & Modules
 
 ### Application (multi-applications)
 
-Application is the upper level of your program. Everything must be in an application. An application can be another site sharing the same Voodoo code base of other application. Hence making Voodoo multi-sites enabled. 
+Application is the upper level of your program. Everything must be in an application. An application can be another site sharing the same Voodoo code base of other application. Hence making Voodoo multi-sites enabled.
 
- You can have *Site1.com*, *Site2.com*, *SiteX.com* all under the same environment sharing the same front controller, same Voodoo code base. And since your application is namespaced PSR-0, it's easy to re-use code from other applications. 
+ You can have *Site1.com*, *Site2.com*, *SiteX.com* all under the same environment sharing the same front controller, same Voodoo code base. And since your application is namespaced PSR-0, it's easy to re-use code from other applications.
 
 Inside of each applications are the applications modules. By default Voodoo creates the **WWW** which is the default entry point of your site. In large, Applications are sets of Modules.
 
-Once an application has been selected, all urls follow the schema:  `/Module/Controller/Action/Segments/?paramName=paramValue` 
+Once an application has been selected, all urls follow the schema:  `/Module/Controller/Action/Segments/?paramName=paramValue`
 
 
-That's how multiple applications looks like: 
+That's how multiple applications looks like:
 
 	|
 	+-- App/
@@ -385,10 +398,10 @@ That's how multiple applications looks like:
 		+-- .htaccess
 		|
 		+-- Site1
+                        |
+                        +-- Config.ini
 			|
 			+-- Main
-				|
-				+-- Config.ini
 				|
 				+-- Controller/
 				|
@@ -397,10 +410,10 @@ That's how multiple applications looks like:
 				+-- Views/
 		|
 		+-- Site2
+                        |
+                        +-- Config.ini
 			|
 			+-- Main
-				|
-				+-- Config.ini
 				|
 				+-- Controller/
 				|
@@ -409,16 +422,16 @@ That's how multiple applications looks like:
 				+-- Views/
 		|
 		+-- SiteX
+                        |
+                        +-- Config.ini
 			|
 			+-- Main
-				|
-				+-- Config.ini
 				|
 				+-- Controller/
 				|
 				+-- Model/
 				|
-				+-- Views/			
+				+-- Views/
 	|
 	+-- assets/ [+]
 	|
@@ -444,30 +457,27 @@ That's how it looks like:
 	<?php
 	// index.php
 
-	use Voodoo;
-	
-	$VoodooPHP_Dir = __DIR__;
-	
-	require($VoodooPHP_Dir."/Voodoo/init.php");
-	
-    /**
-     * Set the default app to access. By default it's Www
-     * @type string
-     */
-    $application = "www";
+        require_once __DIR__."/Voodoo/autoload.php";
 
-    /**
-     * The URI
-     * @type string
-     */
-    $path = implode("/",Voodoo\Core\Http\Request::getUrlSegments());
+            /**
+             * The root dir of your App directory
+             * By default it is __DIR__ (NOT that __DIR__."/App")
+             *
+             * @type string
+             */
+            $appBaseDir = __DIR__;
 
-    /**
-     * Let's do it!
-     */
-    (new Voodoo\Core\Voodoo($application, $path))->doMagic();
-	
-With this file in place, when people accesses your application, they are sent to this file. It this is how it is read: 
+            /**
+             * Set the application name to use. By default it's Www
+             * @type string
+             */
+            $appName = "www";
+
+            (new Voodoo\Core\Application($appBaseDir, $appName))->doVoodoo();
+
+
+
+With this file in place, when people accesses your application, they are sent to this file. It this is how it is read:
 
 	http://site.com/index.php?/Module/Controller/Action/Segments/?paramName=paramValue
 
@@ -478,13 +488,13 @@ On Apache, by adding the following in your .htaccess
 	RewriteEngine on
 
 	RewriteBase /
-	
+
 	# Route everything to index.php
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !\.(js|css|gif|jpg|jpeg|png|ico|swf|pdf)$
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^(.*)$ index.php?/$1 [L,NC]
- 
+
 All the urls will be rerouted to index.php unless the file or directory exist.
 
 	http://site.com/Module/Controller/Action/Segments/?paramName=paramValue
@@ -492,11 +502,11 @@ All the urls will be rerouted to index.php unless the file or directory exist.
 
 Let's break the url above down relative to our index.php bootstrap file.
 
-In the bootsrap file, we set `$application = "www";` `www` could be `site1`, `site2` or any other application's name. 
+`$appBaseDir` the base
 
-Then we set `$path = implode("/",Voodoo\Core\Http\Request::getUrlSegments());` 
+In the bootstrap file, we set `$application = "www";` `www` could be `site1`, `site2` or any other application's name.
 
-`Voodoo\Core\Http\Request::getUrlSegments()` returns `$_SERVER["QUERY_STRING"]` into an array.
+
 
 So if you have a url: `http://site.com/profile/mardix`  it will return: `profile/mardix`
 
@@ -508,9 +518,9 @@ We have the application and the boostrap set, let's get to know about the module
 
 ### Modules
 
-Modules are the second level of your application. Application are sets of Modules and Modules are set of MVC application. 
+Modules are the second level of your application. Application are sets of Modules and Modules are set of MVC application.
 
-Each module contains one set of MVC. By default Voodoo will fall back to `Main` module if a module is not specified. 
+Each module contains one set of MVC. By default Voodoo will fall back to `Main` module if a module is not specified.
 
 That's how the module **Main** looks like in the **Www** application.
 
@@ -528,8 +538,8 @@ That's how the module **Main** looks like in the **Www** application.
 				+-- Controller/
 					|
 					+-- Index.php
-							::action_index()
-							::action_about()				
+							::actionIndex()
+							::actionAbout()
 				|
 				+-- Model/
 					|
@@ -539,9 +549,9 @@ That's how the module **Main** looks like in the **Www** application.
 					|
 					+-- Index/
 						|
-						+-- index.html
+						+-- Index.html
 						|
-						+-- about.html		
+						+-- About.html
 					|
 					+-- _assets/
 						|
@@ -573,7 +583,7 @@ That's how the module **Main** looks like in the **Www** application.
 	|
 	+-- index.php
 	|
-	+-- .htaccess         
+	+-- .htaccess
 
 All classes are namespaced per PSR-0. So the main namespace for Www/Main are as follow:
 
@@ -588,37 +598,37 @@ Substitute `Www` for any other application name you would have the same structur
 
 #### What can modules be used for?
 
-Modules can be other sections of your site separated from the main site, let's say `App\Www\Admin` for an admin section or `App\Www\Api` to serve an API. It can be anything you want it. It can be used for A/B testing... etc... 
+Modules can be other sections of your site separated from the main site, let's say `App\Www\Admin` for an admin section or `App\Www\Api` to serve an API. It can be anything you want it. It can be used for A/B testing... etc...
 
 ---
 
 ## Model-View-Controller
 
-Now you understand Voodoo's modular system, let's get to know MVC. I will be brief about MVC, sorry, if you don't know MVC, please do a quick google, you will find many help. 
+Now you understand Voodoo's modular system, let's get to know MVC. I will be brief about MVC, sorry, if you don't know MVC, please do a quick google, you will find many help.
 
-So, you have your application's module ready. It contains of set of MVC structure. 
+So, you have your application's module ready. It contains of set of MVC structure.
 
 Let's say we are using the `Www` application and the `Main` module.
 
-**App/Www/Main/Model** : contains your application's model. [VoodOrm](https://github.com/mardix/VoodOrm) is used with Voodoo, but you can use whathever you want, like Doctrine etc. 
+**App/Www/Main/Model** : contains your application's model. [VoodOrm](https://github.com/mardix/VoodOrm) is used with Voodoo, but you can use whatever you want, like Doctrine etc.
 
 	<?php
-	
+
 	namespace App\Www\Main\Model;
-	
+
 	use Voodoo;
-	
+
 	class Articles extends Voodoo\Core\Model
 	{
-	    
+
 	    protected $tableName = "my_table_name";
-	
+
 	    protected $primaryKeyName = "id";
-	  
+
 	    protected $foreignKeyName = "%s_id";
-	      
-	    protected $dbAlias = "MyDB";    
-	
+
+	    protected $dbAlias = "MyDB";
+
 	}
 
 Since Voodoo uses VoodOrm, so automatically we can use all of VoodOrm methods like, `App\Www\Main\Model\Articles::find()`, `App\Www\Main\Model\Articles::count()` etc...
@@ -628,11 +638,11 @@ Since Voodoo uses VoodOrm, so automatically we can use all of VoodOrm methods li
 
 	<?php
 	// App/Www/Main/Controller/Index.php
-	
+
 	namespace App\Www\Main\Controller;
-	
+
 	use Voodoo;
-	
+
 	class Index extends Voodoo\Core\Controller
 	{
 
@@ -647,13 +657,13 @@ Since Voodoo uses VoodOrm, so automatically we can use all of VoodOrm methods li
 
 	    }
 		//...
-		
+
 	}
 
-All controllers are extended by `Voodoo\Core\Controller` which contains the methods needed to get params, load views, get models, etc... 
+All controllers are extended by `Voodoo\Core\Controller` which contains the methods needed to get params, load views, get models, etc...
 
 
-**App/Www/Main/View** : Contains html template files for your to be displayed when the application is being rendered. By default, Voodoo uses *[Mustache](https://github.com/bobthecow/mustache.php/tree/cd6bfaefd30e13082780b3711c2aa4b92d146b1e)* as the template engine to render HTML. If you want you can use Twig. But if you are thinking about using PHP as template system itself, like  `<title><?= $this->title; ?></title>` , well my friend, I don't know what to tell you. Voodoo may not be for you. 
+**App/Www/Main/View** : Contains html template files for your to be displayed when the application is being rendered. By default, Voodoo uses *[Mustache](https://github.com/bobthecow/mustache.php/tree/cd6bfaefd30e13082780b3711c2aa4b92d146b1e)* as the template engine to render HTML. If you want you can use Twig. But if you are thinking about using PHP as template system itself, like  `<title><?= $this->title; ?></title>` , well my friend, I don't know what to tell you. Voodoo may not be for you.
 
 That's how a template file looks like with mustache template:
 
@@ -661,7 +671,7 @@ That's how a template file looks like with mustache template:
 		<head>
 			<title>{{this.title}}</title>
 		</head>
-		
+
 		<body>
 			<ul>
 				{{#articles}}
@@ -680,7 +690,7 @@ As you can see, Voodoo avoids mixing database calls, HTML tags and business logi
 
 Now that you learned how Voodoo works, let's create a simple application: Hello World at the path: `site.com/hello-world/` and `site.com/articles`
 
-To do so, we will use Voodooist to setup our files. 
+To do so, we will use Voodooist to setup our files.
 
 Edit the file: `App/Config/app-schema.json `
 
@@ -695,12 +705,12 @@ Edit the file: `App/Config/app-schema.json `
 	                    "template" : "Default",
 	                    "isApi" : false,
 	                    "omitViews" : false,
-	                    
+
 	                    "controllers" : [
 	                        {
 	                            "name" : "Index",
 	                            "actions" : ["index", "hello-world", "articles"]
-	                        }						
+	                        }
 	                    ],
 
 	                    "models" : [
@@ -712,9 +722,9 @@ Edit the file: `App/Config/app-schema.json `
 	                            "foreignKey" : "%s_id"
 	                        }
 	                    ]
-	                }           
+	                }
 	            ]
-	        }  
+	        }
 	    ]
 	}
 
@@ -787,7 +797,7 @@ And you will see the following filesystem:
 	|
 	+-- index.php
 |
-+-- .htaccess         
++-- .htaccess
 
 #### Create the controller: *App/Www/Main/Controller/Index.php*
 
@@ -819,9 +829,9 @@ And you will see the following filesystem:
 		* @action articles
 		*/
 		public function action_articles(){
-		
+
 			$this->view()->setPageTitle("Latest Articles");
-			
+
 			$articles = $this->getModel("Articles")->getTop10();
 
 			$articlesData = [];
@@ -832,9 +842,9 @@ And you will see the following filesystem:
 					"date" => $this->formatDate($article->published_date)
 				];
 			}
-			
+
 			$this->view()->assign("articles", $articlesData);
-		}		
+		}
 
 	}
 
@@ -842,24 +852,24 @@ And you will see the following filesystem:
 #### Create the Model: *App/Www/Main/Model/Articles.php*
 
 	<?php
-	
+
 	namespace App\Www\Main\Model;
-	
+
 	use Voodoo;
-	
+
 	class Articles extends Voodoo\Core\Model
 	{
-	
-	    protected $tableName = "articles";
-	
-	    protected $primaryKeyName = "id";
-	  
-	    protected $foreignKeyName = "%s_id";
-	    
-	    protected $dbAlias = "MyDB";    
-	    
 
-		public function getTop10() 
+	    protected $tableName = "articles";
+
+	    protected $primaryKeyName = "id";
+
+	    protected $foreignKeyName = "%s_id";
+
+	    protected $dbAlias = "MyDB";
+
+
+		public function getTop10()
 		{
 			return (new self())
 						->limit(10)
@@ -870,62 +880,62 @@ And you will see the following filesystem:
 
 
 
-#### Create the Views: 
+#### Create the Views:
 
 ##### *App/Www/Main/Views/Index/articles.html*
-		
+
 	<div>
 		<h3>Latest Articles</h3>
-		
+
 		<ul>
 			{{#articles}}
 				<li>{{title}}</li>
 			{{/articles}}
 		</ul>
-		
+
 	</div>
 
 
 
 ##### *App/Www/Main/Views/Index/helloworld.html*
-		
+
 	<div>
 		<h3>Hello World</h3>
-		
+
 		Blah blah blah
 	</div>
 
 
 ##### *App/Www/Main/Views/Index/index.html*
-		
+
 	<div>
 		<h3>Welcome to my site</h3>
-		
+
 		Blah blah blah
 	</div>
 
 
 ##### *App/Www/Main/Views/Index/container.html*
 Voodoo requires a container template file. The container is a place holder for the action's view. The container may contain  header, footer, sidebar etc.. but must include the tag below to include the action's view page
-  
-		{{%include @pageView}}  
 
-Technically, the container is the layout of your application, and your action files are files to be included in the layout. 
+		{{%include @pageView}}
+
+Technically, the container is the layout of your application, and your action files are files to be included in the layout.
 
 So let's create the container. It is placed at:
 
 /App/Www/Main/Views/_includes/container.html
-		
+
 	<html>
 		<head>
 			<title>{{this.title}}</title>
 		</head>
-		
+
 		<body>
 			{{%include _layouts/header}}
-			
+
 				{{%include @pageView}}
-				
+
 			{{%include _layouts/footer}}
 		</body>
 	</html>
@@ -937,9 +947,9 @@ Now everything is setup and ready to go.
 If someone accesses `site.com/articles/`
 
 
-Voodoo will load the action: `App/Www/Main/Controller/Index::action_articles()`. 
+Voodoo will load the action: `App/Www/Main/Controller/Index::action_articles()`.
 
-Upon rendering, Voodoo will load the view: `App/Www/Main/Views/Index/articles.html`. 
+Upon rendering, Voodoo will load the view: `App/Www/Main/Views/Index/articles.html`.
 
 `articles.html` will be automatically included in `App/Www/Main/Views/_includes/container.html`
 
@@ -950,10 +960,10 @@ Go to [VoodooPHP.org](http://voodoophp.org) for ta more in depth documentation.
 
 ---
 
-VoodooPHP was created by Mardix and released under the MIT License. 
+VoodooPHP was created by Mardix and released under the MIT License.
 
 Enjoy!
 
-(c) 2012 Mardix 
+(c) 2012 Mardix
 
 ---
