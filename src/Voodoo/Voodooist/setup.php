@@ -36,7 +36,7 @@ require_once dirname(__DIR__)."/autoload.php";
 date_default_timezone_set("America/New_York");
 
 // The application root dir where your application's file will be created at
-$appRootDir = dirname(dirname(__DIR__))."/voodoo-test";
+$appRootDir = dirname(dirname(__DIR__));
 
 
 try {
