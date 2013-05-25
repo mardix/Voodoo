@@ -39,13 +39,14 @@ class Application
     private $controllerName = "";
     private $action = "";
     private $config = null;
-    private $appPath = "";
+    private $appDir = "";
     private $baseNamespace = "";
     private $routes = [];
     private $uri = "/";
     private $defaultAppName = "Www";
     private $defaultModule = "Main";
     private $defaultController = "Index";
+    private $reservedNames = ["Conf"];
 
 
     /**
@@ -61,18 +62,26 @@ class Application
         if (!$uri) {
             $uri = implode("/", Http\Request::getUrlSegments());
         }
+        Env::setAppRootDir($appBaseDir);
         $appName = self::formatName($appName);
 
-        Env::setAppPath($appBaseDir);
+        if(in_array($appName, $this->reservedNames)) {
+            throw new Exception("'{$appName}' is a Voodoo reserved name, and it can't be assigned as an application name ");
+        }
 
-        if (! is_dir(Env::getAppPath())) {
-            throw new Exception("The App directory doesn't exist at: ". Env::getAppPath());
+        if (! is_dir(Env::getAppRootDir())) {
+            throw new Exception("The application root: 'App' directory doesn't exist at: ". Env::getAppRootDir());
         } else {
 
-            Autoloader::register(dirname(Env::getAppPath()));
-            $this->appPath = Env::getAppPath()."/{$appName}";
+            Autoloader::register(dirname(Env::getAppRootDir()));
+            $this->appDir = Env::getAppRootDir()."/{$appName}";
+            
+            if(! is_dir($this->appDir)) {
+                throw new Exception("The application name: '{$appName}' doesn't exist at: ". $this->appDir);
+            }
+            
             $this->baseNamespace = "App\\{$appName}";
-            $this->config = (new Config("VoodooApp"))->loadFile($this->appPath."/Config.ini");
+            $this->config = (new Config("VoodooApp"))->loadFile($this->appDir."/Config.ini");
             $this->setUri($uri);
             $this->setRouting($this->config->get("routes.path") ?: []);
 
@@ -124,7 +133,7 @@ class Application
 
     /**
      * Config is restricted directory that contains the app config
-     * By default it reside in the App/_config
+     * By default it reside in the App/Conf
      * @param type $path
      * @return \Voodoo\Core\Application
      */
@@ -308,10 +317,10 @@ class Application
      * @param  string  $path
      * @return Voodoo
      */
-    private function setAppPath($appName)
+    private function setappDir($appName)
     {
         $appName = self::formatName($appName);
-        $this->appPath = Env::getAppPath()."/{$appName}";
+        $this->appDir = Env::getAppRootDir()."/{$appName}";
         $this->baseNamespace = "App\\{$appName}";
         return $this;
     }
@@ -325,7 +334,7 @@ class Application
     private function getModulesPath($module = "")
     {
         $module = self::formatName($module,true);
-        return $this->appPath.($module ? ("/".$module): "");
+        return $this->appDir.($module ? ("/".$module): "");
     }
 
     /**
