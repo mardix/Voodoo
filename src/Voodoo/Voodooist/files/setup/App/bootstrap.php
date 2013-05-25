@@ -37,7 +37,7 @@ define ("VOODOO_ROOT_DIR", APP_ROOT_DIR);
  * @var string
  * Leave blank if your config files are at the based of /App/Config
  * If you create multiple environment, ie: /App/Config/production, /App/Config/stage, /App/Config/dev
- * Set the name of the directory, ie: 'production'
+ * Set the name of the subdirectory, ie: 'production'
  */
 define ("APP_CONFIG_DIRNAME", "");
 
@@ -57,8 +57,8 @@ Voodoo\Core\Autoloader::register(APP_ROOT_DIR);
 // Set the ENV path
 Env::setAppRootDir(APP_ROOT_DIR);
 
-// Set the 
-Env::getConfigPath(APP_CONFIG_DIRNAME); 
+// Set the config name. A sub directory name under /App/Conf/$subdirectory
+Env::setConfigPath(APP_CONFIG_DIRNAME); 
 
 // Set the system timezone
 date_default_timezone_set(Config::System()->get("timezone"));
