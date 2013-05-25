@@ -311,19 +311,7 @@ class Application
             "{$this->baseNamespace}\\{$this->moduleName}\\Controller\\{$this->controllerName}";
     }
 
-    /**
-     * Set the modules path
-     *
-     * @param  string  $path
-     * @return Voodoo
-     */
-    private function setappDir($appName)
-    {
-        $appName = self::formatName($appName);
-        $this->appDir = Env::getAppRootDir()."/{$appName}";
-        $this->baseNamespace = "App\\{$appName}";
-        return $this;
-    }
+
 
     /**
      * Get the modules path
