@@ -182,7 +182,10 @@ class Env {
     public static function setAppRootDir($rootDir)
     {
         self::$paths["App"] = $rootDir."/App";
-        self::$paths["BaseConfig"] = self::$paths["Config"] = self::$paths["App"]."/Conf";
+        
+        if(! self::$paths["Config"]) {
+            self::$paths["BaseConfig"] = self::$paths["Config"] = self::$paths["App"]."/Conf";
+        }
 
     }
     
