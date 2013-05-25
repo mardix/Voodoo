@@ -15,7 +15,7 @@
  * @desc        ConnectionManager creates a single instance of the connection to your database
  *              It statically hold each connection per aliasName.
  *              For MySQL, PGSQL, SQlite it will return PDO
- *              For DSN type, it return the class provided at dsnDependency
+ *              For DSN type, it return the class provided at dsnClient
  *
  */
 
@@ -79,16 +79,16 @@ class ConnectionManager
                      * It requires the 'dsn' and class to create the instance
                      * For MongoDB
                      *      dsn = 'mongodb://localhost:27017'
-                     *      dsnDependency = '\MongoClient'
+                     *      dsnClient = '\MongoClient'
                      * 
                      * For Redis
                      *      dsn = '1.0.0.1:6379'
-                     *      dsnDependency = '\Redisent\Redis'
+                     *      dsnClient = '\Redisent\Redis'
                      * 
-                     * @return object dsnDependency
+                     * @return object dsnClient
                      */
                     case "dsn":
-                        $dsnDependency = new ReflectionClass($db["dsnDependency"]);  
+                        $dsnDependency = new ReflectionClass($db["dsnClient"]);  
                         //@return dsnDependency
                         self::$dbConnections[$dbAlias] = $dsnDependency->newInstance($db["dsn"]);                        
                         break;
