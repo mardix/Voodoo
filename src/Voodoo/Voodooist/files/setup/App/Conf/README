@@ -1,5 +1,5 @@
 
-_config/
+Conf/
 
 This directory contains your global application's config files
 
@@ -13,8 +13,12 @@ This directory contains your global application's config files
     > System.ini
         Contains the system configuration, such as server time, error_reporting etc
 
+You can create your own .ini file in this directory for your own application global setting/config
+
+
 > app.json
     That's your application schema. A json file which contains the structure of your
     Module/Model/View/Controller app
     This file is ran when Voodoo/Core/Voodooist/setup.php or App/voodooist-setup.php
     is executed.
+
