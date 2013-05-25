@@ -14,14 +14,19 @@
  * @name        Voodooist/setup
  * @desc        A setup file that create your Voodoo environment, include your
  *              App directory, your classes etc.
- *              /your-path/App/_config/app.json will be created. It a JSON file
+ *              /PATH/App/Conf/app.json will be created. It a JSON file
  *              that contains your MVC stucture. setup.php will read it and create the files
  *              and directory if not exist.
+ *              Also, a /PATH/App/voodooist.php will be created for you to setup your app
  *
- * @run         To execute this file, run the sode below in your command line
+ * @run         To execute this file, run the code below in your command line
  *              cd /PATH/Voodoo/Voodooist
  *              php -f ./setup.php
  *
+ *              Once your application is created, next time you want to set it up:
+ * 
+ *              cd /PATH/App
+ *              php -f ./voodooist.php
  */
 
 use Voodoo\Voodooist;
@@ -30,26 +35,12 @@ require_once dirname(__DIR__)."/autoload.php";
 
 date_default_timezone_set("America/New_York");
 
-/**
- * Edit your directory below
- */
+// The application root dir where your application's file will be created at
+$appRootDir = dirname(dirname(__DIR__))."/voodoo-test";
 
-$baseDir = dirname(dirname(__DIR__));
-$options = [
-    // The root dir where index.php will reside
-    "FrontController" => $baseDir,
-    // The root dir where to place the Voodoo App directory
-    "App" => $baseDir,
-    // The base dir of your files
-    "BaseDir" => $baseDir,
-    // The path of your config files. By default it's under App/_config
-    "Config" => $baseDir."/App/_config",
-    // The root dir where the assets (/assets/js|css|images etc...) exists
-    "PublicAssets" => $baseDir
-];
 
-    try {
-        Voodooist\Voodooist::create($baseDir, $options, true);
-    } catch (\Exception $e) {
-        echo "EXCEPTION: ".$e->getMessage();
-    }
+try {
+    Voodooist\Voodooist::create($appRootDir);
+} catch (\Exception $e) {
+    echo "EXCEPTION: ".$e->getMessage();
+}

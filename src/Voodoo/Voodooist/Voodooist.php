@@ -43,28 +43,26 @@ class Voodooist
      *      PublicAssets
      * @param bool - to display or not the process on the screen
      */
-    public static function create($defaultBaseDir, Array $options = [], $echo = false)
+    
+    /**
+     * Create your Voodoo  application
+     * @param string $rootDir - The root dir where /App will be installed
+     * @param type $appConfigDirName - All conf are at the root of /App/Conf, to add the config under another dir, set the name of the dir here.
+     * @param bool $echo - To show the details of the setup
+     * @return type
+     */
+    public static function create($rootDir, $appConfigDirName = "", $echo = true)
     {
         self::$echoCreator = $echo;
-        $default = [
-            "FrontController" => $defaultBaseDir,
-            "Config" => $defaultBaseDir."/App/_config",
-            "PublicAssets" => $defaultBaseDir,
-            "BaseDir" => $defaultBaseDir,
-            "App" => $defaultBaseDir
-        ];
+        self::$baseDir = $rootDir;
 
-        $options = array_merge($default, $options);
-
-        self::$baseDir = $options["BaseDir"];
-
-        Core\Autoloader::register($defaultBaseDir);
+        Core\Autoloader::register($rootDir);
 
         // Set up the environment
-        Core\Env::setAppPath($options["App"]);
-        Core\Env::setConfigPath($options["Config"]);
-        Core\Env::setFrontControllerPath($options["FrontController"]);
-        Core\Env::setPublicAssetsPath($options["PublicAssets"]);
+        Core\Env::setAppRootDir($rootDir);
+        Core\Env::setConfigPath($appConfigDirName);
+        Core\Env::setFrontControllerPath($rootDir);
+        Core\Env::setPublicAssetsPath($rootDir);
 
         $jsonFile = Core\Env::getConfigPath()."/".self::$appJson;
         $Voodooist = new self;
@@ -74,7 +72,7 @@ class Voodooist
 
         // /VoodooApp
          if (! file_exists(Core\Env::getConfigPath()."/System.ini")) {
-            self::e("> creating Dir: ".Core\Env::getAppPath());
+            self::e("> creating Dir: ".Core\Env::getAppRootDir());
             $Voodooist->createVoodooApp();
         }
 
@@ -300,7 +298,7 @@ class Voodooist
     public function setApplication($name)
     {
         $this->applicationName = Core\Application::formatName($name);
-        $this->applicationPath = Core\Env::getAppPath()."/{$this->applicationName}";
+        $this->applicationPath = Core\Env::getAppRootDir()."/{$this->applicationName}";
         $this->applicationNS = "App\\{$this->applicationName}";
         $this->mkdir($this->applicationPath);
         $file = $this->applicationPath."/Config.ini";
@@ -548,8 +546,8 @@ class Voodooist
      */
     public function createVoodooApp()
     {
-      $this->mkdir(Core\Env::getAppPath());
-      Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup/App", Core\Env::getAppPath());
+      $this->mkdir(Core\Env::getAppRootDir());
+      Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup/App", Core\Env::getAppRootDir());
     }
 
     /**

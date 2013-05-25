@@ -1,7 +1,6 @@
 <?php
 /** {{GENERATOR}} (autogen date: {{DATE}})
  ******************************************************************************
- * @desc
  * @package     {{MODULENAMESPACE}}\Controller\BaseController
  * @name        {{CONTROLLER}}
  * @copyright   (c) {{YEAR}}

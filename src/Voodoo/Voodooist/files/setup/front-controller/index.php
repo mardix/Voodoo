@@ -9,15 +9,7 @@
  */
 /******************************************************************************/
 
-require_once __DIR__."/Voodoo/autoload.php";
-
-    /**
-     * The root dir of your App directory
-     * By default it is __DIR__ (NOT that __DIR__."/App")
-     *
-     * @type string
-     */
-    $appBaseDir = __DIR__;
+require_once __DIR__."/App/bootstrap.php";
 
     /**
      * Set the application name to use. By default it's Www
@@ -25,4 +17,4 @@ require_once __DIR__."/Voodoo/autoload.php";
      */
     $appName = "www";
 
-    (new Voodoo\Core\Application($appBaseDir, $appName))->doVoodoo();
+    (new Voodoo\Core\Application(APP_ROOT_DIR, $appName))->doVoodoo();

@@ -79,14 +79,17 @@
 
     ; Module Assets contains all css, js, static files, etc that can be used by the module.
     ; The path is relative to the Module's Views directory or be a url
-    ; ie: _assets or /OtherModule/Views/_assets or http://a-place-i-host-my-static-files.com
-    ; To access it in your view files use: {{App.Module.Assets}}
+    ; Set to:
+    ;       _assets - It will link it to the _assets directory of the current module
+    ;       /OtherModule/Views/_assets - To link to another module's assets directory
+    ;       http://a-place-i-host-my-static-files.com - To refer to a domain name, such as a cdn
+    ; To access it in your view files use: {{this.module.assets}}
     moduleAssetsDir = "_assets" ; The directory in the current module
 
     ; Public Assets contains all css, js, static files, etc that can be shared with other Modules. ie: jQuery, Twitter Bootstrap
     ; The path is relative to the root or can be a url
     ; ie: MyOwnPathRelativeToTheRoot or http://a-place-i-host-my-static-files.com
-    ; To access it in your view files use: {{App.Assets}}
+    ; To access it in your view files use: {{this.global.assets}}
     publicAssetsDir = "assets" 
 
     ; To remove HTML comments in the HTML page
@@ -108,7 +111,7 @@
     ; loadTemplate
     ; Voodoo will automatically load the files and assign them so the can be included with their alias. 
     ; ie: {{%include @pageFlashMessage}}, this will include the file _includes/flash-message.html
-    ; Format: LoadTemplate[AliasNameOfTheFileToLoad] = "filename"
+    ; Format: loadTemplate[aliasNameOfTheFileToLoad] = "filename"
     loadTemplate[pageFlashMessage] = "_includes/flash-message.html"
     loadTemplate[pagePagination] = "_includes/pagination.html"
 
