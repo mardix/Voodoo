@@ -29,6 +29,7 @@ class Env {
         "FrontController" => "",
         "App" => "",
         "Config" => "",
+        "BaseConfig" => "",
         "PublicAssets" => ""
     ];
     private static $env = null;
@@ -178,12 +179,11 @@ class Env {
      * 
      * @param string $appDir
      */
-    public static function setAppPath($rootDir)
+    public static function setAppRootDir($rootDir)
     {
         self::$paths["App"] = $rootDir."/App";
-        if (! self::getConfigPath()) { // by default
-            self::setConfigPath(self::getAppPath()."/_config");    
-        }
+        self::$paths["BaseConfig"] = self::$paths["Config"] = self::$paths["App"]."/Conf";
+
     }
     
     /**
@@ -191,19 +191,22 @@ class Env {
      * 
      * @return string
      */
-    public static function getAppPath()
+    public static function getAppRootDir()
     {
         return self::$paths["App"];
     }
     
     /**
-     * set the config dir
+     * By default the config is under /App/Conf,  
+     * But you can have multiple environment like production, dev
+     * So it would be placed under /App/Conf/production, /App/Conf/dev etc
+     * $dirname is the subdirectory name, ie: production
      * 
-     * @param string $privateDir
+     * @param string $dirName
      */
-    public static function setConfigPath($path)
+    public static function setConfigPath($dirName)
     {
-        self::$paths["Config"] = $path;
+        self::$paths["Config"] = (self::$paths["BaseConfig"]).($dirName ? "/{$dirName}" : "");
     }
     
     /**
