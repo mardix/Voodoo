@@ -270,9 +270,6 @@ class View
         }
         
         $this->assign("this", [
-                "url"       =>  $this->controller->getControllerUrl(),
-                "assets"    =>  $this->getModuleAssetsDir(),
-                
                 "module"    => [
                     "name"      => $this->moduleName,
                     "url"       => $this->controller->getModuleUrl(),
