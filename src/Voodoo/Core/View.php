@@ -67,6 +67,7 @@ class View
     private $controller = null;
     private $paginator = null;
     private $form = null;
+    private $renderJSON = false;
  
     private $templateKeys = [
         "view"      => "pageView",
@@ -222,105 +223,126 @@ class View
     }
     
     /**
+     * To render as JSON
+     * @param type $bool
+     * @return \Voodoo\Core\View
+     */
+    public function renderAsJson($bool = true)
+    {
+        $this->renderJSON = $bool;
+        return $this;
+    }
+    
+    /**
      * Render the template
      * 
      * @return String
      */
     public function render()
     {
-        /**
-         * LoadTemplates
-         * Templates that are set in the config.ini of the module with key/value
-         * These templates will be access with their alias in the view page. ie: {{%include @PageAliasName}}
-         */
-        $loadTemplates = $this->controller->getConfig("views.loadTemplate");
-        if (is_array($loadTemplates)) {
-            foreach ($loadTemplates as $pageKey => $pagePath) {
-                $this->addTemplate($pageKey, $pagePath);
+        // RENDER AS JSON
+        if($this->renderJSON) {
+            $assigned = $this->getAssigned();
+            unset($assigned["this"]);
+            return json_encode($assigned);
+        } else {
+            // RENDER AS HTML
+            
+            // Content already rendered
+            if ($this->renderedContent && $this->isRendered) {
+                return $this->renderedContent;
             }
-        }
-
-        if ($this->renderedContent && $this->isRendered) {
-            return $this->renderedContent;
-        }
-
-        // this.title
-        if ($this->pageTitle) {
-            $this->assign("this.title", $this->pageTitle);
-            $this->setMetaTag("TITLE", $this->pageTitle);
-        }
-        // this.description
-        if ($this->pageDescription) {
-            $this->assign("this.description", $this->pageDescription);
-            $this->setMetaTag("Description", $this->pageDescription);
-        }
-        // this.pagination
-        if ($this->paginator && $this->paginator->getTotalItems()) {
-            $this->assign("this.pagination", $this->paginator()->toArray());
-        }
-         // this.flashMessage
-        $flashMessage = $this->getFlashMessage();
-        if ($flashMessage) {
-            $this->assign("this.flashMessage", $flashMessage);
-            $this->clearFlash();
-        }
-        // this.error
-        if ($this->hasError()) {
-            $this->assign("this.error", $this->getMessage("error"));
-        }
-        
-        $this->assign("this", [
-                "module"    => [
-                    "name"      => $this->moduleName,
-                    "url"       => $this->controller->getModuleUrl(),
-                    "assets"    => $this->getModuleAssetsDir()
-                ],
-                
-                "controller" => [
-                    "name"      => $this->controller->getControllerName(),
-                    "url"       => $this->controller->getControllerUrl()
-                ],
-                
-                "action" => [
-                    "name"      => $this->controller->getActionName(),
-                    "url"       => $this->controller->getControllerUrl()."/".$this->controller->getActionName()
-                ],
-                
-                "global"       => [
-                    "url"   => $this->controller->getBaseUrl(),
-                    "assets"    =>  $this->getPublicAssetsDir()
-                ],
             
-                "year"      => date("Y"),
-                "siteUrl"   => $this->controller->getSiteUrl(),
-        ]);
-        
-        $renderName = $this->templateKeys["view"];
-        $this->addTemplate($this->templateKeys["view"], $this->body, $this->isBodyAbsolute);
-
-        if ($this->layout) {
-           $renderName = $this->templateKeys["layout"];
-           $this->addTemplate($this->templateKeys["layout"], $this->layout, $this->isLayoutAbsolute);
-        }
-        
-        $this->isRendered = true;
-
-        $this->parse();
-        
-        if (isset($this->templates[$renderName])) {
-            $template = (new View\Mustache($this->templates[$renderName], $this->assigned))->render();
-            
-            // replace the raws and return
-            $content =
-                    str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$template);
-            
-            // Strip HTML Comments
-            if ($this->controller->getConfig("views.stripHtmlComments")) {
-               $content = Helpers::stripHtmlComments($content);
+            /**
+             * LoadTemplates
+             * Templates that are set in the config.ini of the module with key/value
+             * These templates will be access with their alias in the view page. ie: {{%include @PageAliasName}}
+             */
+            $loadTemplates = $this->controller->getConfig("views.loadTemplate");
+            if (is_array($loadTemplates)) {
+                foreach ($loadTemplates as $pageKey => $pagePath) {
+                    $this->addTemplate($pageKey, $pagePath);
+                }
             }
-            $this->renderedContent = $content;
+
+            // this.title
+            if ($this->pageTitle) {
+                $this->assign("this.title", $this->pageTitle);
+                $this->setMetaTag("TITLE", $this->pageTitle);
+            }
+            // this.description
+            if ($this->pageDescription) {
+                $this->assign("this.description", $this->pageDescription);
+                $this->setMetaTag("Description", $this->pageDescription);
+            }
+            // this.pagination
+            if ($this->paginator && $this->paginator->getTotalItems()) {
+                $this->assign("this.pagination", $this->paginator()->toArray());
+            }
+             // this.flashMessage
+            $flashMessage = $this->getFlashMessage();
+            if ($flashMessage) {
+                $this->assign("this.flashMessage", $flashMessage);
+                $this->clearFlash();
+            }
+            // this.error
+            if ($this->hasError()) {
+                $this->assign("this.error", $this->getMessage("error"));
+            }
+
+            $this->assign("this", [
+                    "module"    => [
+                        "name"      => $this->moduleName,
+                        "url"       => $this->controller->getModuleUrl(),
+                        "assets"    => $this->getModuleAssetsDir()
+                    ],
+
+                    "controller" => [
+                        "name"      => $this->controller->getControllerName(),
+                        "url"       => $this->controller->getControllerUrl()
+                    ],
+
+                    "action" => [
+                        "name"      => $this->controller->getActionName(),
+                        "url"       => $this->controller->getControllerUrl()."/".$this->controller->getActionName()
+                    ],
+
+                    "global"       => [
+                        "url"   => $this->controller->getBaseUrl(),
+                        "assets"    =>  $this->getPublicAssetsDir()
+                    ],
+
+                    "year"      => date("Y"),
+                    "siteUrl"   => $this->controller->getSiteUrl(),
+            ]);
+
+            $renderName = $this->templateKeys["view"];
+            $this->addTemplate($this->templateKeys["view"], $this->body, $this->isBodyAbsolute);
+
+            if ($this->layout) {
+               $renderName = $this->templateKeys["layout"];
+               $this->addTemplate($this->templateKeys["layout"], $this->layout, $this->isLayoutAbsolute);
+            }
+
+            $this->isRendered = true;
+
+            $this->parse();
+
+            if (isset($this->templates[$renderName])) {
+                $template = (new View\Mustache($this->templates[$renderName], $this->getAssigned()))->render();
+
+                // replace the raws and return
+                $content = str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$template);
+
+                // Strip HTML Comments
+                if ($this->controller->getConfig("views.stripHtmlComments")) {
+                   $content = Helpers::stripHtmlComments($content);
+                }
+                $this->renderedContent = $content;
+            }
+            return $this->renderedContent;            
         }
-        return $this->renderedContent;
+
     }
 
    

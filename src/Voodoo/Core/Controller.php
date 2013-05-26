@@ -393,14 +393,19 @@ abstract class Controller
      * @param  string     $action       - The action name without Action as suffix. ie: action_index() =  getAction("index")
      * @return Controller
      * 
-     * This method also accepts @view annotation
-     *      @view string
-     *      To change the view instead of using the default action-name view
+     * NOTE:
+     * actions make use of the annotations
+     * 
+     *  @view 
+     *  @layout
+     *  @request
+     *  @render
      */
     public function getAction($action = "Index")
     {
         $executeAction = true;
         $layout = "";
+        $render = "";
         $this->setActionName($action);
 
         $actionName = $this->getActionMethodName();
@@ -417,7 +422,10 @@ abstract class Controller
                 if($this->getActionAnnotation("layout")) {
                    $layout =  $this->getActionAnnotation("layout");
                 }              
-            
+                // @render (JSON|HTML) : By default it will render HTML, set to JSON the view will be rendered as JSON
+                if($this->getActionAnnotation("render")) {
+                   $render =  $this->getActionAnnotation("render");
+                }               
                 /**
                  * @request
                  * Requires an action to accept a request method: POST | GET | PUT | DELETE
@@ -435,8 +443,12 @@ abstract class Controller
                 if(is_array($request) && $request["method"]) {
                     if (! Http\Request::is($request["method"])) {
                         $this->setHttpCode(405);
-                        $this->view()->setError($request["response"]);
-                        $this->view()->assign("error", $request["response"]);
+                        
+                        if ($this->view() instanceof View) {
+                            $this->view()->setError($request["response"]);
+                            $this->view()->assign("error", $request["response"]);                            
+                        }
+
                         if ($request["view"]) {
                             $actionView = $request["view"];
                         } else {
@@ -456,7 +468,10 @@ abstract class Controller
                 $this->view()->setView($actionView);
                 if ($layout) {
                    $this->view()->setLayout($layout); 
-                }                
+                }  
+                if (strtoupper($render) == "JSON") {
+                    $this->view()->renderAsJson();
+                }
             }
 
             if ($executeAction) {
