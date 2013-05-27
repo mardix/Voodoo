@@ -437,15 +437,20 @@ class View
      * Access the Paginator object
      * 
      * @param int $totalItems - Set the total items 
+     * @param int $itemsPerPage - Total items per page
+     * @param string $uri - By default it will create a url from the URI, change it to set it to another url
      * 
      * @return Voodoo\Paginator
      */
-    public function paginator($totalItems = null)
+    public function paginator($totalItems = null, $itemsPerPage = null, $uri = null)
     {
         if (! $this->paginator) {
-            $uri = $this->controller->getRequestURI();
+            if(! $uri) {
+                $uri = $this->controller->getBaseUrl();
+                $uri .= $this->controller->getRequestURI();
+            }
             $pattern = $this->controller->getConfig("views.pagination.pagePattern");
-            $itemsPerPage = $this->controller->getConfig("views.pagination.itemsPerPage");
+            $itemsPerPage = $itemsPerPage ?: $this->controller->getConfig("views.pagination.itemsPerPage");
             $navigationSize = $this->controller->getConfig("views.pagination.navigationSize");
             
             $this->paginator = new Paginator($uri, $pattern);
