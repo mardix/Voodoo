@@ -470,7 +470,7 @@ abstract class Controller
                    $this->view()->setLayout($layout); 
                 }  
                 if (strtoupper($render) == "JSON") {
-                    $this->view()->renderAsJson();
+                    $this->view()->renderToJson();
                 }
             }
 

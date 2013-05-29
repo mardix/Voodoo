@@ -224,13 +224,24 @@ class View
     
     /**
      * To render as JSON
+     * 
      * @param type $bool
      * @return \Voodoo\Core\View
      */
-    public function renderAsJson($bool = true)
+    public function renderToJson($bool = true)
     {
         $this->renderJSON = $bool;
         return $this;
+    }
+    
+    /**
+     * Check if the view is to be returned as JSON
+     * 
+     * @return bool
+     */
+    public function isRenderToJson()
+    {
+        return $this->renderJSON;
     }
     
     /**
