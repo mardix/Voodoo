@@ -2,5 +2,6 @@
     "name": "voodoophp/myapp",
     "description": "My awesome Voodoo App",
     "require": {
-    }
+        "voodoophp/voodoo" : "1.*"
+    },
 }

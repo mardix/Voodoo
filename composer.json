@@ -15,7 +15,7 @@
     "require": {
         "php": ">=5.4.0",
         "voodoophp/voodorm" : "2.*",
-        "voodoophp/paginator" : "1.0.*"
+        "voodoophp/paginator" : "1.*"
     },
     "autoload": {
         "psr-0": { "Voodoo": "src/" }
