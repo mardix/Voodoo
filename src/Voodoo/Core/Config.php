@@ -4,7 +4,7 @@
  * VoodooPHP
  * -----------------------------------------------------------------------------
  * @author      Mardix (http://twitter.com/mardix)
- * @github      https://github.com/VoodooPHP/Voodoo
+ * @github      https://github.com/mardix/Voodoo
  * @package     VoodooPHP
  *
  * @copyright   (c) 2012 Mardix (http://github.com/mardix)
@@ -13,7 +13,7 @@
  *
  * @name        Ini
  * @since       Aug 8, 2011
- * @desc        Access any INI file in the Application/Config directory
+ * @desc        Access any INI file in the App/Conf directory
  *
  */
 

@@ -3,7 +3,7 @@
     "type": "framework",
     "description": "A micro PHP 5.4 Modular MVC framework, that contains only the libraries to get you started ",
     "keywords": ["framework","microframework","mmvc","mvc","modular","5.4","slim"],
-    "homepage": "https://github.com/VoodooPHP/Voodoo",
+    "homepage": "https://github.com/mardix/Voodoo",
     "license": "MIT",
     "authors": [
         {
