@@ -5,7 +5,7 @@
  * VoodooPHP
  * -----------------------------------------------------------------------------
  * @author      Mardix (http://twitter.com/mardix)
- * @github      https://github.com/mardix/Voodoo
+ * @github      https://github.com/VoodooPHP/Voodoo
  * @package     VoodooPHP
  *
  * @copyright   (c) 2012 Mardix (http://github.com/mardix)
@@ -331,6 +331,21 @@ abstract class Controller
         return preg_replace("/\/$/", "", $url );
     }
 
+    /**
+     * Return the action url
+     * 
+     * @return string
+     */
+    public function getActionUrl()
+    {
+        $url = $this->getControllerUrl();
+        $action = $this->getActionName() == "Index" ? "" : $this->getActionName();
+        if ($action) {
+            $url .= "/".($this->dasherizeUrl($action));
+        }
+        return preg_replace("/\/$/", "", $url );
+    }
+    
     /**
      * Dasherize part for a url
      * 
