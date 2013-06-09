@@ -29,9 +29,7 @@ class Application
 {
     CONST NAME = "VoodooPHP";
     CONST VERSION = "1.0";
-    CONST AUTHOR = "Mardix < https://github.com/mardix >";
-    CONST LICENSE = "MIT";
-    CONST REPO_LINK = "https://github.com/VoodooPHP/Voodoo";
+
 /*******************************************************************************/
 
     private $routingSegments = [];
