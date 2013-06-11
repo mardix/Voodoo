@@ -116,9 +116,9 @@ Once the setup is done, you should have a filesystem similar to this:
 		|
 		+-- Www/
 			|
+			+-- Config.ini
+			|
 			+-- Main/
-				|
-				+-- Config.ini
 				|
 				+-- Controller/
 				|
@@ -593,9 +593,9 @@ That's how the module **Main** looks like in the **Www** application.
 		|
 		+-- Www
 			|
+			+-- Config.ini
+			|
 			+-- Main
-				|
-				+-- Config.ini
 				|
 				+-- Controller/
 					|
@@ -1060,9 +1060,9 @@ And you should get the following filesystem:
 		|
 		+-- Www
 			|
+			+-- Config.ini
+			|
 			+-- Main
-				|
-				+-- Config.ini
 				|
 				+-- Controller/
 					|
@@ -1272,4 +1272,5 @@ Enjoy!
 (c) This Year  Mardix
 
 (oof! that was a lot of writing, June 9 2013)
+
 ---
