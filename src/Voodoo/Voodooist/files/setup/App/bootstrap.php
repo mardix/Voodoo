@@ -25,7 +25,7 @@ ini_set('display_errors', '0');
 define ("APP_ROOT_DIR", dirname(__DIR__));
 
 // @var bool - To indicate the bootstrap to load Voodoo with compose
-define ("LOAD_VOODOO_WITH_COMPOSER", false);
+define ("LOAD_VOODOO_WITH_COMPOSER", true);
 
 //  @var string - The directory of the composer vendor
 define ("COMPOSER_VENDOR_DIR", APP_ROOT_DIR."/vendor");
