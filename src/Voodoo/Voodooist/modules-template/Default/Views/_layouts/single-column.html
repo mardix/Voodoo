@@ -10,13 +10,13 @@ single-column.html
         {{%include _layouts/header}}
 
         <div class="container">
-            <!-- for flashed messages -->
-            {{%include @pageFlashMessage}}
+
+            {{%include _includes/flash-message}}
 
             <div class="row">
                 <div class="span12">
-                    <!-- REQUIRED to show the content -->
-                    {{%include @pageView}}               
+                    <!-- REQUIRED to show the view's action page -->
+                    {{%include @actionView}}                 
                 </div>
             </div>
         </div>

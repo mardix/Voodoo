@@ -70,7 +70,7 @@ class View
     private $renderJSON = false;
  
     private $templateKeys = [
-        "view"      => "pageView",
+        "view"      => "actionView",
         "layout"    => "pageLayout"
     ];
     
@@ -472,18 +472,6 @@ class View
             $this->paginator->setTotalItems($totalItems);
         }
         return $this->paginator;
-    }
-
-    /**
-     * Return the Forms object
-     * 
-     * @return Core\View\Forms
-     */
-    public function form(){
-        if(!$this->form){
-            $this->form = new View\Forms;
-        }
-        return $this->form;
     }
 
     
