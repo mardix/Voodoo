@@ -1229,7 +1229,7 @@ App/Www/Main/Views/Index/Articles.html
 
 Voodoo requires a container template file. The container is a place holder for the action's view. The container may contain  header, footer, sidebar etc.. but must include the tag below to include the action's view page
 
-		{{%include @pageView}}
+		{{%include @actionView}}
 
 Technically, the container is the layout of your application, and your action files are files to be included in the layout.
 
@@ -1245,7 +1245,7 @@ So let's create the container. It is placed at:
 		<body>
 			{{%include _layouts/header}}
 
-				{{%include @pageView}}
+				{{%include @actionView}}
 
 			{{%include _layouts/footer}}
 		</body>
