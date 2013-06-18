@@ -65,8 +65,6 @@ class View
     private $pageTitle;
     private $pageDescription;
     private $controller = null;
-    private $paginator = null;
-    private $form = null;
     private $renderJSON = false;
  
     private $templateKeys = [
@@ -143,6 +141,18 @@ class View
         return $this;
     }
     
+    
+    /**
+     * Set the pagination model
+     * 
+     * @param array $data
+     * @return View
+     */
+    public function setPagination(Array $data) 
+    {
+        $this->assign("this.pagination", $data);
+        return $this;
+    }
     
     
     /**
@@ -243,7 +253,7 @@ class View
     {
         return $this->renderJSON;
     }
-    
+
     /**
      * Render the template
      * 
@@ -286,10 +296,7 @@ class View
                 $this->assign("this.description", $this->pageDescription);
                 $this->setMetaTag("Description", $this->pageDescription);
             }
-            // this.pagination
-            if ($this->paginator && $this->paginator->getTotalItems()) {
-                $this->assign("this.pagination", $this->paginator()->toArray());
-            }
+
              // this.flashMessage
             $flashMessage = $this->getFlashMessage();
             if ($flashMessage) {
@@ -440,38 +447,6 @@ class View
             $this->assign("this.openGraphTags", 
                     array("<meta property=\"$property\" content=\"$content\"/>"));
         }
-    }
-
-
-
-    /**
-     * Access the Paginator object
-     * 
-     * @param int $totalItems - Set the total items 
-     * @param int $itemsPerPage - Total items per page
-     * @param string $uri - By default it will create a url from the URI, change it to set it to another url
-     * 
-     * @return Voodoo\Paginator
-     */
-    public function paginator($totalItems = null, $itemsPerPage = null, $uri = null)
-    {
-        if (! $this->paginator) {
-            if(! $uri) {
-                $uri = $this->controller->getBaseUrl();
-                $uri .= $this->controller->getRequestURI();
-            }
-            $pattern = $this->controller->getConfig("views.pagination.pagePattern");
-            $itemsPerPage = $itemsPerPage ?: $this->controller->getConfig("views.pagination.itemsPerPage");
-            $navigationSize = $this->controller->getConfig("views.pagination.navigationSize");
-            
-            $this->paginator = new Paginator($uri, $pattern);
-            $this->paginator->setItemsPerPage($itemsPerPage)
-                            ->setNavigationSize($navigationSize);
-        }
-        if (is_numeric($totalItems)) {
-            $this->paginator->setTotalItems($totalItems);
-        }
-        return $this->paginator;
     }
 
     

@@ -25,6 +25,8 @@ use ReflectionClass;
 abstract class Controller
 {
     use Controller\TAnnotation;
+    use Controller\TPagination;
+
 
     /**
      * Segments passed
@@ -578,8 +580,11 @@ abstract class Controller
         if ($this->disableView || !$this->viewExists()) {
             return false;
         } else {
-            $render = $this->view()->render();
-            return ($echoView) ? print($render) : $render;
+            $content = $this->view()
+                            ->setPagination($this->pagination()->toArray())
+                            ->render();
+            
+            return ($echoView) ? print($content) : $content;
         }
     }
 
