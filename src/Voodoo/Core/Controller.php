@@ -686,15 +686,6 @@ abstract class Controller
         return Http\Request::isAjax();
     }
 
-    /**
-     * Retrieve a cookie that was set. Use normal php setcookie to set a cookie
-     * @param  type $key
-     * @return mix
-     */
-    public function getCookie($key)
-    {
-        return $_COOKIE[$key];
-    }
 
     /**
      * Set the http status code

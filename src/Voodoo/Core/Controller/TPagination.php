@@ -37,7 +37,7 @@ trait TPagination
      * 
      * @return Voodoo\Paginator
      */
-    public function pagination($totalItems = null, $itemsPerPage = null, $uri = null)
+    public function pagination($totalItems, $itemsPerPage = null, $uri = null)
     {
         if (! $this->paginator) {
             if(! $uri) {
@@ -48,12 +48,9 @@ trait TPagination
             $itemsPerPage = $itemsPerPage ?: $this->getConfig("views.pagination.itemsPerPage");
             $navigationSize = $this->getConfig("views.pagination.navigationSize");
             
-            $this->paginator = new Voodoo\Paginator($uri, $pattern);
-            $this->paginator->setItemsPerPage($itemsPerPage)
-                            ->setNavigationSize($navigationSize);
-        }
-        if (is_numeric($totalItems)) {
-            $this->paginator->setTotalItems($totalItems);
+            $this->paginator = (new Voodoo\Paginator)
+                                    ->setUrl($uri, $pattern)
+                                    ->setItems($totalItems, $itemsPerPage, $navigationSize);
         }
         return $this->paginator;
     }    
