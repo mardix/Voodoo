@@ -20,7 +20,8 @@
 
 namespace Voodoo\Core;
 
-use ReflectionClass;
+use ReflectionClass,
+    DateTime;
 
 abstract class Controller
 {
@@ -644,7 +645,8 @@ abstract class Controller
      */
     public function toDate($datetime, $format = null)
     {
-        return Helpers::formatDate($datetime, $format ? : $this->getConfig("views.dateFormat"));
+        $format = $format ? : $this->getConfig("views.dateFormat");
+        return (new DateTime($datetime))->format($format);
     }
 
     /**
