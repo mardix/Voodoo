@@ -387,7 +387,7 @@ abstract class Controller
     }
 
     /**
-     * forward, unlike getController, forward the current controller to a new controller
+     * forward, like getController, forward the current controller to a new controller
      * and allows it to render the view, while it deactivate the current controller view.
      * All the settings and params will be forwarded to the new controller
      * @param type $Controller
