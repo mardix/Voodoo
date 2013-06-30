@@ -382,7 +382,7 @@ abstract class Controller
         if ($clsRef->isSubclassOf(__CLASS__)) {
             return (new $controller($params))->disableView();
         } else {
-            throw new Exception("Can't getController(). Controller '$controller' doesn't exists or not an instance of Voodoo\Core\Controller");
+            throw new Exception\Controller("Controller '$controller' doesn't exists or not an instance of Voodoo\Core\Controller");
         }
     }
 
@@ -414,10 +414,10 @@ abstract class Controller
      * NOTE:
      * actions make use of the annotations
      * 
-     *  @view 
-     *  @layout
+     *  @actionView 
+     *  @layoutView
      *  @request
-     *  @render
+     *  @renderView
      */
     public function getAction($action = "Index")
     {
@@ -432,17 +432,17 @@ abstract class Controller
             $actionView = $this->getActionName();
             
             /** @Actions Annotations **/
-                // @view $view-file-name : To change the default view
-                if($this->getActionAnnotation("view")) {
-                   $actionView =  $this->getActionAnnotation("view");
+                // @actionView $view-file-name : To change the default view
+                if($this->getActionAnnotation("actionView")) {
+                   $actionView =  $this->getActionAnnotation("actionView");
                 }
-                // @layout $layout-file-name (_layout/main): to change the layout
-                if($this->getActionAnnotation("layout")) {
-                   $layout =  $this->getActionAnnotation("layout");
+                // @layoutView $layout-file-name (_layout/main): to change the layout
+                if($this->getActionAnnotation("layoutView")) {
+                   $layout =  $this->getActionAnnotation("layoutView");
                 }              
-                // @render (JSON|HTML) : By default it will render HTML, set to JSON the view will be rendered as JSON
-                if($this->getActionAnnotation("render")) {
-                   $render =  $this->getActionAnnotation("render");
+                // @renderView (JSON|HTML) : By default it will render HTML, set to JSON the view will be rendered as JSON
+                if($this->getActionAnnotation("renderView")) {
+                   $render =  $this->getActionAnnotation("renderView");
                 }               
                 /**
                  * @request
@@ -453,9 +453,9 @@ abstract class Controller
                  * - arguments
                  *      method (POST|GET|PUT|DELETE) - The request method to accept
                  *      response - a message to display if the request method fails
-                 *      view -  a view to display instead of the _includes/error/405
+                 *      actionView -  a view to display instead of the _includes/error/405
                  * - example: 
-                 *      @request [method=POST, response="This is an error message", view="_includes/error/405"]
+                 *      @request [method=POST, response="This is an error message", actionView="_includes/error/405"]
                  */
                 $request = $this->getActionAnnotation("request");
                 if(is_array($request) && $request["method"]) {
@@ -467,8 +467,8 @@ abstract class Controller
                             $this->view()->assign("error", $request["response"]);                            
                         }
 
-                        if ($request["view"]) {
-                            $actionView = $request["view"];
+                        if ($request["actionView"]) {
+                            $actionView = $request["actionView"];
                         } else {
                             if ($this->view() instanceof View) {
                                 $this->view()->setViewError(405);    
@@ -483,7 +483,7 @@ abstract class Controller
             $this->setActionView($actionView);
             
             if ($this->view() instanceof View) {
-                $this->view()->setView($actionView);
+                $this->view()->setActionView($actionView);
                 if ($layout) {
                    $this->view()->setLayout($layout); 
                 }  
@@ -497,7 +497,7 @@ abstract class Controller
             }
             
         } else {
-            throw new Exception("Action '{$actionName}' doesn't exist in " . get_called_class());
+            throw new Exception\Action("Action '{$actionName}' is missing");
         }
         return $this;
     }
@@ -555,50 +555,48 @@ abstract class Controller
 
     /**
      * Return the View instance
-     * @return Core\View
+     * @return Voodoo\Core\View
      */
-    protected function view()
+    protected function view(Array $data = null)
     {
-        if (!$this->view){
+        if (! $this->view){
             $this->view = new View($this);
-            
-            // Set the layout
-            $layout = $this->getConfig("views.layout");    
-            if($layout) {
-                $this->view->setLayout($layout);
-            }
         }
         return $this->view;
     }
 
     /**
      * To render the controller's view
+     * 
      * @param  bool    $echoView - to print the view or just return it
-     * @return boolean
+     * @return boolean | string
      */
     protected function renderView($echoView = true)
     {
         if ($this->disableView || !$this->viewExists()) {
             return false;
         } else {
-            $content = $this->view()
-                            ->setPagination($this->pagination()->toArray())
-                            ->render();
             
-            return ($echoView) ? print($content) : $content;
+            if ($this->isSetPagination()) {
+                $this->view()->setPagination($this->pagination()->toArray());
+            }
+            
+            if (! $this->view()->isSetLayout()) {
+                $layout = $this->getConfig("views.layout");    
+                if($layout) {
+                    $this->view()->setLayout($layout);
+                }                
+            }
+            
+            $content = $this->view()->render();
+            
+            if ($echoView) {
+                echo $content;
+            } else {
+                return $content;
+            }
         }
     }
-
-
-    /**
-     * Verify if the view directory exists
-     * @return bool
-     */
-    protected function viewExists()
-    {
-        return is_dir($this->moduleDir."/Views");
-    }
-
 
     /**
      * To enable render view. on __destruct, it will render the view, otherwise it's up to the controller to launch it.

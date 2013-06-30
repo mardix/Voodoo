@@ -28,7 +28,7 @@ use DirectoryIterator,
 class Application
 {
     CONST NAME = "VoodooPHP";
-    CONST VERSION = "1.2";
+    CONST VERSION = "1.3";
 
 /*******************************************************************************/
 
@@ -202,7 +202,7 @@ class Application
                $this->moduleName = self::formatName($this->defaultModule);
             }
             if (! is_dir($this->getModulesPath($this->moduleName))){
-               throw new Exception("Module: '{$this->moduleName}' doesn't exist!");
+               throw new Exception\Module("Module: '{$this->moduleName}' doesn't exist!");
             }
         } else {
             array_shift($this->routingSegments);
@@ -244,7 +244,7 @@ class Application
                  // Fall back to Index
                  $this->controllerName = self::formatName($this->defaultController);
              } catch (ReflectionException $e2) {
-                 throw new Exception("Controller :'$this->controllerName' is not found in Module: '{$this->moduleName}'","",$e2->getPrevious());
+                 throw new Exception\Controller("Controller :'$this->controllerName' is not found in Module: '{$this->moduleName}'","",$e2->getPrevious());
              }
          }
 
@@ -270,7 +270,7 @@ class Application
             } else {
                $this->action = "Index";
                if(! $this->callControllerReflection()->hasMethod("action{$this->action}")) {
-                   throw new Exception("Action: 'action{$this->action}' is missing in: '".$this->callControllerReflection()->getName()."'");
+                   throw new Exception\Action("Action: 'action{$this->action}' is missing in: '".$this->callControllerReflection()->getName()."'");
                }
             }
         } else {
@@ -283,7 +283,7 @@ class Application
              $Controller = new $ControllerN($this->routingSegments);
              $Controller->getAction($this->action);
          } else {
-             throw new Exception("Controller: '{$ControllerN}' doesn't exist!");
+             throw new Exception\Controller("Controller: '{$ControllerN}' doesn't exist!");
          }
         return $this;
     }

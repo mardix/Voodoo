@@ -34,8 +34,6 @@
 
 namespace Voodoo\Core;
 
-use Voodoo\Paginator;
-
 class View 
 {
     use View\TView;
@@ -51,8 +49,10 @@ class View
     protected $applicationPath;
     protected $viewsPath;
     protected $controllerPath;
-    protected $body;
+    protected $actionView;
+    protected $isActionViewAbsolute = false;
     protected $layout;
+    protected $isLayoutAbsolute = false;
     protected $config;
     protected $renderedContent;
     protected $controllersViewPath;
@@ -202,19 +202,54 @@ class View
     }
 
     /**
+     * Return if the layout is set
+     * 
+     * @return bool
+     */
+    public function isSetLayout()
+    {
+        return $this->layout ? true : false;
+    }
+    
+    
+    /**
      * Set the view body  to use. By default it will use the the action view => $action.html
      * 
      * @param  string $filename
      * @param  bool $absolute - true, it will use the full path of filename, or it will look in the current Views
      * @return Voodoo\Core\View
      */
-    public function setView($filename, $absolute = false)
+    public function setActionView($filename, $absolute = false)
     {
-        $this->body = $filename;
-        $this->isBodyAbsolute = $absolute;
+        $this->actionView = $filename;
+        $this->isActionViewAbsolute = $absolute;
         return $this;
     }
 
+    /**
+     * Return if the view is set
+     * 
+     * @return bool
+     */
+    public function isSetActionView()
+    {
+        return $this->actionView ? true : false;
+    }
+    
+    
+    /**
+     * Retun bool if the action view file exists
+     * 
+     * @return bool
+     */
+    public function actionViewExists()
+    {
+        $file = ($this->isActionViewAbsolute == true) 
+                ? $this->actionView 
+                : $this->templateDir.$this->actionView;
+        return file_exists($file);
+    }
+    
     /**
      * To set the error page
      *  
@@ -335,7 +370,7 @@ class View
             ]);
 
             $renderName = $this->templateKeys["view"];
-            $this->addTemplate($this->templateKeys["view"], $this->body, $this->isBodyAbsolute);
+            $this->addTemplate($this->templateKeys["view"], $this->actionView, $this->isActionViewAbsolute);
 
             if ($this->layout) {
                $renderName = $this->templateKeys["layout"];
@@ -371,7 +406,7 @@ class View
      * @param  strin   $path
      * @return string
      */
-    public function getPath($path = "index")
+    public function getFilePath($path = "index")
     {
         return $this->controllersViewPath . "/" . strtolower($path) . $this->ext;
     }
@@ -581,11 +616,17 @@ class View
      * @param  type   $src
      * @param  type   $absolute
      * @return string
+     * @throws Voodoo\Core\View\Exception
      */
     protected function loadFile($src, $absolute=false)
     {
          $src = ($absolute == true) ? $src : $this->templateDir.$src;
-         return (file_exists($src)) ? file_get_contents($src) : "";
+         
+         if (! file_exists($src)) {
+             throw new Exception\View("File '{$src}' is missing");
+         } else {
+             return file_get_contents($src);
+         }
     }
     
     

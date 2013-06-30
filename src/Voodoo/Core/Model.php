@@ -113,15 +113,15 @@ abstract class Model extends VoodOrm
     public function __construct(PDO $pdo = null)
     {
         if(! $this->tableName){
-            throw new Exception("TableName is null in ".get_called_class());
+            throw new Exception\Model("TableName is null in ".get_called_class());
         }
         if (! $this->primaryKeyName){
-            throw new Exception("PrimaryKeyName is null in ".get_called_class());
+            throw new Exception\Model("PrimaryKeyName is null in ".get_called_class());
         }
 
         if (! $pdo) {
             if (! $this->dbAlias){
-                throw new Exception("DB Alias is missing in ".get_called_class());
+                throw new Exception\Model("DB Alias is missing in ".get_called_class());
             }
             $pdo =  ConnectionManager::connect($this->dbAlias);
         }

@@ -54,7 +54,16 @@ trait TPagination
         }
         return $this->paginator;
     }    
-           
+    
+    /**
+     * Return if the pagination is set
+     * 
+     * @return bool
+     */
+    public function isSetPagination()
+    {
+        return ($this->paginator) ? true : false;
+    }
 }
 
 
