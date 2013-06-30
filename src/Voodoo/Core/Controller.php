@@ -615,6 +615,16 @@ abstract class Controller
         return $this;
     }
 
+    /**
+     * Verify if the view directory exists
+     * 
+     * @return bool
+     */
+    protected function viewExists()
+    {
+        return is_dir($this->moduleDir."/Views");
+    }
+    
     /*     * **************************************************************************** */
 // CONFIG
 

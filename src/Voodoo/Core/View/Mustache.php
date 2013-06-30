@@ -19,7 +19,7 @@
 
 namespace Voodoo\Core\View;
 
-use Voodoo\Core\Exception\Exception;
+use Voodoo\Core\Exception;
 
 class Mustache
 {
