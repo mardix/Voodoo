@@ -32,25 +32,20 @@ trait TPagination
      * 
      * @param int $totalItems - Set the total items 
      * @param int $itemsPerPage - Total items per page
-     * @param string $uri - By default it will create a url from the URI, 
-     *                      change it to set it to another url without the page # pattern
-     * 
+     * @param int $itemsPerPage - Total items per page
      * @return Voodoo\Paginator
      */
-    public function pagination($totalItems, $itemsPerPage = null, $uri = null)
+    public function pagination($totalItems = null, $itemsPerPage = null, $navigationSize = null)
     {
         if (! $this->paginator) {
-            if(! $uri) {
-                $uri = $this->getBaseUrl();
-                $uri .= $this->getRequestURI();
-            }
             $pattern = $this->getConfig("views.pagination.pagePattern");
+            $this->paginator = new Voodoo\Paginator($pattern);   
+        }
+        
+        if ($totalItems) {
             $itemsPerPage = $itemsPerPage ?: $this->getConfig("views.pagination.itemsPerPage");
-            $navigationSize = $this->getConfig("views.pagination.navigationSize");
-            
-            $this->paginator = (new Voodoo\Paginator)
-                                    ->setUrl($uri, $pattern)
-                                    ->setItems($totalItems, $itemsPerPage, $navigationSize);
+            $navigationSize = $this->getConfig("views.pagination.navigationSize");            
+            $this->paginator->setItems($totalItems, $itemsPerPage, $navigationSize);
         }
         return $this->paginator;
     }    
