@@ -555,13 +555,19 @@ abstract class Controller
 
     /**
      * Return the View instance
+     * @param Array $dataModel - Data model to assign to the view
+     * 
      * @return Voodoo\Core\View
      */
-    protected function view(Array $data = null)
+    protected function view(Array $dataModel = null)
     {
         if (! $this->view){
             $this->view = new View($this);
         }
+        if ($dataModel) {
+            $this->view->assign($dataModel);
+        }
+
         return $this->view;
     }
 
