@@ -1,0 +1,35 @@
+{
+    "createPublicAssets" : true,
+    "applications" : [
+        {
+            "name" : "www",
+            "modules" : [
+                {
+                    "name" : "Main",
+                    "template" : "Default",
+                    "isApi" : false,
+                    "omitViews" : false,
+                    
+                    "controllers" : [
+                        {
+                            "name" : "Index",
+                            "actions" : ["index"]
+                        }               
+                    ],
+                
+                    "models" : [
+                        {
+                            "name" : "MySampleModel",
+                            "dbAlias" : "MyDB",
+                            "table" : "my_table_name",
+                            "primaryKey" : "id",
+                            "foreignKey" : "%s_id"
+                        }
+                    ]
+                }           
+            ]
+        }  
+    ]
+}
+
+         
