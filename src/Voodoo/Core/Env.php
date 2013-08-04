@@ -184,7 +184,7 @@ class Env {
         self::$paths["App"] = $rootDir."/App";
         
         if(! self::$paths["Config"]) {
-            self::$paths["BaseConfig"] = self::$paths["Config"] = self::$paths["App"]."/Conf";
+            self::$paths["BaseConfig"] = self::$paths["Config"] = self::$paths["App"]."/_conf";
         }
 
     }
@@ -200,9 +200,9 @@ class Env {
     }
     
     /**
-     * By default the config is under /App/Conf,  
+     * By default the config is under /App/_conf,  
      * But you can have multiple environment like production, dev
-     * So it would be placed under /App/Conf/production, /App/Conf/dev etc
+     * So it would be placed under /App/_conf/production, /App/_conf/dev etc
      * $dirname is the subdirectory name, ie: production
      * 
      * @param string $dirName

@@ -112,7 +112,7 @@ Once the setup is done, you should have a filesystem similar to this:
 		|
 		+-- .htaccess
 		|
-		+-- Conf/			
+		+-- _conf/			
 		|
 		+-- Www/
 			|
@@ -154,7 +154,7 @@ Once the setup is done, you should have a filesystem similar to this:
 
 **/App** : Contains your application's Modular MVC
 
-**/App/Conf** : Contains the configurations, ie: DB.ini for database settings, System.ini for system wide settings, app.json your application schema to create your MVC files on the fly.
+**/App/_conf** : Contains the configurations, ie: DB.ini for database settings, System.ini for system wide settings, app.json your application schema to create your MVC files on the fly.
 
 **/App/Www**: That's your default application which contains your MVC files. When someone accesses your application that's where he/she will land, unless you change it to another application. You can also have */App/Site1*, */App/Site2*, */App/Api* and so on to create multi applications which share the same Voodoo code base.
 
@@ -172,12 +172,12 @@ Once the setup is done, you should have a filesystem similar to this:
 
 The Voodooist is our servant, it will help us create directories and files properly namespaced per PSR-0 in our Voodoo application. 
 
-Once our application has been setup, Voodooist requires: /App/Conf/app.json and /App/voodooist.php. These files were created during the initial setup.
+Once our application has been setup, Voodooist requires: /App/_conf/app.json and /App/voodooist.php. These files were created during the initial setup.
 
 
-#### - App/Conf/app.json
+#### - App/_conf/app.json
 
-**App/Conf/app.json** is a JSON file that contains the layout of your application, including modules, controllers, controller's action etc. It is ran by Voodooist to setup your application. Below is a  basic **app.json**
+**App/_conf/app.json** is a JSON file that contains the layout of your application, including modules, controllers, controller's action etc. It is ran by Voodooist to setup your application. Below is a  basic **app.json**
 
 	{
 	    "createPublicAssets" : true,
@@ -226,9 +226,9 @@ Once our application has been setup, Voodooist requires: /App/Conf/app.json and 
 
 #### - /App/Voodoist.php
 
-Once Voodoo is setup, you won't need to go the `/vendor/voodoophp/voodoo/src/Voodoo/Voodooist/setup.php` to create your application's files. Voodoo created `/App/voodooist.php` to serve the same purpose. You will need it to create your application's files on the fly based on your /App/Conf/app.json. All files will be properly namespaced per PSR-0, and placed inside of /App under their respective application.
+Once Voodoo is setup, you won't need to go the `/vendor/voodoophp/voodoo/src/Voodoo/Voodooist/setup.php` to create your application's files. Voodoo created `/App/voodooist.php` to serve the same purpose. You will need it to create your application's files on the fly based on your /App/_conf/app.json. All files will be properly namespaced per PSR-0, and placed inside of /App under their respective application.
 
-Running the code below, will execute the `/App/Conf/app.json` set above:
+Running the code below, will execute the `/App/_conf/app.json` set above:
 
 	cd /App
 	php ./voodooist.php
@@ -328,7 +328,7 @@ Application is the upper level of your program. Everything must be in an applica
 
 Inside of each applications are the applications modules. By default Voodoo creates the **WWW** which is the default entry point of your site. In large, Applications are sets of Modules. A more advance app.json looks like that with three applications: *Www, AnotherApp, Api*
 
-/App/Conf/app.json
+/App/_conf/app.json
 
 	{
 	    "createPublicAssets" : true,
@@ -698,7 +698,7 @@ The example below illustrates how you can have multi-sites using the same code b
 
 Based on the hostname, each site will use a different application directory. You will have to point all the domains to the same IP address for it to work.  
 
-Let's use the /App/Conf/app.json above for our multi-sites
+Let's use the /App/_conf/app.json above for our multi-sites
 
 /index.php
 
@@ -950,11 +950,11 @@ When the model is created, these settings will be added in the class so it can c
 
 **/App/Cong/DB.ini** and **dbAlias** 
 
-Voodoo requires that you store your DB settings (dbname, username, password, host) in `/App/Conf/DB.ini` . Each settings is associated to an alias. 
+Voodoo requires that you store your DB settings (dbname, username, password, host) in `/App/_conf/DB.ini` . Each settings is associated to an alias. 
 
 Database connections are managed by  `Voodoo\Core\ConnectionManager()` which makes sure the connection is connected once per alias, even if it's called 20 billions times (I hope not, lol). 
 
-This is how the /App/Conf/DB.ini looks like:
+This is how the /App/_conf/DB.ini looks like:
 
 	[MyDB] 
 	    type       = "mysql"
@@ -972,7 +972,7 @@ So having the dbAlias, allows you to have your settings in one place, and if you
 
 By extending the model to `Voodoo\Core\Model`  the connection is cleverly handled by Voodoo, you don't need to do jack. 
 
-So once our App/Conf/app.json is ran by App/voodooist.php you should have a model class similar to this:
+So once our App/_conf/app.json is ran by App/voodooist.php you should have a model class similar to this:
 
 /App/Www/Main/Model/User.php
 
@@ -1007,7 +1007,7 @@ Now that you have learned how Voodoo works, let's create a simple application: H
 
 To do so, we will use Voodooist to setup our files.
 
-Edit the file: `App/Conf/app.json `
+Edit the file: `App/_conf/app.json `
 
 	{
 	    "createPublicAssets" : true,

@@ -47,7 +47,7 @@ class Voodooist
     /**
      * Create your Voodoo  application
      * @param string $rootDir - The root dir where /App will be installed
-     * @param type $appConfigDirName - All conf are at the root of /App/Conf, to add the config under another dir, set the name of the dir here.
+     * @param type $appConfigDirName - All conf are at the root of /App/_conf, to add the config under another dir, set the name of the dir here.
      * @param bool $echo - To show the details of the setup
      * @return type
      */

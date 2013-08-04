@@ -28,7 +28,7 @@ use DirectoryIterator,
 class Application
 {
     CONST NAME = "VoodooPHP";
-    CONST VERSION = "1.2";
+    CONST VERSION = "1.3";
 
 /*******************************************************************************/
 
@@ -41,11 +41,8 @@ class Application
     private $baseNamespace = "";
     private $routes = [];
     private $uri = "/";
-    private $defaultAppName = "Www";
     private $defaultModule = "Main";
     private $defaultController = "Index";
-    private $reservedNames = ["Conf"];
-
 
     /**
      * The constructor
@@ -62,10 +59,6 @@ class Application
         }
         Env::setAppRootDir($appBaseDir);
         $appName = self::formatName($appName);
-
-        if(in_array($appName, $this->reservedNames)) {
-            throw new Exception("'{$appName}' is a Voodoo reserved name, and it can't be assigned as an application name ");
-        }
 
         if (! is_dir(Env::getAppRootDir())) {
             throw new Exception("The application root: 'App' directory doesn't exist at: ". Env::getAppRootDir());

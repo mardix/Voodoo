@@ -98,7 +98,7 @@ abstract class Model extends VoodOrm
     public static function create($obj = null)
     {
         if(is_array($obj)) { // fill the object with new data
-            return (new static)->_toRow($obj);
+            return (new static)->fromArray($obj);
         } else {
             return new static;
         }

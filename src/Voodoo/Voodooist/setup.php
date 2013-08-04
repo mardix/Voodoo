@@ -14,7 +14,7 @@
  * @name        Voodooist/setup
  * @desc        A setup file that create your Voodoo environment, include your
  *              App directory, your classes etc.
- *              /PATH/App/Conf/app.json will be created. It's a JSON file
+ *              /PATH/App/_conf/app.json will be created. It's a JSON file
  *              that contains your MVC stucture. setup.php will read it and create the files
  *              and directory if not exist.
  *              Also, a /App/voodooist.php will be created for you to setup your app

@@ -27,8 +27,8 @@ RedirectMatch 404 /\\.git(/.*|$)
 RedirectMatch 404 /*\\.ini(/.*|$)
 
 # If your web host doesn't allow the +FollowSymlinks option, comment it out and use `Options +SymLinksOfOwnerMatch`
-Options +FollowSymlinks
-#Options +SymLinksIfOwnerMatch
+#Options +FollowSymlinks
+Options +SymLinksIfOwnerMatch
 
 RewriteEngine on
 
