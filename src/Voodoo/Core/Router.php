@@ -15,7 +15,7 @@
  * @since       Apr 8 2012
  * @desc        A routing class to map uri to own path or controllers in MVC
  *
- * @version     1.1
+ * @version     1.1.2
  *
  * ABOUT
  *
@@ -30,7 +30,8 @@
  *  (:any)      : Will match anything
  *  (:num)      : will match only numeric values
  *  (:alpha)    : will match only alphabetical values
- *  (:alphanum) : will match only alpha and numeric values
+ *  (:alnum)    : will match only alpha and numeric values
+ *  (:nonum)    : Match non numeric values
  *
  * Use of Regex
  * Router allow you to use your own regexp to do more complex stuff
@@ -42,9 +43,9 @@
 
     $R->setRoutes(array(
 
-        // Use wildcard regexp (:any) or (:num) or (:alpha) or (:alphanum)
+        // Use wildcard regexp (:any) or (:num) or (:alpha) or (:alnum)
         "/news/(:any)/(:num)"=>"/articles/read/$2/$1/",
-        "/blog/(:alphanum)/(:num)/(:any)"=>"/readblog/category/$1/post/$2/$3/",
+        "/blog/(:alnum)/(:num)/(:any)"=>"/readblog/category/$1/post/$2/$3/",
 
         // use own Regexp
         "/music/([rap|techno|compas]+)/(:num)"=>"/select-music/genre/$1/song/$2",
@@ -69,7 +70,7 @@ class Router
 {
     const Name = "Router";
 
-    const Version = "1.1.1";
+    const Version = "1.1.2";
 
 
     /**
@@ -94,11 +95,12 @@ class Router
      * @var type
      */
     private $wildCards = [
-                            ":any"=>".*",
-                            ":num"=>"[0-9]+",
-                            ":alpha"=>"[A-Za-z_\-]+",
-                            ":alphanum"=>"[A-Za-z0-9_\-]+",
-                            ":hex"=>"[A-Fa-f0-9]+"
+                            ":any"      => ".*",
+                            ":num"      => "[0-9]+",
+                            ":nonum"    => "[^0-9]+",
+                            ":alpha"    => "[A-Za-z_\-]+",
+                            ":alnum"    => "[A-Za-z0-9_\-]+",
+                            ":hex"      => "[A-Fa-f0-9]+"
                         ];
 
     /**

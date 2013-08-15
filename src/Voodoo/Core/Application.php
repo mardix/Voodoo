@@ -113,11 +113,14 @@ class Application
      * Set the routes
      * By default the routes are loaded from the app config file.
      * Stting it here will override the default one
-     * @param type $routes
+     * 
+     * @param array $routes
+     * @param bool $merge - to merge routes with previously set routes
+     * @return \Voodoo\Core\Application
      */
-    public function setRouting(Array $routes)
+    public function setRouting(Array $routes, $merge = true)
     {
-        $this->routes = $routes;
+        $this->routes = ($merge) ? array_merge($this->routes, $routes) : $routes ;
         return $this;
     }
 
