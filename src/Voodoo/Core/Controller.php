@@ -127,7 +127,7 @@ abstract class Controller
         $this->applicationDir = dirname($this->moduleDir);
         $this->moduleNamespace = $this->getParentNamespace($namespace);
 
-        $this->segments = $segments;
+        $this->segments = array_filter($segments);
 
         $this->init();
     }
