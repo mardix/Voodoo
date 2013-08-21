@@ -62,7 +62,7 @@ abstract class Rest extends Core\Controller
      */
     protected function setJsonResponse()
     {
-        $this->renderFormat = Core\View\Api::FORMAT_JSON;
+        $this->renderFormat = Core\View\Rest::FORMAT_JSON;
         Core\Http\Response::setHeader('Content-type: application/json');
         return $this;
     }
