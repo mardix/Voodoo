@@ -112,9 +112,9 @@ class Voodooist
                 if (isset($app["modules"])) {
                     foreach($app["modules"] as $module){
                         $moduleAction = "";
-                        $isApi = (isset($module["isApi"]) && $module["isApi"] === true) ? true : false;
+                        $isRest = (isset($module["isRest"]) && $module["isRest"] === true) ? true : false;
                         $omitViews = (isset($module["omitViews"]) && $module["omitViews"] === true) ? true : false;
-                        if ($Voodooist->createModule($module["name"], $module["template"], $isApi, $omitViews) ){
+                        if ($Voodooist->createModule($module["name"], $module["template"], $isRest, $omitViews) ){
                             $moduleAction = $created;
                         }
                         self::e(self::t()."|");
@@ -129,12 +129,12 @@ class Voodooist
                             foreach ($module["controllers"] as $controller) {
 
                                 $controllerAction = "";
-                                $cIsApi = $isApi;
-                                if (isset($controller["isApi"])) {
-                                    $cIsApi = $controller["isApi"];
+                                $cIsRest = $isRest;
+                                if (isset($controller["isRest"])) {
+                                    $cIsRest = $controller["isRest"];
                                 }
 
-                                if ($Voodooist->createController($controller["name"], $cIsApi)) {
+                                if ($Voodooist->createController($controller["name"], $cIsRest)) {
                                     $controllerAction = $created;
                                 }
 
@@ -310,10 +310,10 @@ class Voodooist
      * To create the application Module, which contains model/view/controller
      * @param  type   $basePath - The base path
      * @param  type   $name     - The name of the ssub application, including sub path, ie: default or social-apps/facebook/canvas
-     * @param  bool   $isApi     -
+     * @param  bool   $isRest     -
      * @return string - the module name
      */
-    public function createModule($module, $templateDir = "Default", $isApi = false, $omitViews = false)
+    public function createModule($module, $templateDir = "Default", $isRest = false, $omitViews = false)
     {
         $module = $this->moduleName = Core\Application::formatName($module);
         $appControllerDir = $this->applicationPath."/{$module}/Controller";
@@ -329,7 +329,7 @@ class Voodooist
         $exception =  $this->applicationPath."/{$this->moduleName}"."/Exception.php";
         $this->saveTpl("exception", $exception,["MODULENAMESPACE" => $this->moduleNamespace]);
 
-        if (! $isApi) {
+        if (! $isRest) {
 
             if (! $omitViews) {
                 $viewsDir = $this->applicationPath."/".$module."/Views";
@@ -375,7 +375,7 @@ class Voodooist
             }
         }
 
-        $this->createController("Index", $isApi);
+        $this->createController("Index", $isRest);
 
         return $this;
     }
@@ -385,7 +385,7 @@ class Voodooist
      * @param  type   $controllerName - The controller name
      * @return bool
      */
-    public function createController($controllerName, $isApi = false)
+    public function createController($controllerName, $isRest = false)
     {
         $this->controllerName = Core\Application::formatName($controllerName);
         $file = $this->applicationPath."/{$this->moduleName}"."/Controller/{$this->controllerName}.php";
@@ -397,9 +397,9 @@ class Voodooist
 
         $this->mkdir($file);
 
-        $api_tpl = ($isApi) ? "_api" : "";
-        $this->saveTpl("base_controller".$api_tpl, $baseControllerFile , ["MODULENAMESPACE" => $this->moduleNamespace]);
-        $this->saveTpl("controller".$api_tpl, $file, ["CONTROLLER"=>$this->controllerName, "MODULENAMESPACE" => $this->moduleNamespace]);
+        $rest_tpl = ($isRest) ? "_rest" : "";
+        $this->saveTpl("base_controller".$rest_tpl, $baseControllerFile , ["MODULENAMESPACE" => $this->moduleNamespace]);
+        $this->saveTpl("controller".$rest_tpl, $file, ["CONTROLLER"=>$this->controllerName, "MODULENAMESPACE" => $this->moduleNamespace]);
 
         $this->addAction("index");
         $this->addView("index");
@@ -426,7 +426,7 @@ class Voodooist
             if (!$Reflection->hasMethod("action{$this->actionName}")) {
 
                 $inlineCode = "";
-                if (!$Reflection->isSubclassOf("\Voodoo\Core\Controller\Api")) {
+                if (!$Reflection->isSubclassOf("\Voodoo\Core\Controller\Rest")) {
                     $inlineCode = "\$this->view()->setPageTitle(\"\");";
                 }
 

@@ -7,7 +7,7 @@
  * @github      https://github.com/mardix/Voodoo
  * @package     VoodooPHP
  *
- * @copyright   (c) 2012 Mardix (http://github.com/mardix)
+ * @copyright   (c) 2013 Mardix (http://github.com/mardix)
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
@@ -28,7 +28,7 @@ use DirectoryIterator,
 class Application
 {
     CONST NAME = "VoodooPHP";
-    CONST VERSION = "1.3";
+    CONST VERSION = "1.4";
 
 /*******************************************************************************/
 

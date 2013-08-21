@@ -8,7 +8,7 @@
  * @github      https://github.com/VoodooPHP/Voodoo
  * @package     VoodooPHP
  *
- * @copyright   (c) 2012 Mardix (http://github.com/mardix)
+ * @copyright   (c) 2013 Mardix (http://github.com/mardix)
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
@@ -87,7 +87,11 @@ abstract class Controller
      */
     protected $httpStatusCode = 200;
 
-    protected $exit = false;
+    /**
+     * Flag to abort the execution of a controller
+     * @var bool
+     */
+    protected $abort = false;
 
     /**
      * The reflection of the called class
@@ -105,11 +109,12 @@ abstract class Controller
 //------------------------------------------------------------------------------
 
     /**
-     * construct so no other class can override it
-     * To load something in the constructor, use $this->main()
+     * final construct so no other class can override it
+     * To load something in the constructor, use init()
+     * 
      * @params array $segments - extra segments from that can be accessed with getParams()
      */
-    final public function __construct(Array $segments = array())
+    final public function __construct(Array $segments = [])
     {
         /**
          * Built variables based on the controller
@@ -136,21 +141,37 @@ abstract class Controller
      * init()
      * __construct is and can't be overriden by any child class
      * init() lets you put code that could be executed in __construct()
-     * @return Controller
+     * @return \Voodoo\Core\Controller
      */
     protected function init()
     {}
 
     /**
+     * beforeAction()
+     * Execute the method before the Action is executed
+     * @return \Voodoo\Core\Controller
+     */
+    protected  function beforeAction()
+    {}
+    
+    /**
+     * afterAction()
+     * Execute the method after the Action is executed
+     * @return \Voodoo\Core\Controller
+     */    
+    protected function afterAction()
+    {}    
+    
+    /**
      * finalize()
      * Code to excute before rendering
+     * @return \Voodoo\Core\Controller
      */
     protected function finalize()
     {
         Http\Response::setStatus($this->httpStatusCode);
         return $this;
     }
-
 
     /**
      * It's a wrap
@@ -159,24 +180,25 @@ abstract class Controller
      */
     final public function __destruct()
     {
-        if (! $this->exit) {
+        if (! $this->abort) {
             $this->finalize();
             $this->renderView();
-        } else {
-            exit();
-        }
+        } 
     }
 
     /**
-     * Using exit() anywhere, the __destruct() will still be executed
-     * _exit() will force the destructor to not execute the finalize or render
-     * @param bool $exit
-     * @return boolean
+     * __destruct() will still be executed even if the explicit call of exit();
+     * abort() will force the destructor to not execute the finalize or render
+     * An explicit call to exit() is also necessary after $this->abort() to 
+     * completely exit out
+     * 
+     * @param bool $abort
+     * @return \Voodoo\Core\Controller
      */
-    final protected function _exit($exit = true)
+    final protected function abort($abort = true)
     {
-        $this->exit = $exit;
-        return true;
+        $this->abort = $abort;
+        return $this;
     }
 //------------------------------------------------------------------------------
 
@@ -371,7 +393,7 @@ abstract class Controller
      * @return \Voodoo\Core\controller
      * @throws Exception
      */
-    protected function getController($controllerName, Array $params = array())
+    protected function getController($controllerName, Array $params = [])
     {
         $controller = (strpos('\\',$controllerName) === 0)
                         ? $controller
@@ -390,15 +412,16 @@ abstract class Controller
      * forward, like getController, forward the current controller to a new controller
      * and allows it to render the view, while it deactivate the current controller view.
      * All the settings and params will be forwarded to the new controller
-     * @param type $Controller
+     * @param string $controllerName
+     * @return \Voodoo\Core\Controller
      */
-    protected function forward($Controller, Array $params = array())
+    protected function forwardTo($controllerName, Array $params = [])
     {
-        $this->_exit();
-
+        $this->disableView()->abort();
         $params = array_merge_recursive($this->segments, $params);
-        return $this->getController($Controller, $params)
-                        ->disableView($this->disableView);
+        $controller = $this->getController($controllerName, $params)
+                            ->disableView(false);
+        return $controller;
     }
 
     /*     * **************************************************************************** */
@@ -409,7 +432,7 @@ abstract class Controller
      * Its purpose is to set the action to be rendered. You still can access the method the normal way $this->action_index
      * i.e $this->getAction("index");
      * @param  string     $action       - The action name without Action as suffix. ie: action_index() =  getAction("index")
-     * @return Controller
+     * @return \Voodoo\Core\Controller
      * 
      * NOTE:
      * actions make use of the annotations
@@ -493,7 +516,12 @@ abstract class Controller
             }
 
             if ($executeAction) {
+                
+                $this->beforeAction();
+                
                 $this->{$actionName}();
+                
+                $this->afterAction();
             }
             
         } else {
@@ -607,7 +635,7 @@ abstract class Controller
     /**
      * To enable render view. on __destruct, it will render the view, otherwise it's up to the controller to launch it.
      * @param  bool       $en
-     * @return Controller
+     * @return \Voodoo\Core\Controller
      */
     public function disableView($bool = true)
     {
@@ -735,7 +763,7 @@ abstract class Controller
             $url = $this->getModuleUrl()."/{$url}";
         }
 
-        $this->_exit();
+        $this->abort();
         return Http\Response::redirect($url, $httpCode);
     }
 

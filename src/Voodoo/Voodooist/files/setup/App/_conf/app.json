@@ -7,7 +7,7 @@
                 {
                     "name" : "Main",
                     "template" : "Default",
-                    "isApi" : false,
+                    "isRest" : false,
                     "omitViews" : false,
                     
                     "controllers" : [

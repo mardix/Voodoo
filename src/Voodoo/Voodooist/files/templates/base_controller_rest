@@ -16,7 +16,7 @@ use Voodoo,
     {{MODULENAMESPACE}}\Model,
     {{MODULENAMESPACE}}\Exception;
 
-abstract class BaseController extends Voodoo\Core\Controller\Api
+abstract class BaseController extends Voodoo\Core\Controller\Rest
 {
 
 

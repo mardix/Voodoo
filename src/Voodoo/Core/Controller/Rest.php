@@ -8,11 +8,11 @@
  * @github      https://github.com/mardix/Voodoo
  * @package     VoodooPHP
  *
- * @copyright   (c) 2012 Mardix (http://github.com/mardix)
+ * @copyright   (c) 2013 Mardix (http://github.com/mardix)
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
- * @name        Controller\Api
+ * @name        Controller\Rest
  * @desc        Voodoo is already restful. Controller\Api adds the API layer
  *              to serve via an api
  *
@@ -23,7 +23,7 @@ namespace Voodoo\Core\Controller;
 
 use Voodoo\Core;
 
-abstract class Api extends Core\Controller
+abstract class Rest extends Core\Controller
 {
     private $restView = null;
     private $renderFormat;
@@ -58,7 +58,7 @@ abstract class Api extends Core\Controller
     /**
      * Set the view response format
      *
-     * @return \Voodoo\Core\Controller\Api
+     * @return \Voodoo\Core\Controller\Rest
      */
     protected function setJsonResponse()
     {
@@ -71,12 +71,12 @@ abstract class Api extends Core\Controller
     /**
      * Setup the API view
      *
-     * @return Core\View\Api
+     * @return Core\View\Rest
      */
     protected function view()
     {
         if ($this->restView == null) {
-            $this->restView = new Core\View\Api;
+            $this->restView = new Core\View\Rest;
         }
         return $this->restView;
     }

@@ -8,20 +8,19 @@
  * @github      https://github.com/mardix/Voodoo
  * @package     VoodooPHP
  *
- * @copyright   (c) 2012 Mardix (http://github.com/mardix)
+ * @copyright   (c) 2013 Mardix (http://github.com/mardix)
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
- * @name        View\Api
- * @desc        The view layer for API
+ * @name        View\Rest
+ * @desc        The view layer for Rest
  *
  */
 
 namespace Voodoo\Core\View;
 
-use Voodoo\Core;
-
-class Api {
+class Rest 
+{
     use TView;
 
     const FORMAT_JSON = 1;

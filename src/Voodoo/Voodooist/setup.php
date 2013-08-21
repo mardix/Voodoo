@@ -54,7 +54,7 @@ if(LOAD_VOODOO_WITH_COMPOSER) {
 } else { // the root dir
     $appRootDir = dirname(dirname(__DIR__));
 }
-
+$appRootDir = "../../../local-test";
 try {
     Voodooist\Voodooist::create($appRootDir);
 } catch (\Exception $e) {
