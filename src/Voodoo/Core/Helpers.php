@@ -346,7 +346,7 @@ Class Helpers{
      * @param strin $dir
      * @return bool
      */
-    public static function deleter($dir)
+    public static function recursiveDelete($dir)
     {
         foreach (array_diff(scandir($dir), ['.','..']) as $file) {
           (is_dir("$dir/$file")) ? self::recursiveDelete("$dir/$file")
@@ -356,39 +356,31 @@ Class Helpers{
     }
 
     /**
-     * Recursively copy a source to destination
-     * @param string $src
-     * @param string $dst
-     */
-    public static function copyr($src, $dst){
-        $dir = opendir($src); 
-        @mkdir($dst); 
-        while(false !== ( $file = readdir($dir)) ) { 
-            if (( $file != '.' ) && ( $file != '..' )) { 
-                if ( is_dir($src . '/' . $file) ) { 
-                    self::copyr($src . '/' . $file,$dst . '/' . $file); 
-                } else { 
-                    copy($src . '/' . $file,$dst . '/' . $file); 
-                } 
-            } 
-        } 
-        closedir($dir); 
-    }    
-    
-    /**
-     * @deprecated
+     * Copy file recursively
+     * @param <type> src, Source
+     * @param string $dest, where to save
+     * @return <type>
      */
     public static function recursiveCopy($src,$dest)
     {
-        return self::copyr($src, $dest);
+      // recursive function to delete
+      // all subdirectories and contents:
+      if(is_dir($src))$dir_handle=opendir($src);
+          while ($file=readdir($dir_handle)) {
+            if ($file!="." && $file!="..") {
+              if (!is_dir($src."/".$file)) {
+                    if(!file_exists($dest."/".$file))
+                        @copy($src."/".$file,$dest."/".$file);
+                  } else {
+                    @mkdir($dest."/".$file,0775);
+                    self::recursiveCopy($src."/".$file,$dest."/".$file);
+                  }
+            }
+          }
+      closedir($dir_handle);
+      return true;
     }
-    /**
-     * @deprecated
-     */
-    public static function recursiveDelete($dir)
-    {
-        return self::deleter($dir);
-    }
+
 
 # To make an URL Friendly
     public static function toFriendlyUrl($O)
