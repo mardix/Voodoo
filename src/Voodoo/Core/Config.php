@@ -150,7 +150,7 @@ class Config
         if($ini->getNamespace()["__called"]) {
             return $ini;
         } else {
-            $file = Env::getConfigPath()."/{$name}.ini";
+            $file = Env::getConfigPath()."/{$name}.ini.php";
             if(file_exists($file)) {
                 $ini->loadFile($file);
                 self::$Config[$ini->namespace]["__called"] = true;
