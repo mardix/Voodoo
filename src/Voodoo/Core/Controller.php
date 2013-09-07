@@ -664,12 +664,12 @@ abstract class Controller
     public function getConfig($key = null)
     {
         if (!$this->config) {
-            $appConfigFile = "{$this->applicationDir}/Config.ini";
+            $appConfigFile = "{$this->applicationDir}/Config.ini.php";
             $this->config = (new Config($this->controllerNamespace))
                                 ->loadFile($appConfigFile);
             
             // If a config file exist in the module, we'll load it
-            $moduleConfigFile = "{$this->moduleDir}/Config.ini";
+            $moduleConfigFile = "{$this->moduleDir}/Config.ini.php";
             if (file_exists($moduleConfigFile)) {
                 $this->config->loadFile($moduleConfigFile);    
             }                  

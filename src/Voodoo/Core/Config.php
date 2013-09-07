@@ -133,7 +133,7 @@ class Config
     {
         $fileName = $fileName ?: $this->namespace;
         $data = self::arrayToINI($this->toArray());
-        file_put_contents(Env::getConfigPath()."/{$fileName}.ini", $data);
+        file_put_contents(Env::getConfigPath()."/{$fileName}.ini.php", $data);
         return $this;
     }
 

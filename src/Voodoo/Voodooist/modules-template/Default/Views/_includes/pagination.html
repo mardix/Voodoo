@@ -8,7 +8,12 @@
 <div class="pagination">
     <ul>
         {{#this.pagination}}
-            <li class="{{#is_current}}active{{/is_current}}">                
+            <li class="{{#is_current}}active{{/is_current}} 
+                {{#is_first}}first{{/is_first}} 
+                {{#is_last}}last{{/is_last}} 
+                {{#is_prev}}previous{{/is_prev}} 
+                {{#is_next}}next{{/is_next}}"
+                >                
                 <a href="{{url}}">{{label}}</a>
             </li>
         {{/this.pagination}}

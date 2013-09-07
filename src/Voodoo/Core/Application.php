@@ -28,7 +28,7 @@ use DirectoryIterator,
 class Application
 {
     CONST NAME = "VoodooPHP";
-    CONST VERSION = "1.4";
+    CONST VERSION = "1.5";
 
 /*******************************************************************************/
 
@@ -72,7 +72,7 @@ class Application
             }
             
             $this->baseNamespace = "App\\{$appName}";
-            $this->config = (new Config("VoodooApp"))->loadFile($this->appDir."/Config.ini");
+            $this->config = (new Config("VoodooApp"))->loadFile($this->appDir."/Config.ini.php");
             $this->setUri($uri);
             $this->setRouting($this->config->get("routes.path") ?: []);
 

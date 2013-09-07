@@ -71,7 +71,7 @@ class Voodooist
         self::e("-----------------------------------------------------------------------");
 
         // /VoodooApp
-         if (! file_exists(Core\Env::getConfigPath()."/System.ini")) {
+         if (! file_exists(Core\Env::getConfigPath()."/System.ini.php")) {
             self::e("> creating Dir: ".Core\Env::getAppRootDir());
             $Voodooist->createVoodooApp();
         }
@@ -301,7 +301,7 @@ class Voodooist
         $this->applicationPath = Core\Env::getAppRootDir()."/{$this->applicationName}";
         $this->applicationNS = "App\\{$this->applicationName}";
         $this->mkdir($this->applicationPath);
-        $file = $this->applicationPath."/Config.ini";
+        $file = $this->applicationPath."/Config.ini.php";
         $this->saveTpl("application_config",$file,["APPLICATIONNAME"=>$this->applicationName]);
     }
 

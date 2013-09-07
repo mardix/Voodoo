@@ -1,3 +1,4 @@
+;<?php exit(); // Always exit out, if file is called explicitely ?>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; {{GENERATOR}} - Application ({{APPLICATIONNAME}}) config
@@ -40,7 +41,7 @@
 ;   (:any)  : Will match anything
 ;   (:num)  : will match only numeric values
 ;   (:alpha) : will match only alphabetical values
-;   (:alphanum) : will match alpha and numerical values
+;   (:alnum) : will match alpha and numerical values
 ;   
 ;  Use of Regex
 ;  Router allow you to use your own regexp to do more complex stuff

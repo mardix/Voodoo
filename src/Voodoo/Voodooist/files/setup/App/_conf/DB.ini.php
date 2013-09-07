@@ -1,5 +1,6 @@
+;<?php exit(); // Always exit out, if file is called explicitely ?>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; VoodooPHP - Config/DB.ini
+; VoodooPHP - _conf/DB.ini.php
 ;
 ; This INI file contains your database configuration which can be access by alias name
 ; By having alias name, you get to hold multiple database configuration.
@@ -58,6 +59,7 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; The default DB settings
 [MyDB] 
     ; mysql|pgsql|sqlite|dsn
     type       = "mysql"

@@ -1,5 +1,6 @@
+;<?php exit(); // Always exit out, if file is called explicitely ?>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; VoodooPHP - App/Config/System.ini
+; VoodooPHP - _conf/System.ini.php
 ; 
 ; System.ini is a simple config file that contains system wide configuration
 ;
@@ -9,7 +10,6 @@
 ;
 ; i.e: $timezone = Voodoo\Core\Config::System()->get("timezone");
 ; 
-; *Settings in this file will override any settings set in Voodoo/System.ini
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; By default the url will contain question mark: ie: site.com/?Controller/action
