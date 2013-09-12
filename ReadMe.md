@@ -116,7 +116,7 @@ Once the setup is done, you should have a filesystem similar to this:
 		|
 		+-- Www/
 			|
-			+-- Config.ini.php
+			+-- Config.conf.php
 			|
 			+-- Main/
 				|
@@ -154,7 +154,7 @@ Once the setup is done, you should have a filesystem similar to this:
 
 **/App** : Contains your application's Modular MVC
 
-**/App/_conf** : Contains the configurations, ie: DB.ini.php for database settings, System.ini.php for system wide settings, app.json your application schema to create your MVC files on the fly.
+**/App/_conf** : Contains the configurations, ie: DB.conf.php for database settings, System.conf.php for system wide settings, app.json your application schema to create your MVC files on the fly.
 
 **/App/Www**: That's your default application which contains your MVC files. When someone accesses your application that's where he/she will land, unless you change it to another application. You can also have */App/Site1*, */App/Site2*, */App/Api* and so on to create multi applications which share the same Voodoo code base.
 
@@ -242,7 +242,7 @@ Upon execution of /App/voodooist.php you will should see a filesystem similar to
 		|
 		+-- Www
             |
-            +-- Config.ini.php
+            +-- Config.conf.php
 			|
 			+-- Main
 				|
@@ -433,7 +433,7 @@ After running /App/voodooist.php you will get the following structure
 		|
 		+-- Www
             |
-            +-- Config.ini.php
+            +-- Config.conf.php
 			|
 			+-- Main
 				|
@@ -504,7 +504,7 @@ After running /App/voodooist.php you will get the following structure
 		|
 		+-- AnotherApp
             |
-            +-- Config.ini.php
+            +-- Config.conf.php
 			|
 			+-- Main
 				|
@@ -556,7 +556,7 @@ After running /App/voodooist.php you will get the following structure
 		|
 		+-- Api
             |
-            +-- Config.ini.php
+            +-- Config.conf.php
 			|
 			+-- Main
 				|
@@ -593,7 +593,7 @@ That's how the module **Main** looks like in the **Www** application.
 		|
 		+-- Www
 			|
-			+-- Config.ini.php
+			+-- Config.conf.php
 			|
 			+-- Main
 				|
@@ -762,13 +762,13 @@ If Module doesn't exist, it will fall back to *Main* module
 
 ### Application Routes (Customed Routes)
 
-Sometimes, you may want to change the way the URL is displayed. Maybe because of SEO purposes, or something has changed, or whatever... you will have to alter the routes in the application config fille at: /App/$AppName/Config.ini.php
+Sometimes, you may want to change the way the URL is displayed. Maybe because of SEO purposes, or something has changed, or whatever... you will have to alter the routes in the application config fille at: /App/$AppName/Config.conf.php
 
-Each application contains a `Config.ini.php` file. It is loaded by `Voodoo\Core\Application` upon initialization, and contains the necessary settings such as which controller to load by default, the views settings etc. It also contains your application's routes. 
+Each application contains a `Config.conf.php` file. It is loaded by `Voodoo\Core\Application` upon initialization, and contains the necessary settings such as which controller to load by default, the views settings etc. It also contains your application's routes. 
 
-If you open /App/Www/Config.ini.php, look for the routes key, and you should fine something that looks like this: 
+If you open /App/Www/Config.conf.php, look for the routes key, and you should fine something that looks like this: 
  
-/App/Www/Config.ini.php
+/App/Www/Config.conf.php
 
 	[routes]
 	    path["(:any)"] = "$1"
@@ -788,7 +788,7 @@ Let's say you have this url path:
 
 But you want to short it to: `site.com/profile/mardix`
 
-You can create a new route path in your Config.ini.php file like this
+You can create a new route path in your Config.conf.php file like this
 
 	[routes]
 		path["/profile/(:any)"] = "/Users/Profile/Info/$1"
@@ -948,13 +948,13 @@ When models are created in the app.json for example
 When the model is created, these settings will be added in the class so it can connect to the DB via PDO
 
 
-**/App/Cong/DB.ini.php** and **dbAlias** 
+**/App/Cong/DB.conf.php** and **dbAlias** 
 
-Voodoo requires that you store your DB settings (dbname, username, password, host) in `/App/_conf/DB.ini.php` . Each settings is associated to an alias. 
+Voodoo requires that you store your DB settings (dbname, username, password, host) in `/App/_conf/DB.conf.php` . Each settings is associated to an alias. 
 
 Database connections are managed by  `Voodoo\Core\ConnectionManager()` which makes sure the connection is connected once per alias, even if it's called 20 billions times (I hope not, lol). 
 
-This is how the /App/_conf/DB.ini.php looks like:
+This is how the /App/_conf/DB.conf.php looks like:
 
 	[MyDB] 
 	    type       = "mysql"
@@ -1060,7 +1060,7 @@ And you should get the following filesystem:
 		|
 		+-- Www
 			|
-			+-- Config.ini.php
+			+-- Config.conf.php
 			|
 			+-- Main
 				|

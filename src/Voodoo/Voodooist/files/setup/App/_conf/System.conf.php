@@ -1,8 +1,10 @@
 ;<?php exit(); // Always exit out, if file is called explicitely ?>
+; NOTE: *.conf.php is an INI file
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
 ; VoodooPHP - _conf/System.ini.php
 ; 
-; System.ini is a simple config file that contains system wide configuration
+; System.conf.php is a simple config file that contains system wide configuration
 ;
 ; To access data from this file use the Config class as so:
 ; Voodoo\Core\Config::System()->get($dotNotation);

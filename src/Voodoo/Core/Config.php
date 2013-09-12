@@ -21,6 +21,8 @@ namespace Voodoo\Core;
 
 class Config
 {
+    const EXT = ".conf.php";
+    
     /**
      * Hold topics list that has been loaded
      * @var Array
@@ -72,7 +74,7 @@ class Config
      */
     public function loadFile($file, $keyname = ""){
         if(! file_exists($file)) {
-            throw new Exception("File: '$file' doesn't exist or is not readable");
+            throw new Exception("Config file '{$file}' doesn't exist or is not readable");
         } else {
             $cnf = parse_ini_file($file, true);
             $this->set($cnf, $keyname);  
@@ -133,7 +135,7 @@ class Config
     {
         $fileName = $fileName ?: $this->namespace;
         $data = self::arrayToINI($this->toArray());
-        file_put_contents(Env::getConfigPath()."/{$fileName}.ini.php", $data);
+        file_put_contents(Env::getConfigPath()."/{$fileName}".self::EXT, $data);
         return $this;
     }
 
@@ -150,12 +152,12 @@ class Config
         if($ini->getNamespace()["__called"]) {
             return $ini;
         } else {
-            $file = Env::getConfigPath()."/{$name}.ini.php";
+            $file = Env::getConfigPath()."/{$name}".self::EXT;
             if(file_exists($file)) {
                 $ini->loadFile($file);
                 self::$Config[$ini->namespace]["__called"] = true;
             } else if(!$ini->namespaceExists()) {
-                throw new Exception("INI File '{$file}' doesn't exist");
+                throw new Exception("Config File '{$file}' doesn't exist");
             }
             return $ini;            
        }

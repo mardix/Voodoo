@@ -1,5 +1,7 @@
 ;<?php exit(); // Always exit out, if file is called explicitely ?>
+; NOTE: *.conf.php is an INI file
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
 ; VoodooPHP - _conf/DB.ini.php
 ;
 ; This INI file contains your database configuration which can be access by alias name
