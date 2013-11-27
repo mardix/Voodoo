@@ -1,0 +1,40 @@
+;<?php exit(); // Always exit out, if file is called explicitely ?>
+; NOTE: *.conf.php is an INI file
+;
+; Routes
+;
+; This is your Router Settings
+;
+; The Routes map URL to different Module/Controller/Action, and conversely to generate URLs. 
+;        Router makes it easy to create pretty and concise URLs that are RESTful with little effort.
+;
+;  Use of Wildcards:
+;  Router use some wildcards to quickly match part of the url and replace it with the proper regex values
+;   (:any)  : Will match anything
+;   (:num)  : will match only numeric values
+;   (:alpha) : will match only alphabetical values
+;   (:alnum) : will match alpha and numerical values
+;   
+;  Use of Regex
+;  Router allow you to use your own regexp to do more complex stuff
+;
+; Reference: /Voodoo/Core/Router.php
+; 
+; examples
+; - With wildcards
+;       path["(:any)"] = "$1"
+; - For GET or POST
+;       path["POST /mypath/(:num)"] = "" // Will do only for post
+; - With regexp
+;       path["/universe/([sky|moon]+)/"] = "world/$1" 
+;
+; Default config
+; 
+; path["(:any)"] = "$1"
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+path["(:any)"] = "$1"
+
+
+    

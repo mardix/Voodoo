@@ -55,7 +55,7 @@ trait TPagination
      * 
      * @return bool
      */
-    public function isSetPagination()
+    public function issetPagination()
     {
         return ($this->paginator) ? true : false;
     }

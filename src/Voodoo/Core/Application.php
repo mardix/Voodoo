@@ -28,7 +28,7 @@ use DirectoryIterator,
 class Application
 {
     CONST NAME = "VoodooPHP";
-    CONST VERSION = "1.6";
+    CONST VERSION = "1.10";
 
 /*******************************************************************************/
 
@@ -70,11 +70,10 @@ class Application
             if(! is_dir($this->appDir)) {
                 throw new Exception("The application name: '{$appName}' doesn't exist at: ". $this->appDir);
             }
-            
+            $this->setUri($uri);
             $this->baseNamespace = "App\\{$appName}";
             $this->config = (new Config("VoodooApp"))->loadFile($this->appDir."/Config".Config::EXT);
-            $this->setUri($uri);
-            $this->setRouting($this->config->get("routes.path") ?: []);
+            $this->setRouting(Config::Routes()->get("path") ?: []);
 
             if ($this->config->get("application.defaultModule")) {
                 $this->defaultModule = $this->config->get("application.defaultModule");

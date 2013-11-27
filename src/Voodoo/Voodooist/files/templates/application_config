@@ -28,45 +28,6 @@
     defaultController = "Index"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Routes
-;
-; This is your Router Settings
-;
-; The Routes map URL to different Module/Controller/Action, and conversely to generate URLs. 
-;        Router makes it easy to create pretty and concise URLs that are RESTful with little effort.
-;
-;  Use of Wildcards:
-;  Router use some wildcards to quickly match part of the url and replace it with the proper regex values
-;   (:any)  : Will match anything
-;   (:num)  : will match only numeric values
-;   (:alpha) : will match only alphabetical values
-;   (:alnum) : will match alpha and numerical values
-;   
-;  Use of Regex
-;  Router allow you to use your own regexp to do more complex stuff
-;
-; Reference: /Voodoo/Core/Router.php
-; 
-; examples
-; - With wildcards
-;       path["(:any)"] = "$1"
-; - For GET or POST
-;       path["POST /mypath/(:num)"] = "" // Will do only for post
-; - With regexp
-;       path["/universe/([sky|moon]+)/"] = "world/$1" 
-;
-; Default config
-; [routes]
-;   path["(:any)"] = "$1"
-;
-[routes]
-    path["(:any)"] = "$1"
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Views
 ; Setting that will be used in your view
 [views]
@@ -74,10 +35,12 @@
     ; It will be loaded in there by default
     dateFormat = "D, M d Y" 
 
-    ; Voodoo by default requires your site (if that's what you are doing) to have a layout
+    ; == Layout
+    ; Voodoo by default requires your site (or project) to have a layout
     ; The layout technically contains the header, footer of your site and a placeholder for the body
-    ; The body will be including upon rendering
-    layout = "_layouts/default.html" 
+    ; The @action_view will be including upon rendering
+    ; By default, it will get the layout from /Views/_layouts/
+    layout = "default" 
 
     ; Module Assets contains all css, js, static files, etc that can be used by the module.
     ; The path is relative to the Module's Views directory or be a url
@@ -85,13 +48,13 @@
     ;       _assets - It will link it to the _assets directory of the current module
     ;       /OtherModule/Views/_assets - To link to another module's assets directory
     ;       http://a-place-i-host-my-static-files.com - To refer to a domain name, such as a cdn
-    ; To access it in your view files use: {{this.module.assets}}
+    ; To access it in your view files use: {{_app.assets}}
     moduleAssetsDir = "_assets" ; The directory in the current module
 
     ; Public Assets contains all css, js, static files, etc that can be shared with other Modules. ie: jQuery, Twitter Bootstrap
     ; The path is relative to the root or can be a url
     ; ie: MyOwnPathRelativeToTheRoot or http://a-place-i-host-my-static-files.com
-    ; To access it in your view files use: {{this.global.assets}}
+    ; To access it in your view files use: {{_app.shared_assets}}
     publicAssetsDir = "assets" 
 
     ; To remove HTML comments in the HTML page
@@ -108,13 +71,5 @@
 
     ; The size of the navigation bar
     pagination[navigationSize] = 10 
-
-
-    ; loadTemplate
-    ; Voodoo will automatically load the files and assign them so the can be included with their alias. 
-    ; ie: {{%include @pageFlashMessage}}, this will include the file _includes/flash-message.html
-    ; Format: loadTemplate[aliasNameOfTheFileToLoad] = "filename"
-    ; loadTemplate[pageFlashMessage] = "_includes/flash-message.html"
-    ; loadTemplate[pagePagination] = "_includes/pagination.html"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

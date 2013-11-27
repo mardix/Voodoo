@@ -2,7 +2,7 @@
     "name": "voodoophp/voodoo",
     "type": "framework",
     "description": "A micro PHP 5.4 Modular MVC framework, that contains only the libraries to get you started ",
-    "keywords": ["framework","micro framework","mmvc","mvc","modular","5.4","slim", "micro"],
+    "keywords": ["framework","micro framework","mmvc","mvc","modular","5.4","slim", "micro", "bootstrap", "handlebars", "mustache"],
     "homepage": "https://github.com/mardix/Voodoo",
     "license": "MIT",
     "authors": [
@@ -15,7 +15,8 @@
     "require": {
         "php": ">=5.4.0",
         "voodoophp/voodorm" : "2.*",
-        "voodoophp/paginator" : "2.*"
+        "voodoophp/paginator" : "2.*",
+        "voodoophp/handlebars" : "2.*"
     },
     "autoload": {
         "psr-0": { "Voodoo": "src/" }

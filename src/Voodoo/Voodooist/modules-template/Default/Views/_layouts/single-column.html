@@ -3,25 +3,25 @@
 single-column.html
 -->
 <HTML>
-    {{%include _layouts/head-tag}}
+    {{> _layouts/head-tag}}
 
     <body>
         
-        {{%include _layouts/header}}
+        {{> _layouts/header}}
 
         <div class="container">
 
-            {{%include _includes/flash-message}}
+            {{> _components/flash-message}}
 
             <div class="row">
-                <div class="span12">
+                <div class="col-md-12">
                     <!-- REQUIRED to show the view's action page -->
-                    {{%include @actionView}}                 
+                    {{!include @action_view}}                 
                 </div>
             </div>
         </div>
 
-        {{%include _layouts/footer}}
+        {{> _layouts/footer}}
         
     </body>
 </HTML>

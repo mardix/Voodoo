@@ -1,25 +1,21 @@
 <!-- head-tag.html -->
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="Copyright" content="{{_app.year}}">
+    <meta name="revisit-after" content="1 days">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+{{#with _app}}
+    {{#each meta}}
+    <meta name="{{@key}}" content="{{.}}">
+    {{/each}}
 
-    <head>
-        <META NAME="Copyright" CONTENT="{{this.year}}">
-        <META NAME="revisit-after" CONTENT="1 days">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        {{#this.metaTags}}
-            {{{.}}}
-        {{/this.metaTags}}
+    <title>{{title}}</title>
 
-        <title>{{this.title}}</title>
-
-        <link href="{{this.global.assets}}/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link href="{{this.global.assets}}/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
-        <link href="{{this.module.assets}}/css/style.css" rel="stylesheet">
-
-        <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-        <!--[if lt IE 9]>
-          <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->    
-
-        <script src="{{this.global.assets}}/jquery/jquery-1.8.min.js"></script>
-        <script src="{{this.global.assets}}/bootstrap/js/bootstrap.min.js"></script>
-        <script src="{{this.module.assets}}/js/application.js"></script>    
-    </head>
+    <link href="{{assets}}/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{assets}}/css/style.css" rel="stylesheet">
+    <script src="{{assets}}/vendor/jquery/jquery.js"></script>
+    <script src="{{assets}}/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="{{assets}}/js/application.js"></script>                
+{{/with}}
+</head>
+    

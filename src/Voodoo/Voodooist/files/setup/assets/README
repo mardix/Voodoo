@@ -1,0 +1,11 @@
+This is a shared assets directory to be accessed by all applications
+Prefix the path with expression below to get the full path of the data in the 
+shared assets:
+
+{{_app.shared_assets}}
+
+
+Example
+
+<script src="{{_app.shared_assets}}/js/jquery.js"></script>
+

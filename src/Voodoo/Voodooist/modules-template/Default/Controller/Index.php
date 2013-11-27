@@ -21,8 +21,7 @@ class Index extends BaseController
      */
     public function actionIndex()
     {
-        // Set the page title
-        $this->view()->setPageTitle("Site Coming Soon ");
+        $this->view()->setTitle("Site Coming Soon ");
     }
 
 
@@ -33,13 +32,15 @@ class Index extends BaseController
     {
         if ($this->isPost()) {
             $email = $this->getParam("email");
+            if (Voodoo\Core\Helpers::validEmail($email)) {
 
-            // Add newsletter signup below
-            if ($email) {
-
+                // ADD YOUR CODE HERE
+                
+                $this->view()->setFlashMessage("Thank you for subscribing!", "success"); 
+            } else {
+                $this->view()->setFlashMessage("Invalid email address", "error");
             }
         }
-        $this->view()->setFlash("Thank you for subscribing!", "success");
         $this->redirect();
     }
 }

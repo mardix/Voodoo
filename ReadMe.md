@@ -50,11 +50,12 @@ Modules improve maintainability by enforcing logical boundaries between componen
 - PSR compliant
 - Front Controller
 - Templates
-- Mustache Template
+- Handlebars (templating system)
 - Smart Routing
 - [VoodOrm](https://github.com/mardix/VoodOrm)
 - Annotation
 - [Paginator](https://github.com/mardix/Paginator)
+- [Handlebars.php](https://github.com/mardix/handlebars.php)
 - Bootstrap CSS/JS framework
 - HTTP Request
 - Voodooist (generate code on the fly)
@@ -295,7 +296,7 @@ Upon execution of /App/voodooist.php you will should see a filesystem similar to
 						|
 						+-- img/
 					|
-					+-- _includes/
+					+-- _components/
 						|
 						+-- flash-message.html
 						|
@@ -486,7 +487,7 @@ After running /App/voodooist.php you will get the following structure
 						|
 						+-- img/
 					|
-					+-- _includes/
+					+-- _components/
 						|
 						+-- flash-message.html
 						|
@@ -526,7 +527,7 @@ After running /App/voodooist.php you will get the following structure
 					|
 					+-- _assets/[+]
 					|
-					+-- _includes/ [+]
+					+-- _components/ [+]
 					|
 					+-- _layouts/ [+]
 			|
@@ -550,7 +551,7 @@ After running /App/voodooist.php you will get the following structure
 					|
 					+-- _assets/[+]
 					|
-					+-- _includes/ [+]
+					+-- _components/ [+]
 					|
 					+-- _layouts/ [+]
 		|
@@ -623,7 +624,7 @@ That's how the module **Main** looks like in the **Www** application.
 						|
 						+-- img/
 					|
-					+-- _includes/
+					+-- _components/
 						|
 						+-- flash-message.html
 						|
@@ -1089,7 +1090,7 @@ And you should get the following filesystem:
 						|
 						+-- img/
 					|
-					+-- _includes/
+					+-- _components/
 						|
 						+-- flash-message.html
 						|

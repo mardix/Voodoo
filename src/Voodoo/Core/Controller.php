@@ -437,10 +437,10 @@ abstract class Controller
      * NOTE:
      * actions make use of the annotations
      * 
-     *  @actionView 
-     *  @layoutView
+     *  @action_view 
+     *  @use_layout
      *  @request
-     *  @renderView
+     *  @render_as
      */
     public function getAction($action = "Index")
     {
@@ -455,17 +455,17 @@ abstract class Controller
             $actionView = $this->getActionName();
             
             /** @Actions Annotations **/
-                // @actionView $view-file-name : To change the default view
-                if($this->getActionAnnotation("actionView")) {
-                   $actionView =  $this->getActionAnnotation("actionView");
+                // @action_view $view-file-name : To change the default view
+                if($this->getActionAnnotation("action_view")) {
+                   $actionView =  $this->getActionAnnotation("action_view");
                 }
-                // @layoutView $layout-file-name (_layout/main): to change the layout
-                if($this->getActionAnnotation("layoutView")) {
-                   $layout =  $this->getActionAnnotation("layoutView");
+                // @use_layout $layout-file-name (_layout/main): to change the layout
+                if($this->getActionAnnotation("use_layout")) {
+                   $layout =  $this->getActionAnnotation("use_layout");
                 }              
-                // @renderView (JSON|HTML) : By default it will render HTML, set to JSON the view will be rendered as JSON
-                if($this->getActionAnnotation("renderView")) {
-                   $render =  $this->getActionAnnotation("renderView");
+                // @render_as (JSON|HTML) : By default it will render HTML, set to JSON the view will be rendered as JSON
+                if($this->getActionAnnotation("render_as")) {
+                   $render =  $this->getActionAnnotation("render_as");
                 }               
                 /**
                  * @request
@@ -476,9 +476,9 @@ abstract class Controller
                  * - arguments
                  *      method (POST|GET|PUT|DELETE) - The request method to accept
                  *      response - a message to display if the request method fails
-                 *      actionView -  a view to display instead of the _includes/error/405
+                 *      action_view -  a view to display instead of the _includes/error/405
                  * - example: 
-                 *      @request [method=POST, response="This is an error message", actionView="_includes/error/405"]
+                 *      @request [method=POST, response="This is an error message", action_view="_includes/error/405"]
                  */
                 $request = $this->getActionAnnotation("request");
                 if(is_array($request) && $request["method"]) {
@@ -490,8 +490,8 @@ abstract class Controller
                             $this->view()->assign("error", $request["response"]);                            
                         }
 
-                        if ($request["actionView"]) {
-                            $actionView = $request["actionView"];
+                        if (isset($request["action_view"])) {
+                            $actionView = $request["action_view"];
                         } else {
                             if ($this->view() instanceof View) {
                                 $this->view()->setViewError(405);    
@@ -508,7 +508,7 @@ abstract class Controller
             if ($this->view() instanceof View) {
                 $this->view()->setActionView($actionView);
                 if ($layout) {
-                   $this->view()->setLayout($layout); 
+                   $this->view()->useLayout($layout); 
                 }  
                 if (strtoupper($render) == "JSON") {
                     $this->view()->renderToJson();
@@ -611,14 +611,14 @@ abstract class Controller
             return false;
         } else {
             
-            if ($this->isSetPagination()) {
+            if ($this->issetPagination()) {
                 $this->view()->setPagination($this->pagination()->toArray());
             }
             
-            if (! $this->view()->isSetLayout()) {
+            if (! $this->view()->issetLayout()) {
                 $layout = $this->getConfig("views.layout");    
                 if($layout) {
-                    $this->view()->setLayout($layout);
+                    $this->view()->useLayout($layout);
                 }                
             }
             

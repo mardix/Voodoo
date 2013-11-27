@@ -8,7 +8,7 @@
  * @github      https://github.com/VoodooPHP/Voodoo
  * @package     VoodooPHP
  *
- * @copyright   (c) 2012 Mardix (http://github.com/mardix)
+ * @copyright   (c) 2012-2013 Mardix (http://github.com/mardix)
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
@@ -17,38 +17,33 @@
  * 
  * Mustache Extension
  * == New Markups
- *      - Include
- *              {{%include filename.html}} : include the file from the working dir
- *              {{%include !/my/other/path/file.html}} : include fiel outside of the working dir
- *              {{%include @TemplateName}} : include a file reference name, which was loaded with ThickMustache::addTemplate($name,$src)
- *
- *      - Raw: Mustache tags between {{%raw}}{{/raw}} will not be parsed
- *              {{%raw}}
- *                  {{}}
- *              {{/raw}}
+ *      - Layout: To change the layout to another one
+ *              {{!use_layout $default}} will include _layout/default.html
  * 
- *      - Layout
- *              {{%layout _layouts/default}}
- *              
+ *      - Include @ - Include file loaded by PHP using $this->addTemplate($name, $src)
+ *              {{!include @action_view}}
+ *      - Include. Allow you to include views from out of scope (App under /App)
+ *              {{!include AppName/ModuleName/Views/$filepath}}      
  */
 
 namespace Voodoo\Core;
 
+use Handlebars\Handlebars;
+use Handlebars\Loader\FilesystemLoader;
+
 class View 
 {
     use View\TView;
+    
+    const TITLE_CONCAT_PREPEND = 1;
+    const TITLE_CONCAT_APPEND = 2;
     
     public $isDisabled = false;
     public $isRendered = false;
 
     // View file extension
     protected $ext = ".html";
-
-    protected $moduleName;
-    protected $controllerName;
-    protected $applicationPath;
-    protected $viewsPath;
-    protected $controllerPath;
+    protected $appRootDir;
     protected $actionView;
     protected $isActionViewAbsolute = false;
     protected $layout;
@@ -61,22 +56,24 @@ class View
     protected $templateDir = "";
     protected $parsed = false;
     protected $definedRaws = []; 
-    
-    private $pageTitle;
-    private $pageDescription;
+
     private $controller = null;
     private $renderJSON = false;
  
+    private $meta = [];
+    
     private $templateKeys = [
-        "view"      => "actionView",
-        "layout"    => "pageLayout"
+        "view"      => "action_view",
+        "layout"    => "page_layout"
     ];
     
     private $path = [
-        "includes" => "_includes",
-        "layouts"   => "_layouts",
-        "error"    => "_includes/error"
+        "components" => "_components",
+        "layouts"  => "_layouts"
     ];
+    
+    private $engine = null;
+    private $flashMessage = null;
 //------------------------------------------------------------------------------
     /**
      * The constructor
@@ -86,61 +83,66 @@ class View
     public function __construct(Controller $controller)
     {
         $this->controller = $controller;
-        $this->moduleName = $this->controller->getModuleName();
-        $this->controllerName = $this->controller->getControllerName();
-        $this->applicationPath = $this->controller->getApplicationDir();
-        $this->viewsPath = $this->controller->getModuleDir() . "/Views";
-        $this->controllersViewPath = $this->viewsPath . "/{$this->controllerName}";
-        $this->setDir($this->controllersViewPath);
+        $this->templateDir = $this->controller->getModuleDir() . "/Views";
+        $this->controllersViewPath = $this->templateDir . "/";
+        $this->controllersViewPath .= $this->controller->getControllerName();
+        $this->appRootDir = Env::getAppRootDir();
+
+        /**
+         * Handlebars
+         */
+        $hbOptions = ["extension" => $this->ext];
+        $partialsLoader = new FilesystemLoader($this->templateDir, $hbOptions);
+        $this->engine = new Handlebars(["partials_loader" => $partialsLoader]);
+                    
+        /**
+         * FlashMessage
+         */
+        $this->flashMessage = new View\FlashMessage;
     }
-    
+
     /**
-     * Ser the working dir. By default files will be loaded from there
-     * @param string $dir
-     * @return \Voodoo\Core\View
-     */
-    public function setDir($dir)
-    {
-        $this->templateDir =   preg_match("!/$!",$dir) ? $dir : "{$dir}/";
-        return $this;
-    } 
-    
-    /**
-     * Set the extension to use
-     * 
-     * @param  string $extension
-     * @return Voodoo\Core\View
-     */
-    final public function setExtension($extension = ".html")
-    {
-        $this->ext = $extension;
-        return $this;
-    }
-    
-    /**
-     * Set the page title
+     * To set the title
      * 
      * @param string $title
-     * @return ViewController
+     * @param bool $concat
+     * @param int $position
+     * @return \Voodoo\Core\View
      */
-    final public function setPageTitle($title = "")
+    public function setTitle($title, $concat = false, $position = self::TITLE_CONCAT_APPEND)
     {
-        $this->pageTitle = $title;
+        if ($concat) {
+            if ($position == self::TITLE_CONCAT_APPEND) {
+                $title = $this->meta["title"] . " " . $title;
+            } else if ($position == self::TITLE_CONCAT_PREPEND) {
+                $title = $title . " " . $this->meta["title"];
+            } 
+        } 
+        return $this->setMeta("title", $title);
+    }
+    
+    /**
+     * Set the description
+     * 
+     * @param string $description
+     * @return \Voodoo\Core\View
+     */
+    public function setDescription($description)
+    {
+        $this->meta["description"] = $description;
         return $this;
     }
 
     /**
-     * Set the page description
+     * Set the keywords
      * 
-     * @param string $desc
-     * @return ViewController
+     * @param array $keywords
+     * @return \Voodoo\Core\View
      */
-    final public function setPageDescription($desc = "")
+    public function setKeywords(Array $keywords)
     {
-        $this->pageDescription = $desc;
-        return $this;
+        return $this->setMeta("keywords", implode(",", array_unique($keywords)));
     }
-    
     
     /**
      * Set the pagination model
@@ -150,54 +152,83 @@ class View
      */
     public function setPagination(Array $data) 
     {
-        $this->assign("this.pagination", $data);
+        $this->assign("_app.pagination", $data);
         return $this;
     }
-    
-    
+        
     /**
-     * Return the module full path
-     * 
-     * @return string
+     * Set multiple meta data
+     * @param type $key
+     * @param type $value
+     * @return \Voodoo\Core\View
      */
-    public function getModulePath()
+    public function setMeta($key, $value)
     {
-        return $this->modulePath;
+        $this->meta[$key] = $value;
+        return $this;
     }
 
     /**
-     * Return the controller full path
+     * Set a flash message
      * 
-     * @return string
+     * @param type $message
+     * @param type $type
+     * @param array $data
+     * @return \Voodoo\Core\View
      */
-    public function getControllerPath()
+    public function setFlashMessage($message, $type = View\FlashMessage::TYPE_NOTICE, Array $data = [])
     {
-        return $this->controllerPath;
+        $this->flashMessage->set($message, $type, $data);
+        return $this;
     }
+    
+    /**
+     * Get flash message
+     * 
+     * @param string $type - Return flash messages of a type
+     * @return Array
+     */
+    public function getFlashMessage($type = null)
+    {
+        return $this->flashMessage->get($type);
+    }
+    
+    /**
+     * Clear flash message
+     * 
+     * @return \Voodoo\Core\View
+     */
+    public function clearFlashMessage()
+    {
+        $this->flashMessage->clear();
+        return $this;
+    }
+    
+/*******************************************************************************/
 
     /**
      * Check if the views directory exists
      * 
      * @return bool
      */
-    final public function exists()
+    public function exists()
     {
         return is_dir($this->controllersViewPath);
     }
 
-
-
     /**
      * Set the view layout to use. By default it will user the contain set in config.
      * 
-     * @param  string $filename
-     * @param  bool  $absolute - true, it will use the full path of filename, or it will look in the current Views
+     * @param  string $filename - The name of the layout under _layouts/
      * @return Voodoo\Core\View
      */
-    public function setLayout($filename, $absolute = false)
+    public function useLayout($filename, $isAbsolute = false)
     {
+        $this->isLayoutAbsolute = $isAbsolute;
         $this->layout = $filename;
-        $this->isLayoutAbsolute = $absolute;
+        if (! $this->isLayoutAbsolute) {
+            $this->layout = $this->path["layouts"] . "/" . $filename;
+        }
         return $this;
     }
 
@@ -206,7 +237,7 @@ class View
      * 
      * @return bool
      */
-    public function isSetLayout()
+    public function issetLayout()
     {
         return $this->layout ? true : false;
     }
@@ -231,7 +262,7 @@ class View
      * 
      * @return bool
      */
-    public function isSetActionView()
+    public function issetActionView()
     {
         return $this->actionView ? true : false;
     }
@@ -253,17 +284,16 @@ class View
     /**
      * To set the error page
      *  
-     * @param int $errorCode
      * @param string $errorMessage 
+     * @param int $errorCode
      * @return Voodoo\Core\View
      */
-    public function setViewError($errorCode, $errorMessage = "")
+    public function setActionError($errorMessage = "", $errorCode = 500 )
     {
         if($errorMessage) {
             $this->setError($errorMessage);
         }
-        $this->setView($this->path["error"]."/".$errorCode);
-        
+        $this->setActionView($this->path["components"]."/error_".$errorCode);
         return $this;
     }
     
@@ -296,85 +326,62 @@ class View
      */
     public function render()
     {
-        // RENDER AS JSON
-        if($this->renderJSON) {
+        if($this->renderJSON) {// RENDER AS JSON
             $assigned = $this->getAssigned();
-            unset($assigned["this"]);
+            unset($assigned["_app"]);
             return json_encode($assigned);
-        } else {
-            // RENDER AS HTML
-            
+        } else {// RENDER AS HTML
             // Content already rendered
             if ($this->renderedContent && $this->isRendered) {
                 return $this->renderedContent;
             }
-            
-            /**
-             * LoadTemplates
-             * Templates that are set in the config.ini of the module with key/value
-             * These templates will be access with their alias in the view page. ie: {{%include @PageAliasName}}
-             */
-            $loadTemplates = $this->controller->getConfig("views.loadTemplate");
-            if (is_array($loadTemplates)) {
-                foreach ($loadTemplates as $pageKey => $pagePath) {
-                    $this->addTemplate($pageKey, $pagePath);
-                }
+
+            // _app.title
+            if (isset($this->meta["title"])) {
+                $this->assign("_app.title", $this->meta["title"]);
             }
 
-            // this.title
-            if ($this->pageTitle) {
-                $this->assign("this.title", $this->pageTitle);
-                $this->setMetaTag("TITLE", $this->pageTitle);
-            }
-            // this.description
-            if ($this->pageDescription) {
-                $this->assign("this.description", $this->pageDescription);
-                $this->setMetaTag("Description", $this->pageDescription);
-            }
-
-             // this.flashMessage
+             // _app.flashMessage
             $flashMessage = $this->getFlashMessage();
             if ($flashMessage) {
-                $this->assign("this.flashMessage", $flashMessage);
-                $this->clearFlash();
+                $this->assign("_app.flashMessage", $flashMessage);
+                $this->clearFlashMessage();
             }
-            // this.error
+            
+            // _app.error
             if ($this->hasError()) {
-                $this->assign("this.error", $this->getMessage("error"));
+                $this->assign("_app.error", $this->getMessage("error"));
             }
 
-            $this->assign("this", [
-                    "module"    => [
-                        "name"      => $this->moduleName,
-                        "url"       => $this->controller->getModuleUrl(),
-                        "assets"    => $this->getModuleAssetsDir()
-                    ],
-
-                    "controller" => [
-                        "name"      => $this->controller->getControllerName(),
-                        "url"       => $this->controller->getControllerUrl()
-                    ],
-
-                    "action" => [
-                        "name"      => $this->controller->getActionName(),
-                        "url"       => $this->controller->getActionUrl()
-                    ],
-
-                    "global"       => [
-                        "url"   => $this->controller->getBaseUrl(),
-                        "assets"    =>  $this->getPublicAssetsDir()
-                    ],
-
-                    "year"      => date("Y"),
-                    "siteUrl"   => $this->controller->getSiteUrl(),
+            $this->assign("_app", [
+                    "year"              => date("Y"),
+                    "site_url"          => $this->controller->getSiteUrl(),
+                    "base_url"          => $this->controller->getBaseUrl(),
+                    "meta"              => $this->meta,
+                    "shared_assets"     => $this->getPublicAssetsDir(),
+                    "assets"            => $this->getModuleAssetsDir(),
+                    "module_name"       => $this->controller->getModuleName(),
+                    "module_url"        => $this->controller->getModuleUrl(),
+                    "controller_name"   => $this->controller->getControllerName(),
+                    "controller_url"    => $this->controller->getControllerUrl(),
+                    "action_name"       => $this->controller->getActionName(),
+                    "action_url"        => $this->controller->getActionUrl(),
             ]);
 
             $renderName = $this->templateKeys["view"];
-            $this->addTemplate($this->templateKeys["view"], $this->actionView, $this->isActionViewAbsolute);
+            $this->addTemplate(
+                        $this->templateKeys["view"], 
+                        $this->actionView, 
+                        $this->isActionViewAbsolute
+                    );
 
             if ($this->layout) {
                $renderName = $this->templateKeys["layout"];
-               $this->addTemplate($this->templateKeys["layout"], $this->layout, $this->isLayoutAbsolute);
+               $this->addTemplate(
+                        $this->templateKeys["layout"], 
+                        $this->layout,
+                        $this->isLayoutAbsolute
+                    );
             }
 
             $this->isRendered = true;
@@ -382,20 +389,18 @@ class View
             $this->parse();
 
             if (isset($this->templates[$renderName])) {
-                $template = (new View\Mustache($this->templates[$renderName], $this->getAssigned()))->render();
-
-                // replace the raws and return
-                $content = str_replace(array_keys($this->definedRaws),array_values($this->definedRaws),$template);
-
+                $this->renderedContent = $this->engine->render(
+                                                $this->templates[$renderName], 
+                                                $this->getAssigned()
+                                        );
                 // Strip HTML Comments
                 if ($this->controller->getConfig("views.stripHtmlComments")) {
-                   $content = Helpers::stripHtmlComments($content);
+                   $this->renderedContent = 
+                           Helpers::stripHtmlComments($this->renderedContent);
                 }
-                $this->renderedContent = $content;
             }
             return $this->renderedContent;            
         }
-
     }
 
    
@@ -410,171 +415,52 @@ class View
     {
         return $this->controllersViewPath . "/" . strtolower($path) . $this->ext;
     }
-
-
-
-    /**
-     * Create meta tags
-     * 
-     * @param  string $tag     - the tag name
-     * @param  string $content - content
-     * @return \Core\View
-     *
-     * @example
-     * {{#app.metaTags}}
-     *     {{{.}}}
-     * {{/app.metaTags}}
-     */
-    public function setMetaTag($tag, $content = "")
-    {
-        switch (strtolower($tag)) {
-            case "keywords":
-                $tagName = "keywords";
-                $content = implode(",", array_unique(array_map("trim", explode(",", $content))));
-                break;
-            case "lang":
-                $metaTag = "<META HTTP-EQUIV=\"CONTENT-LANGUAGE\" CONTENT=\"{$content}\">";
-                break;
-            case "noindex":
-                $tagName = "robots";
-                $content = "NOINDEX,NOFOLLOW";
-                break;
-            case "canonical":
-                $metaTag = "<link rel=\"canonical\" href=\"{$content}\">";
-                break;
-            default:
-                $tagName = $tag;
-                break;
-        }
-
-        if ($tagName){
-            $metaTag = "<META NAME=\"$tagName\" CONTENT=\"$content\">";
-        }
-        if ($metaTag) {
-            $this->assign("this.metaTags",array($metaTag));
-        }
-
-        return $this;
-    }
-
-    /**
-     * OPENGRAPH
-     * To create FB opengraph properties
-     *
-     * @example
-     * {{#app.openGraphTags}}
-     *     {{{.}}}
-     * {{/app.openGraphTags}}
-     */
-    public function setOpenGraphTag($Prop, $content = "")
-    {
-        if (is_array($Prop)) {
-            foreach ($Prop as $property => $content) {
-                if (is_array($content)) {
-                    foreach ($content as $cv) {
-                        $this->setOpenGraphTag($property, $cv);
-                    }
-                } else {
-                    $this->setOpenGraphTag($property, $content);
-                }
-            }
-        } elseif (is_string($Prop) && $content) {
-            $this->assign("this.openGraphTags", 
-                    array("<meta property=\"$property\" content=\"$content\"/>"));
-        }
-    }
-
     
     /**
      * To add a template file
      * 
-     * @param  type $name - the name of the template. Can be used to call it: {{%include @name}}
+     * @param  type $name - the name of the template. Can be used to call it: {{!include @name}}
      * @param  type  $src - the filepath relative to the working dir
      * @return Voodoo\Core\View
      */
     public function addTemplate($name, $src, $absolutePath = false)
     {
-        $src = $this->getRealPath($src, $absolutePath);
+        if (! $absolutePath) {
+            $controllerName = $this->controller->getControllerName();
+            $src = (preg_match("/^({$controllerName}\/|_[\w]+)/", $src)) 
+                                ? $src : "{$controllerName}/{$src}";
+            $src = $this->addExt($this->templateDir . "/" . $src);
+        } 
         $content = $this->loadFile($src, true);
 
         /**
-         * {{%layout path}}
-         * Only @pageView checks for the layout
+         * {{!use_layout layout_name}}
+         * Only @action_view checks for the layout
          * It parses the template first to make sure it doesn't contain any raw tags
          */
         if ($name == $this->templateKeys["view"]) {
             $content = $this->parseTemplate($content);
-            if(preg_match("/{{%layout\s+(.*?)\s*}}/i", $content, $matches)){
+            if(preg_match("/{{!use_layout\s+(.*?)\s*}}/i", $content, $matches)){
                $content = str_replace($matches[0], "", $content);
-               $this->setLayout($matches[1]);
+               $this->useLayout($matches[1]);
            }           
         }
-        
         $this->addTemplateString($name, $content);
         return $this;
     }
   
     /**
-     * Get the real path of the file to include
-     * 
-     * @param string $src
-     * @param bool $absolutePath
+     * Add file extension if ommitted
+     * @param  string $file
      * @return string
      */
-    private function getRealPath($src, $absolutePath = false)
+    private function addExt($file)
     {
-        /**
-         * To add a template file
-         * To make it easy, you can load views of other modules in the current template
-         * To do so, there are are two rules:
-         *
-         * 1. Single leading slash / mean to access another controller in the current module. ie: /Controller/view-file
-         * 2. Double leading slash // means to access another module. ie: //ModuleName/Controller/view-file
-         * 3. Triple leading slash !/ means to access another app module. ie: !/AppName/ModuleName/Controller/view-file
-         * 3. If there are no slash, it will just call it from the current controller
-         *
-         * Access to absolute dir:
-         * Absolute directory start with _WHATEVERNAME. These name will always be access from the root of the template.
-         * They are but not limited to: _includes, _layouts ...
-         *
-         * Access _includes from other modules, to do so:
-         *     //ModuleName/_includes/file.html
-         */
-        if (preg_match("/^\//", $src)) {
-
-            // Current Module
-            if (preg_match("/^\/([a-z0-9]+)/i", $src)) {
-                $src = $this->moduleName . $src;
-            } else if (preg_match("/^\/\/([a-z0-9]+)/i", $src)) {// Outter module
-                $src = preg_replace("/^\/\//", "", $src);
-            }
-
-            $segments = explode("/", $src, 3);
-
-            $Module = Helpers::camelize($segments[0], true);
-
-            // Dont't convert absolute dir. Dir starts with _
-            $Controller = preg_match("/^_[\w]+$/i", $segments[1]) ? $segments[1] : Helpers::camelize($segments[1], true);
-            $viewAction = $segments[2];
-            $src = ($absolutePath || preg_match("/^({$this->controllerName}|_[\w]+)/", $src)) ? $src : "{$this->controllerName}/{$src}";
-            if ($Controller) {
-                $src = $this->addFileExtension($this->applicationPath . "/{$Module}/Views/{$Controller}/$viewAction");
-                $absolutePath = true;
-            }
+        if (! pathinfo($file, PATHINFO_EXTENSION)){
+            return $file . $this->ext;
         }
-
-        /**
-         * Properly format the filename
-         * If absolute path or is in _includes or the controller dir, leave as is
-         * Second cond: to add the extension if it's missing
-         */
-        $src = ($absolutePath || preg_match("/^({$this->controllerName}\/|_[\w]+)/", $src)) ? $src : "{$this->controllerName}/{$src}";
-        $src = $this->addFileExtension($src);
-        $src = ($absolutePath) ? $src : ($this->viewsPath . "/{$src}");
-        
-        return $src;
+        return $file;
     }
-    
     /**
      * To add a template string
      * @param  string           $name
@@ -618,18 +504,76 @@ class View
      * @return string
      * @throws Voodoo\Core\View\Exception
      */
-    protected function loadFile($src, $absolute=false)
+    protected function loadFile($src)
     {
-         $src = ($absolute == true) ? $src : $this->templateDir.$src;
-         
          if (! file_exists($src)) {
-             throw new Exception\View("File '{$src}' is missing");
+             throw new Exception\View("File '{$src}' doesn't exist");
          } else {
              return file_get_contents($src);
          }
     }
-    
-    
+
+    /**
+     * Parse the template to extract {{!include }} in
+     * {{!include}} will load file from the application direcptory
+     * ie: {{!include AppName/Module/Views/filename}}
+     * 
+     * @param type $template
+     * @return string
+     */
+    private function parseTemplate($template)
+    {
+        if (preg_match_all("/{{!include\s+(.*?)\s*}}/i", $template, $matches)) {
+            foreach ($matches[1] as $k => $src) {
+                if (! preg_match("/^@/",$src)) {                    
+                    $src = $this->appRootDir . "/" . $this->addExt($src);
+                    $tkey = md5($src);
+                    if(!isset($this->templates[$tkey])) {
+                        $this->addTemplate($tkey, $src, true);
+                    }
+                    $template = $this->parseTemplate(
+                                    str_replace(
+                                            $matches[0][$k],
+                                            $this->templates[$tkey],
+                                            $template
+                                    )
+                                );
+                }
+            }
+        }
+        return $template;
+    }
+
+    /**
+     * Parse the template
+     * 
+     * @return $this
+     */
+    private function parse()
+    {
+        if (! $this->parsed) {
+            $this->parsed = true;
+            foreach ($this->templates as $kk => $template) {
+                if (preg_match_all("/{{!include\s+(.*?)\s*}}/i",$template,$matches)) {
+                    foreach ($matches[1] as $k=>$src) {
+                        // Anything with @Reference
+                        if (preg_match("/^@/",$src)) {
+                            $tplRef = preg_replace("/^@/","",$matches[1][$k]);
+                            if (isset($this->templates[$tplRef])) {
+                                $this->templates[$kk] = str_replace(
+                                                        $matches[0][$k],
+                                                        $this->templates[$tplRef],
+                                                        $this->templates[$kk]
+                                                    );
+                            }
+                        }
+                    }
+                }
+            }            
+        }
+        return $this;
+    }    
+ 
     /**
      * To create the module's assets dir
      * Base on the config file
@@ -638,7 +582,6 @@ class View
     private function getModuleAssetsDir()
     {
         $path = $this->controller->getConfig("views.moduleAssetsDir");
-
         switch (true) {
             // Assets in current Module
             case preg_match("/^(_[\w]+)/", $path):
@@ -676,105 +619,14 @@ class View
         // Shared assets starts from the root
         return
             $this->controller->getSiteUrl() . "/" . preg_replace("/^\//", "",
-                    str_replace(Env::getFrontControllerPath(), "", $path ? : Env::getPublicAssetsPath()));
+                    str_replace(Env::getFrontControllerPath(), 
+                                "", 
+                                $path ? : Env::getPublicAssetsPath()));
     }
-
-    /**
-     * Add file extension if ommitted
-     * @param  string $file
-     * @return string
-     */
-    private function addFileExtension($file)
-    {
-        if (!pathinfo($file, PATHINFO_EXTENSION)){
-            return $file . $this->ext;
-        }
-        return $file;
-    }
-
-    /**
-     * parseTemplate
-     * Once we receive template we'll want to parse it and get it ready
-     * @param  string $template
-     * @return string
-     */
-    private function parseTemplate($template)
-    {
-        /**
-         * Raw
-         * {{%raw}}{{/raw}}
-         * extract everything between raw, and replace them on render
-         */
-        if (preg_match_all("/{{%raw}}(.*?){{\/raw}}/si",$template,$matches)) {
-            $rawCount = count($this->definedRaws);
-            foreach ($matches as $k=>$v) {
-                if (isset($matches[1][$k])) {
-                    ++$rawCount;
-                    $name = "__TM::RAW{$rawCount}__";
-                    $this->definedRaws[$name] = $matches[1][$k];
-                    $template = str_replace($matches[0][$k],$name,$template);
-                }
-            }
-        }
-
-        /**
-         * Include
-         * {{%include file.html}}
-         * To include other template file into the current one
-         * {{%include file.html}} will load file in the working directory of the system
-         * {{%include !/my/outside/dir/file.html}} will load file from the absolute path
-         */
-        if (preg_match_all("/{{%include\s+(.*?)\s*}}/i",$template,$matches)) {
-
-            foreach ($matches[1] as $k => $src) {
-                if (!preg_match("/^@/",$src)) {
-                    $absolute = preg_match("/^!/",$src) ? true : false;
-
-                    $src = preg_replace("/^!/","",$src);
-
-                    $tkey = md5($src);
-
-                    if(!isset($this->templates[$tkey])) {
-                        $this->addTemplate($tkey, $src, $absolute);
-                    }
-                    $template = $this->parseTemplate(str_replace($matches[0][$k],$this->templates[$tkey],$template));
-                }
-            }
-        }
-        return $template;
-    }
-
-    /**
-     * Parse the template
-     * 
-     * @return $this
-     */
-    private function parse()
-    {
-        if ($this->parsed){
-            return false;
-        }
-
-        $this->parsed = true;
-        foreach ($this->templates as $kk => $template) {
-            if (preg_match_all("/{{%include\s+(.*?)\s*}}/i",$template,$matches)) {
-                foreach ($matches[1] as $k=>$src) {
-                    // Anything with @Reference
-                    if (preg_match("/^@/",$src)) {
-                        $tplRef = preg_replace("/^@/","",$matches[1][$k]);
-                        if (isset($this->templates[$tplRef])) {
-                            $this->templates[$kk] = str_replace($matches[0][$k],$this->templates[$tplRef],$this->templates[$kk]);
-                        }
-                    }
-                }
-            }
-        }
-        
-        return $this;
-    }    
     
     public function __string()
     {
         return $this->render();
     }
+  
 }

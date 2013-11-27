@@ -301,8 +301,10 @@ class Voodooist
         $this->applicationPath = Core\Env::getAppRootDir()."/{$this->applicationName}";
         $this->applicationNS = "App\\{$this->applicationName}";
         $this->mkdir($this->applicationPath);
-        $file = $this->applicationPath."/Config".Core\Config::EXT;
-        $this->saveTpl("application_config",$file,["APPLICATIONNAME"=>$this->applicationName]);
+        $config = $this->applicationPath."/Config".Core\Config::EXT;
+        $routes = $this->applicationPath."/Routes".Core\Config::EXT;
+        $this->saveTpl("application_config",$config,["APPLICATIONNAME"=>$this->applicationName]);
+        $this->saveTpl("application_routes",$routes,["APPLICATIONNAME"=>$this->applicationName]);
     }
 
 
@@ -335,7 +337,7 @@ class Voodooist
                 $viewsDir = $this->applicationPath."/".$module."/Views";
                 $this->mkdir($viewsDir);
                 $this->mkdir($viewsDir."/_assets");
-                $this->mkdir($viewsDir."/_includes");
+                $this->mkdir($viewsDir."/_components");
                 $this->mkdir($viewsDir."/_layouts");
             }
 
