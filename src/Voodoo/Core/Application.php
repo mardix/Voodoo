@@ -28,7 +28,7 @@ use DirectoryIterator,
 class Application
 {
     CONST NAME = "VoodooPHP";
-    CONST VERSION = "1.10";
+    CONST VERSION = "1.10.1";
 
 /*******************************************************************************/
 
@@ -61,25 +61,32 @@ class Application
         $appName = self::formatName($appName);
 
         if (! is_dir(Env::getAppRootDir())) {
-            throw new Exception("The application root: 'App' directory doesn't exist at: ". Env::getAppRootDir());
+            throw new Exception("The application root: 'App' directory doesn't 
+                                exist at: ". Env::getAppRootDir());
         } else {
 
             Autoloader::register(dirname(Env::getAppRootDir()));
             $this->appDir = Env::getAppRootDir()."/{$appName}";
             
             if(! is_dir($this->appDir)) {
-                throw new Exception("The application name: '{$appName}' doesn't exist at: ". $this->appDir);
+                throw new Exception("The application name: '{$appName}' doesn't 
+                                    exist at: ". $this->appDir);
             }
             $this->setUri($uri);
             $this->baseNamespace = "App\\{$appName}";
-            $this->config = (new Config("VoodooApp"))->loadFile($this->appDir."/Config".Config::EXT);
-            $this->setRouting(Config::Routes()->get("path") ?: []);
+            $this->config = (new Config("VoodooApp"))
+                            ->loadFile($this->appDir."/Config".Config::EXT);
+            $routes = (new Config("AppRoutes"))
+                            ->loadFile($this->appDir."/Routes".Config::EXT);
+            $this->setRouting($routes->get("path") ?: []);
 
             if ($this->config->get("application.defaultModule")) {
-                $this->defaultModule = $this->config->get("application.defaultModule");
+                $this->defaultModule = 
+                                $this->config->get("application.defaultModule");
             }
             if ($this->config->get("application.defaultController")) {
-                $this->defaultController = $this->config->get("application.defaultController");
+                $this->defaultController = 
+                            $this->config->get("application.defaultController");
             }
         }
     }
@@ -173,7 +180,9 @@ class Application
           * By default, if no module is found, the 'Main' module will be accessed
           * If a module is not specified, it will fall in the main
           */
-        $currentSegment = isset($this->routingSegments[0]) ? $this->routingSegments[0] : "";
+        $currentSegment = isset($this->routingSegments[0]) 
+                                    ? $this->routingSegments[0] 
+                                    : "";
         $this->moduleName = self::formatName($currentSegment);
         if (! $this->moduleName || ! is_dir($this->getModulesPath($this->moduleName))) {
             $this->moduleName = "";
@@ -181,7 +190,8 @@ class Application
              * Module Discovery
              * We'll evaluate each module name to see if any exactly match the requested module name
              */
-            $currentSegment = isset($this->routingSegments[0]) ? $this->routingSegments[0] : "";
+            $currentSegment = isset($this->routingSegments[0]) 
+                                            ? $this->routingSegments[0] : "";
             $s0  = strtolower(self::formatName($currentSegment));
             foreach (new DirectoryIterator($this->getModulesPath()) as $fileInfo) {
                 if (! $fileInfo->isDot() && $fileInfo->isDir()) {
@@ -196,7 +206,8 @@ class Application
                $this->moduleName = self::formatName($this->defaultModule);
             }
             if (! is_dir($this->getModulesPath($this->moduleName))){
-               throw new Exception\Module("Module: '{$this->moduleName}' doesn't exist!");
+               throw new Exception\Module("Module: '{$this->moduleName}' 
+                                                                doesn't exist!");
             }
         } else {
             array_shift($this->routingSegments);
@@ -208,7 +219,8 @@ class Application
           * The default controller is Index. And it's loaded by default if the controller doesn't exist or was not specified
           */
          try {
-             $currentSegment = isset($this->routingSegments[0]) ? $this->routingSegments[0] : "";
+             $currentSegment = isset($this->routingSegments[0]) 
+                                            ? $this->routingSegments[0] : "";
              $this->controllerName = self::formatName($currentSegment);
              if (! class_exists($this->getControllerNS())) {
 
@@ -238,7 +250,9 @@ class Application
                  // Fall back to Index
                  $this->controllerName = self::formatName($this->defaultController);
              } catch (ReflectionException $e2) {
-                 throw new Exception\Controller("Controller :'$this->controllerName' is not found in Module: '{$this->moduleName}'","",$e2->getPrevious());
+                 throw new Exception\Controller("Controller :
+                     '$this->controllerName' is not found in Module: 
+                         '{$this->moduleName}'","",$e2->getPrevious());
              }
          }
 
@@ -246,7 +260,8 @@ class Application
           * Set the Action: action$NameOfMethod()
           * default: actionIndex()
           */
-        $currentSegment = isset($this->routingSegments[0]) ? $this->routingSegments[0] : "";
+        $currentSegment = isset($this->routingSegments[0]) 
+                                            ? $this->routingSegments[0] : "";
         $tmpAction = self::formatName($currentSegment);
         if ($tmpAction) {
            $publicActions = $this->callControllerReflection()->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -264,7 +279,9 @@ class Application
             } else {
                $this->action = "Index";
                if(! $this->callControllerReflection()->hasMethod("action{$this->action}")) {
-                   throw new Exception\Action("Action: 'action{$this->action}' is missing in: '".$this->callControllerReflection()->getName()."'");
+                   throw new Exception\Action("Action: 'action{$this->action}' 
+                            is missing in:
+                            '".$this->callControllerReflection()->getName()."'");
                }
             }
         } else {
@@ -277,7 +294,8 @@ class Application
              $Controller = new $ControllerN($this->routingSegments);
              $Controller->getAction($this->action);
          } else {
-             throw new Exception\Controller("Controller: '{$ControllerN}' doesn't exist!");
+             throw new Exception\Controller("Controller: 
+                                                '{$ControllerN}' doesn't exist!");
          }
         return $this;
     }
@@ -325,7 +343,8 @@ class Application
     private function parseRoutes()
     {
         $uri = (new Router($this->routes))->parse($this->uri);
-        $this->routingSegments = explode("/", preg_replace("|/*(.+?)/*$|", "\\1", $uri));
+        $this->routingSegments = 
+                        explode("/", preg_replace("|/*(.+?)/*$|", "\\1", $uri));
         return $this;
     }
 

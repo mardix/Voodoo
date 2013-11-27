@@ -404,7 +404,8 @@ abstract class Controller
         if ($clsRef->isSubclassOf(__CLASS__)) {
             return (new $controller($params))->disableView();
         } else {
-            throw new Exception\Controller("Controller '$controller' doesn't exists or not an instance of Voodoo\Core\Controller");
+            throw new Exception\Controller("Controller '$controller' doesn't 
+                            exists or not an instance of Voodoo\Core\Controller");
         }
     }
 
