@@ -55,7 +55,7 @@ Modules improve maintainability by enforcing logical boundaries between componen
 - [VoodOrm](https://github.com/mardix/VoodOrm)
 - Annotation
 - [Paginator](https://github.com/mardix/Paginator)
-- [Handlebars.php](https://github.com/mardix/handlebars.php)
+- [Handlebars](https://github.com/mardix/Handlebars)
 - Bootstrap CSS/JS framework
 - HTTP Request
 - Voodooist (generate code on the fly)
@@ -763,16 +763,15 @@ If Module doesn't exist, it will fall back to *Main* module
 
 ### Application Routes (Customed Routes)
 
-Sometimes, you may want to change the way the URL is displayed. Maybe because of SEO purposes, or something has changed, or whatever... you will have to alter the routes in the application config fille at: /App/$AppName/Config.conf.php
+Sometimes, you may want to change the way the URL is displayed. Maybe because of SEO purposes, or something has changed, or whatever... you will have to alter the routes in the application config fille at: /App/$AppName/Routes.conf.php
 
-Each application contains a `Config.conf.php` file. It is loaded by `Voodoo\Core\Application` upon initialization, and contains the necessary settings such as which controller to load by default, the views settings etc. It also contains your application's routes. 
+Each application contains a `Routes.conf.php` file. It is loaded by `Voodoo\Core\Application` upon initialization, and contains the necessary settings such as which controller to load by default, the views settings etc. It also contains your application's routes. 
 
-If you open /App/Www/Config.conf.php, look for the routes key, and you should fine something that looks like this: 
+If you open /App/Www/Routes.conf.php, look for the routes key, and you should fine something that looks like this: 
  
-/App/Www/Config.conf.php
+/App/Www/Routes.conf.php
 
-	[routes]
-	    path["(:any)"] = "$1"
+    path["(:any)"] = "$1"
 
 It, by default, uses the basic route schema
 
@@ -791,19 +790,17 @@ But you want to short it to: `site.com/profile/mardix`
 
 You can create a new route path in your Config.conf.php file like this
 
-	[routes]
-		path["/profile/(:any)"] = "/Users/Profile/Info/$1"
-		path["(:any)"] = "$1"
+	path["/profile/(:any)"] = "/Users/Profile/Info/$1"
+	path["(:any)"] = "$1"
 
 Now when someoneone enters `site.com/profile/mardix` , the application will be re-routed to `/Users/Profile/Info/mardix`.
 
 You can add as many routes as you want. Also, the routes can have as many directives as you want and they support regex for more advanced matching.
 
-	[routes]
-		path["/profile/(:any)"] = "/Users/Profile/Info/$1"
-		path["/music/([rap|techno|compas]+)/(:num)"] = "/Music/Selection/genre/$1/song/$2"
-		path["/blog/(:alnum)/(:num)/(:any)"] = "Main/Blog/Category/$1/post/$2/$3/"
-		path["(:any)"] = "$1"
+	path["/profile/(:any)"] = "/Users/Profile/Info/$1"
+	path["/music/([rap|techno|compas]+)/(:num)"] = "/Music/Selection/genre/$1/song/$2"
+	path["/blog/(:alnum)/(:num)/(:any)"] = "Main/Blog/Category/$1/post/$2/$3/"
+	path["(:any)"] = "$1"
 
 The /music route: site.com/music/rap/1526 -> /Music/Selection/genre/{rap}/song/{1526}
 	
@@ -828,10 +825,9 @@ The /music route: site.com/music/rap/1526 -> /Music/Selection/genre/{rap}/song/{
 
 *It is important to understand that routes are matched in the order they are added, and as soon as a URL matches a route, routing is essentially "stopped" and the remaining routes are never tried. Because the default route matches almost anything, including an empty url, new routes must be place before it.*
 
-	[routes]
-		path[/article/(:num)] = "/Blog/Article/Read/$1"
-		path["/profile/(:any)"] = "/Main/Profile/Info/$1"
-		path["(:any)"] = "$1"
+	path[/article/(:num)] = "/Blog/Article/Read/$1"
+	path["/profile/(:any)"] = "/Main/Profile/Info/$1"
+	path["(:any)"] = "$1"
 
 ---
 
@@ -870,7 +866,7 @@ App/Www/Main/Controller/Index.php
 
 	    public function actionIndex()
 	    {
-			$this->view()->setPagetTitle("Hello World");
+			$this->view()->setTitle("Hello World");
 	    }
 
 
@@ -898,14 +894,14 @@ That's how a template file looks like with mustache template:
 
 	<html>
 		<head>
-			<title>{{this.title}}</title>
+			<title>{{_app.title}}</title>
 		</head>
 
 		<body>
 			<ul>
-				{{#articles}}
+				{{#each articles}}
 					<li>{title}</li>
-				{{/articles}}
+				{{/each articles}}
 			</ul>
 		</body>
 	</html>
@@ -1217,9 +1213,9 @@ App/Www/Main/Views/Index/Articles.html
 		<h3>Latest Articles</h3>
 
 		<ul>
-			{{#articles}}
-				<li><a href='{{this.controller.url}}/read/{{id}}'>{{title}}</a></li>
-			{{/articles}}
+			{{#each articles}}
+				<li><a href='{{../_app.controller_url}}/read/{{id}}'>{{title}}</a></li>
+			{{/each}}
 		</ul>
 
 	</div>
@@ -1230,7 +1226,7 @@ App/Www/Main/Views/Index/Articles.html
 
 Voodoo requires a container template file. The container is a place holder for the action's view. The container may contain  header, footer, sidebar etc.. but must include the tag below to include the action's view page
 
-		{{%include @actionView}}
+		{{!include @action_view}}
 
 Technically, the container is the layout of your application, and your action files are files to be included in the layout.
 
@@ -1240,15 +1236,15 @@ So let's create the container. It is placed at:
 
 	<html>
 		<head>
-			<title>{{this.title}}</title>
+			<title>{{_app.title}}</title>
 		</head>
 
 		<body>
 			{{%include _layouts/header}}
 
-				{{%include @actionView}}
+				{{!include @action_view}}
 
-			{{%include _layouts/footer}}
+			{{> _layouts/footer}}
 		</body>
 	</html>
 
