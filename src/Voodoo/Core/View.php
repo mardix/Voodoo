@@ -17,13 +17,24 @@
  * 
  * Mustache Extension
  * == New Markups
- *      - Layout: To change the layout to another one
- *              {{!use_layout $default}} will include _layout/default.html
+ *      === LAYOUT ===
+ *      - Layout: To change the layout to another one from Views/_layout directory
+ *              {{!use_layout default}} will include _layout/default.html
  * 
- *      - Include @ - Include file loaded by PHP using $this->addTemplate($name, $src)
- *              {{!include @action_view}}
- *      - Include. Allow you to include views from out of scope (App under /App)
- *              {{!include AppName/ModuleName/Views/$filepath}}      
+ *      === INCLUDE ===
+ *      {{!include $path}} is added to include file using $this->addTemplate during parsing
+ *      It's best to use {{!include}} when the included file will contains other customs included
+ *      
+ *      $path:
+ *          {{!include @action_view}}. Include a file by @name, when it was included
+ *                                  directly with $this->addTemplate($name, $src)
+ *          {{!include filename}}. Without ../ or / it will include file from the current
+ *                                  view directory of the controller
+ *          {{!include ../filanem}}. With the ../ it will include file from the
+ *                                  /Views of the current module
+ *          {{!include /AppName/ModuleName/Views/filename}}. Include a file from
+ *                                  a different Appname, with a full path
+ *   
  */
 
 namespace Voodoo\Core;
@@ -514,19 +525,24 @@ class View
     }
 
     /**
-     * Parse the template to extract {{!include }} in
-     * {{!include}} will load file from the application direcptory
-     * ie: {{!include AppName/Module/Views/filename}}
+     * Parse the template and catch any {{!include }} expression
      * 
-     * @param type $template
+     * @param string $template
      * @return string
      */
     private function parseTemplate($template)
     {
         if (preg_match_all("/{{!include\s+(.*?)\s*}}/i", $template, $matches)) {
             foreach ($matches[1] as $k => $src) {
-                if (! preg_match("/^@/",$src)) {                    
-                    $src = $this->appRootDir . "/" . $this->addExt($src);
+                if (! preg_match("/^@/",$src)) {
+                    if (preg_match("/^\//", $src)) { // {{!include /outOfScopePath}}
+                        $src = $this->appRootDir . $this->addExt($src);
+                    } else if (preg_match("/^\.\.\//", $src)) { // {{!include ../pathFromViewsRoot}}
+                        $src = str_replace("..", "", $src);
+                        $src = $this->templateDir . $this->addExt($src);  
+                    } else { // {{!include pathOfCurrentControllersViewPath}}
+                        $src = $this->controllersViewPath. "/" . $this->addExt($src);
+                    } 
                     $tkey = md5($src);
                     if(!isset($this->templates[$tkey])) {
                         $this->addTemplate($tkey, $src, true);

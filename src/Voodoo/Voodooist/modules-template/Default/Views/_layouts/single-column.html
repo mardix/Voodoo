@@ -3,15 +3,15 @@
 single-column.html
 -->
 <HTML>
-    {{> _layouts/head-tag}}
+    {{!include ../_layouts/head-tag}}
 
     <body>
         
-        {{> _layouts/header}}
+        {{!include ../_layouts/header}}
 
         <div class="container">
 
-            {{> _components/flash-message}}
+            {{!include ../_components/flash-message}}
 
             <div class="row">
                 <div class="col-md-12">
@@ -21,7 +21,7 @@ single-column.html
             </div>
         </div>
 
-        {{> _layouts/footer}}
+        {{!include ../_layouts/footer}}
         
     </body>
 </HTML>
