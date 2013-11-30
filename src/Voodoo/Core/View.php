@@ -215,6 +215,15 @@ class View
         return $this;
     }
     
+    /**
+     * Return the view engine
+     * 
+     * @return Handlebars\Handlebars
+     */
+    public function getEngine()
+    {
+        return $this->engine;
+    }
 /*******************************************************************************/
 
     /**
