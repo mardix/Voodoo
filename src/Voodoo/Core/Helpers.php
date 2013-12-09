@@ -965,13 +965,13 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
      *  getArrayDotNotationValue($A,"location.ZipCode")
      *  -> 25168
      */
-    public static function getArrayDotNotationValue(Array $Data, $dotNotationKeys = ".", $emptyValue = "")
+    public static function getArrayDotNotationValue(Array $Data, $dotNotationKeys = "", $emptyValue = "")
     {
         $dotNotationKeys = trim($dotNotationKeys, '.');
-        if(!$dotNotationKeys)
+        if($dotNotationKeys === '')
             return $Data;
 
-        $dotKeys = explode(".",$dotNotationKeys);
+        $dotKeys = explode(".", $dotNotationKeys);
         foreach ($dotKeys as $key) {
             if (!isset($Data[$key]))
                 return $emptyValue;
