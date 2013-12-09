@@ -967,8 +967,7 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
      */
     public static function getArrayDotNotationValue(Array $Data, $dotNotationKeys = ".", $emptyValue = "")
     {
-        // Eliminate the last dot
-        $dotNotationKeys = preg_replace("/\.$/","",$dotNotationKeys);
+        $dotNotationKeys = trim($dotNotationKeys, '.');
         if(!$dotNotationKeys)
             return $Data;
 
