@@ -48,17 +48,16 @@ class Request
     }
 
     /**
-     * Return the params of both GET or POST
-     * @param string $key
-     * @param mixed $default
+     * Return all the params
+     * @return Array
      */
-    public static function getParam($key = null, $default = null)
+    public static function getParams()
     {
         if (! self::$params) {
             $params = array_merge(self::getGetParams(), self::getPostParams());
             self::$params = array_filter($params);
         }
-        return (isset(self::$params[$key])) ? self::$params[$key] : $default;
+        return self::$params;
     }
           
 

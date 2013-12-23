@@ -187,23 +187,32 @@ abstract class Controller
     }
 
     /**
-     * __destruct() will still be executed even if the explicit call of exit();
-     * abort() will force the destructor to not execute the finalize or render
-     * An explicit call to exit() is also necessary after $this->abort() to 
-     * completely exit out
+     * Abort the execution of finalize() and renderView() of the application in __destruct
      * 
-     * @param bool $abort
      * @return \Voodoo\Core\Controller
      */
-    final protected function abort($abort = true)
+    final protected function abort()
     {
-        $this->abort = $abort;
+        $this->abort = true;
         return $this;
+    }
+    
+    /**
+     * To completely exit the application just like calling exit(). 
+     * __destruct will be invoked, but will not finalize() and renderView()
+     * Calling PHP exit() will still cause finalize() and renderView() to execute
+     * 
+     * @return void
+     */
+    final protected function _exit()
+    {
+        $this->abort();
+        exit();
     }
 //------------------------------------------------------------------------------
 
     /**
-     * Get POST ot GET params
+     * Get POST or GET param
      *
      * @param string $key
      * @param mixed $default
@@ -211,9 +220,20 @@ abstract class Controller
      */
     public function getParam($key = null, $default = null)
     {
-        return Http\Request::getParam($key, $default);
+        $params = $this->getParams();
+        return (isset($params[$key])) ? $params[$key] : $default;
     }
-
+    
+    /**
+     * Return all the request params of GET and POST
+     * 
+     * @return Array
+     */
+    public function getParams()
+    {
+        return Http\Request::getParams();
+    }
+    
     /**
      * Segements are part of the URL separated by /
      * ie: /gummy/bear/?q=hello 'gummy' and 'bear' are segments.
@@ -731,6 +751,14 @@ abstract class Controller
         return Http\Request::isAjax();
     }
 
+    /**
+     * Return the user agent ip
+     * @return string
+     */
+    public function getIp()
+    {
+        return Http\Request::getIp();
+    }
 
     /**
      * Set the http status code
