@@ -14,7 +14,7 @@
  * @name        Core\Helpers
  * @since       Costant update....
  * @desc        A collection of useful function wrapped into class... Didn't feel like putting functions in their own file,
- *              so I know if call this static class, I will find my function anywhere... yeah yeah yeah... don't judge... it works... lol
+ *              so I know if I call this static class, I will find my function anywhere... yeah yeah yeah... don't judge... it works... lol
  *              Most of these functions was created for special task, but decided to leave them anyway.
  *              They may not be too clean or PSR-2, but it's ok... lol... my bad on that :)
  */
@@ -1222,5 +1222,69 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
             $ret.=chr(mt_rand(0, 255));
         }
         return base64_encode($ret);
+    }
+    
+    
+ /**
+    * To make  a simple curl request
+    * For more advanced curl request, use the Guzzle library
+    * 
+    * @param string $url
+    * @param mixed $params
+    * @param string $method (GET | POST | DELETE | PUT)
+    * @param array $curlOptions
+    * @return Array [(string)response, (array)response_json, (array)headers]
+    */
+    public function curlRequest($url, $params = [], $method = "GET", Array $curlOptions = [])
+    {
+        $ch = curl_init();
+        $strParams = (is_array($params)) ? http_build_query($params) : $params;
+
+        // Method
+        switch (strtoupper($method)) {
+            default:
+            case "GET":
+                $url .= (strpos($url,"?") === FALSE ? "?" : "&").$strParams;
+            break;
+            case "POST":
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+            break;
+            case "PUT":
+            case "DELETE":
+                curl_setopt($ch,CURLOPT_CUSTOMREQUEST,strtoupper($method));
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $strParams);
+            break;
+        }
+        
+        // Secure Url
+        if (preg_match("!^https://!",$url)) {
+           curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
+           curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        }
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_ENCODING, 1);
+        
+        if (count($curlOptions)) {
+            curl_setopt_array($ch, $curlOptions);
+        }
+        
+        $response = curl_exec($ch);
+        $headers = curl_getinfo($ch);
+        $data = [
+            "response" => $response,
+            "response_json" => json_decode($response, true),
+            "headers" => $headers
+        ];
+        $error = curl_error($ch);
+        $errorNo = curl_errno($ch);
+        curl_close ($ch);
+        if($data["response"] === FALSE) {
+            throw new \Exception($error, $errorNo);
+        } else {
+            return $data;
+        }
     }
 }
