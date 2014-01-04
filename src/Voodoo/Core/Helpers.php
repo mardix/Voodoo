@@ -1235,7 +1235,7 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
     * @param array $curlOptions
     * @return Array [(string)response, (array)response_json, (array)headers]
     */
-    public function curlRequest($url, $params = [], $method = "GET", Array $curlOptions = [])
+    public static function curlRequest($url, $params = [], $method = "GET", Array $curlOptions = [])
     {
         $ch = curl_init();
         $strParams = (is_array($params)) ? http_build_query($params) : $params;
