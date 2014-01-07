@@ -23,7 +23,7 @@ class {{CONTROLLER}} extends BaseController
     public function actionIndex()
     {
         // Set the page title
-        $this->view()->setPageTitle("");
+        $this->view()->setTitle("");
 
     }
 

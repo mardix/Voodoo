@@ -43,7 +43,7 @@ class Voodooist
      *      PublicAssets
      * @param bool - to display or not the process on the screen
      */
-    
+
     /**
      * Create your Voodoo  application
      * @param string $rootDir - The root dir where /App will be installed
@@ -429,7 +429,7 @@ class Voodooist
 
                 $inlineCode = "";
                 if (!$Reflection->isSubclassOf("\Voodoo\Core\Controller\Rest")) {
-                    $inlineCode = "\$this->view()->setPageTitle(\"\");";
+                    $inlineCode = "\$this->view()->setTitle(\"\");";
                 }
 
                 $tpl  = $this->parseTpl("controller_action",array("METHODNAME"=>$this->actionName,"INLINECODE"=>$inlineCode));
