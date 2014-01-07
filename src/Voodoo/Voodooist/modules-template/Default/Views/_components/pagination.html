@@ -7,14 +7,14 @@
 
 <div>
     <ul class="pagination">
-        {{#each _app.pagination}}
+        {{#each _.pagination}}
             <li class="
-                {{#if is_current}}active{{/if}} 
-                {{#if is_first}}first{{/if}} 
-                {{#if is_last}}last{{/if}} 
-                {{#if is_prev}}previous{{/if}} 
+                {{#if is_current}}active{{/if}}
+                {{#if is_first}}first{{/if}}
+                {{#if is_last}}last{{/if}}
+                {{#if is_prev}}previous{{/if}}
                 {{#if is_next}}next{{/if}}"
-                >                
+                >
                 <a href="{{url}}">{{label}}</a>
             </li>
         {{/each}}

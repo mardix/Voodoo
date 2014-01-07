@@ -2,7 +2,7 @@
 message.html
 Responsible to show error or success message
 -->
-{{#each _app.flashMessage}}
+{{#each _.flash_message}}
     <div class="alert alert-{{type}}">
         {{message}}
     </div>
