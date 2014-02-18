@@ -8,7 +8,7 @@
  * @github      https://github.com/mardix/Voodoo
  * @package     VoodooPHP
  *
- * @copyright   (c) 2013 Mardix (http://github.com/mardix)
+ * @copyright   (c) 2014 Mardix (http://github.com/mardix)
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
@@ -25,34 +25,76 @@ use Voodoo;
 trait TPagination
 {
     private $paginator = null;
-    
-    
+
+
     /**
-     * Access the Paginator object
-     * 
-     * @param int $totalItems - Set the total items 
+     * Pagination setter
+     *
+     * @param int $totalItems - Set the total items
      * @param int $itemsPerPage - Total items per page
      * @param int $itemsPerPage - Total items per page
      * @return Voodoo\Paginator
      */
-    public function pagination($totalItems = null, $itemsPerPage = null, $navigationSize = null)
+    public function setPagination($totalItems = null, $itemsPerPage = null,
+                                    $navigationSize = null)
     {
         if (! $this->paginator) {
             $pattern = $this->getConfig("views.pagination.pagePattern");
-            $this->paginator = new Voodoo\Paginator($pattern);   
+            $this->paginator = new Voodoo\Paginator($pattern);
         }
-        
+
         if ($totalItems) {
             $itemsPerPage = $itemsPerPage ?: $this->getConfig("views.pagination.itemsPerPage");
-            $navigationSize = $this->getConfig("views.pagination.navigationSize");            
+            $navigationSize = $this->getConfig("views.pagination.navigationSize");
             $this->paginator->setItems($totalItems, $itemsPerPage, $navigationSize);
         }
         return $this->paginator;
-    }    
-    
+    }
+
+    /**
+     * @alias setPagination
+     *
+     * NOTE: use $this->pagination() as an accessor and $this->setPaginator() as a setter
+     *
+     * @param int $totalItems - Set the total items
+     * @param int $itemsPerPage - Total items per page
+     * @param int $itemsPerPage - Total items per page
+     * @return Voodoo\Paginator
+     *
+     */
+    public function pagination($totalItems = null, $itemsPerPage = null,
+                                $navigationSize = null)
+    {
+        return $this->setPagination($totalItems, $itemsPerPage, $navigationSize);
+    }
+
+    /**
+     * Pagination Setter to paginate from Voodoo\Core\Model object from Voodoo\VoodOrm
+     * It will assign the start and limit fof the pagination
+     *
+     * @param Voodoo\Core\Model $model
+     * @param type $itemsPerPage
+     * @param type $navigationSize
+     * @return Voodoo\Paginator
+     */
+    public function setPaginationFromModel(Voodoo\Core\Model &$model,
+                                            $itemsPerPage = null,
+                                            $navigationSize = null)
+    {
+
+        $cloneModel = clone $model;
+        $totalItems = $cloneModel->count();
+        $this->setPagination($totalItems, $itemsPerPage, $navigationSize);
+
+        $model->limit($this->paginator->getPerPage(),
+                      $this->paginator->getStart());
+
+        return $this->paginator;
+    }
+
     /**
      * Return if the pagination is set
-     * 
+     *
      * @return bool
      */
     public function issetPagination()
@@ -60,6 +102,3 @@ trait TPagination
         return ($this->paginator) ? true : false;
     }
 }
-
-
-
