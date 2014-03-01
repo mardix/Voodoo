@@ -46,6 +46,9 @@ class View
 {
     use View\TView;
 
+    const FORMAT_JSON = "JSON";
+    const FORMAT_HTML = "HTML";
+
     const TITLE_CONCAT_PREPEND = 1;
     const TITLE_CONCAT_APPEND = 2;
 
@@ -69,7 +72,7 @@ class View
     protected $definedRaws = [];
 
     private $controller = null;
-    private $renderJSON = false;
+    private $viewFormat = self::FORMAT_HTML;
 
     private $meta = [];
 
@@ -318,25 +321,24 @@ class View
     }
 
     /**
-     * To render as JSON
-     *
-     * @param type $bool
+     * Set the view format
+     * @param type $format
      * @return \Voodoo\Core\View
      */
-    public function renderToJson($bool = true)
+    public function setFormat($format)
     {
-        $this->renderJSON = $bool;
+        $this->viewFormat = $format;
         return $this;
     }
 
     /**
-     * Check if the view is to be returned as JSON
+     * Return the view format
      *
-     * @return bool
+     * @return string
      */
-    public function isRenderToJson()
+    public function getFormat()
     {
-        return $this->renderJSON;
+        return $this->viewFormat;
     }
 
     /**
@@ -346,7 +348,7 @@ class View
      */
     public function render()
     {
-        if($this->renderJSON) {// RENDER AS JSON
+        if($this->getFormat() == self::FORMAT_JSON) {// RENDER AS JSON
 
             $this->unassign("_");
 

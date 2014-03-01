@@ -111,7 +111,7 @@ abstract class Controller
     /**
      * final construct so no other class can override it
      * To load something in the constructor, use init()
-     * 
+     *
      * @params array $segments - extra segments from that can be accessed with getParams()
      */
     final public function __construct(Array $segments = [])
@@ -153,15 +153,15 @@ abstract class Controller
      */
     protected  function beforeAction()
     {}
-    
+
     /**
      * afterAction()
      * Execute the method after the Action is executed
      * @return \Voodoo\Core\Controller
-     */    
+     */
     protected function afterAction()
-    {}    
-    
+    {}
+
     /**
      * finalize()
      * Code to excute before rendering
@@ -183,12 +183,12 @@ abstract class Controller
         if (! $this->abort) {
             $this->finalize();
             $this->renderView();
-        } 
+        }
     }
 
     /**
      * Abort the execution of finalize() and renderView() of the application in __destruct
-     * 
+     *
      * @return \Voodoo\Core\Controller
      */
     final protected function abort()
@@ -196,12 +196,12 @@ abstract class Controller
         $this->abort = true;
         return $this;
     }
-    
+
     /**
-     * To completely exit the application just like calling exit(). 
+     * To completely exit the application just like calling exit().
      * __destruct will be invoked, but will not finalize() and renderView()
      * Calling PHP exit() will still cause finalize() and renderView() to execute
-     * 
+     *
      * @return void
      */
     final protected function _exit()
@@ -223,17 +223,17 @@ abstract class Controller
         $params = $this->getParams();
         return (isset($params[$key])) ? $params[$key] : $default;
     }
-    
+
     /**
      * Return all the request params of GET and POST
-     * 
+     *
      * @return Array
      */
     public function getParams()
     {
         return Http\Request::getParams();
     }
-    
+
     /**
      * Segements are part of the URL separated by /
      * ie: /gummy/bear/?q=hello 'gummy' and 'bear' are segments.
@@ -360,10 +360,10 @@ abstract class Controller
         $module = $this->dasherizeUrl($module);
         return preg_replace("/\/$/", "", $this->getBaseUrl() . "/" . $module );
     }
-    
+
     /**
      * Return the url for the controller
-     * 
+     *
      * @return string
      */
     public function getControllerUrl()
@@ -378,7 +378,7 @@ abstract class Controller
 
     /**
      * Return the action url
-     * 
+     *
      * @return string
      */
     public function getActionUrl()
@@ -390,10 +390,10 @@ abstract class Controller
         }
         return preg_replace("/\/$/", "", $url );
     }
-    
+
     /**
      * Dasherize part for a url
-     * 
+     *
      * @param type $str
      * @return string
      */
@@ -424,7 +424,7 @@ abstract class Controller
         if ($clsRef->isSubclassOf(__CLASS__)) {
             return (new $controller($params))->disableView();
         } else {
-            throw new Exception\Controller("Controller '$controller' doesn't 
+            throw new Exception\Controller("Controller '$controller' doesn't
                             exists or not an instance of Voodoo\Core\Controller");
         }
     }
@@ -454,27 +454,27 @@ abstract class Controller
      * i.e $this->getAction("index");
      * @param  string     $action       - The action name without Action as suffix. ie: action_index() =  getAction("index")
      * @return \Voodoo\Core\Controller
-     * 
+     *
      * NOTE:
      * actions make use of the annotations
-     * 
-     *  @action_view 
+     *
+     *  @action_view
      *  @use_layout
      *  @request
-     *  @render_as
+     *  @format
      */
     public function getAction($action = "Index")
     {
         $executeAction = true;
-        $layout = "";
-        $render = "";
+        $use_layout = "";
+        $format = "";
         $this->setActionName($action);
 
         $actionName = $this->getActionMethodName();
 
         if (method_exists($this, $actionName)) {
             $actionView = $this->getActionName();
-            
+
             /** @Actions Annotations **/
                 // @action_view $view-file-name : To change the default view
                 if($this->getActionAnnotation("action_view")) {
@@ -482,12 +482,12 @@ abstract class Controller
                 }
                 // @use_layout $layout-file-name (_layout/main): to change the layout
                 if($this->getActionAnnotation("use_layout")) {
-                   $layout =  $this->getActionAnnotation("use_layout");
-                }              
-                // @render_as (JSON|HTML) : By default it will render HTML, set to JSON the view will be rendered as JSON
-                if($this->getActionAnnotation("render_as")) {
-                   $render =  $this->getActionAnnotation("render_as");
-                }               
+                   $use_layout =  $this->getActionAnnotation("use_layout");
+                }
+                // @format (JSON|HTML) : By default it will render HTML, set to JSON the view will be rendered as JSON
+                if($this->getActionAnnotation("format")) {
+                   $format =  $this->getActionAnnotation("format");
+                }
                 /**
                  * @request
                  * Requires an action to accept a request method: POST | GET | PUT | DELETE
@@ -498,53 +498,53 @@ abstract class Controller
                  *      method (POST|GET|PUT|DELETE) - The request method to accept
                  *      response - a message to display if the request method fails
                  *      action_view -  a view to display instead of the _includes/error/405
-                 * - example: 
+                 * - example:
                  *      @request [method=POST, response="This is an error message", action_view="_includes/error/405"]
                  */
                 $request = $this->getActionAnnotation("request");
                 if(is_array($request) && $request["method"]) {
                     if (! Http\Request::is($request["method"])) {
                         $this->setHttpCode(405);
-                        
+
                         if ($this->view() instanceof View) {
                             $this->view()->setError($request["response"]);
-                            $this->view()->assign("error", $request["response"]);                            
+                            $this->view()->assign("error", $request["response"]);
                         }
 
                         if (isset($request["action_view"])) {
                             $actionView = $request["action_view"];
                         } else {
                             if ($this->view() instanceof View) {
-                                $this->view()->setViewError(405);    
+                                $this->view()->setActionError(405);
                             }
                             return $this;
                         }
                         $executeAction = false;
                     }
-                }                
+                }
              /** ~~~~~~ **/
-                
+
             $this->setActionView($actionView);
-            
+
             if ($this->view() instanceof View) {
                 $this->view()->setActionView($actionView);
-                if ($layout) {
-                   $this->view()->useLayout($layout); 
-                }  
-                if (strtoupper($render) == "JSON") {
-                    $this->view()->renderToJson();
+                if ($use_layout) {
+                   $this->view()->useLayout($use_layout);
+                }
+                if ($format) {
+                    $this->view()->setFormat(strtoupper($format));
                 }
             }
 
             if ($executeAction) {
-                
+
                 $this->beforeAction();
-                
-                $this->{$actionName}();
-                
+
+                    $this->{$actionName}();
+
                 $this->afterAction();
             }
-            
+
         } else {
             throw new Exception\Action("Action '{$actionName}' is missing");
         }
@@ -605,7 +605,7 @@ abstract class Controller
     /**
      * Return the View instance
      * @param Array $dataModel - Data model to assign to the view
-     * 
+     *
      * @return Voodoo\Core\View
      */
     protected function view(Array $dataModel = null)
@@ -622,7 +622,7 @@ abstract class Controller
 
     /**
      * To render the controller's view
-     * 
+     *
      * @param  bool    $echoView - to print the view or just return it
      * @return boolean | string
      */
@@ -631,20 +631,20 @@ abstract class Controller
         if ($this->disableView || !$this->viewExists()) {
             return false;
         } else {
-            
+
             if ($this->issetPagination()) {
                 $this->view()->setPagination($this->pagination()->toArray());
             }
-            
+
             if (! $this->view()->issetLayout()) {
-                $layout = $this->getConfig("views.layout");    
+                $layout = $this->getConfig("views.layout");
                 if($layout) {
                     $this->view()->useLayout($layout);
-                }                
+                }
             }
-            
+
             $content = $this->view()->render();
-            
+
             if ($echoView) {
                 echo $content;
             } else {
@@ -666,14 +666,14 @@ abstract class Controller
 
     /**
      * Verify if the view directory exists
-     * 
+     *
      * @return bool
      */
     protected function viewExists()
     {
         return is_dir($this->moduleDir."/Views");
     }
-    
+
     /*     * **************************************************************************** */
 // CONFIG
 
@@ -688,12 +688,12 @@ abstract class Controller
             $appConfigFile = "{$this->applicationDir}/Config".Config::EXT;
             $this->config = (new Config($this->controllerNamespace))
                                 ->loadFile($appConfigFile);
-            
+
             // If a config file exist in the module, we'll load it
             $moduleConfigFile = "{$this->moduleDir}/Config".Config::EXT;
             if (file_exists($moduleConfigFile)) {
-                $this->config->loadFile($moduleConfigFile);    
-            }                  
+                $this->config->loadFile($moduleConfigFile);
+            }
         }
         return $this->config->get($key);
     }
@@ -783,7 +783,7 @@ abstract class Controller
         if (! $url) {
             $url = $this->getControllerUrl();
         }
-        
+
         if (preg_match("/^http/", $url)) { // http://xyz
             $url = $url;
         } else if(preg_match("/^\//", $url)) { // we'll add the ? if possible
