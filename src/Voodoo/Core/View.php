@@ -398,6 +398,7 @@ class View
                     "controller_url"    => $this->controller->getControllerUrl(),
                     "action_name"       => $this->controller->getActionName(),
                     "action_url"        => $this->controller->getActionUrl(),
+                    "request_params"    => $this->controller->getParams()
             ]);
 
             $renderName = $this->templateKeys["view"];
