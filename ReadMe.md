@@ -1,5 +1,5 @@
 
-# Voodoo 1.x.x
+# Voodoo 2.x.x
 
 #### A Simple, Easy, Intuitive PHP Framework for Those Who Keep It Simple
 
@@ -11,7 +11,7 @@ License: MIT
 
 Design: Modular MVC
 
-Requirements: PHP 5.4
+Requirements: PHP 5.5
 
 Compliance: PSR-2
 
@@ -66,7 +66,7 @@ Modules improve maintainability by enforcing logical boundaries between componen
 
 To install Voodoo, create or edit the **composer.json** file, and add the code below in the 'require':
 
-	"voodoophp/voodoo": "1.*"
+	"voodoophp/voodoo": "2.*"
 
 Your composer.json file should look something similar to this:
 
@@ -74,7 +74,7 @@ Your composer.json file should look something similar to this:
 	    "name": "voodoophp/myapp",
 	    "description": "My awesome Voodoo App",
 	    "require": {
-	        "voodoophp/voodoo": "1.*"
+	        "voodoophp/voodoo": "2.*"
 	    }
 	}
 
