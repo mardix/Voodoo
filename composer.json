@@ -14,7 +14,7 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "voodoophp/voodorm" : "dev-3.0",
+        "voodoophp/voodorm": "3.0.*@dev",
         "voodoophp/paginator" : "2.*",
         "voodoophp/handlebars" : "2.*"
     },
