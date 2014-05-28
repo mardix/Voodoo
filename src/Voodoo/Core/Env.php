@@ -30,8 +30,10 @@ class Env {
         "App" => "",
         "Config" => "",
         "BaseConfig" => "",
-        "PublicAssets" => ""
+        "PublicAssets" => "",
+        "RootDir" => ""
     ];
+    
     private static $env = null;
     
     
@@ -145,23 +147,25 @@ class Env {
      * Root of Voodoo directory
      *
      * @return string
-     */
-    public static function getRootDir()
+     */    
+    public static function getVoodooDir()
     {
         return dirname(dirname(__DIR__));
-    }   
+    }
     
-    public static function getVoodooistPath()
+    public static function getVoodooistDir()
     {
         return dirname(__DIR__)."/Voodooist";
     }
-    
+      
+
+
     /**
      * Set the front controller path, where the index will be created
      * 
      * @param string $appDir
      */
-    public static function setFrontControllerPath($rootDir){
+    public static function setFrontControllerDir($rootDir){
         self::$paths["FrontController"] = $rootDir;
     }
     /**
@@ -169,10 +173,30 @@ class Env {
      * 
      * @return string
      */
-    public static function getFrontControllerPath()
+    public static function getFrontControllerDir()
     {
         return self::$paths["FrontController"];
     }    
+    
+    /**
+     * Set the root dir
+     * 
+     * @return type
+     */
+    public static function setRootDir($rootDir)
+    {
+        self::$paths["RootDir"] = $rootDir;
+        self::setAppRootDir($rootDir);
+    }
+    
+    /**
+     * 
+     * @return type
+     */
+    public static function getRootDir()
+    {
+        return self::$paths["RootDir"];
+    } 
     
     /**
      * Set the app dir
@@ -182,19 +206,22 @@ class Env {
     public static function setAppRootDir($rootDir)
     {
         self::$paths["App"] = $rootDir."/App";
-        
         if(! self::$paths["Config"]) {
             self::$paths["BaseConfig"] = self::$paths["Config"] = self::$paths["App"]."/_conf";
         }
-
     }
-    
+
     /**
      * Get the app dir
      * 
      * @return string
      */
     public static function getAppRootDir()
+    {
+        return self::$paths["App"];
+    }
+    
+    public static function getAppDir()
     {
         return self::$paths["App"];
     }
@@ -207,7 +234,7 @@ class Env {
      * 
      * @param string $dirName
      */
-    public static function setConfigPath($dirName)
+    public static function setConfigDir($dirName)
     {
         self::$paths["Config"] = (self::$paths["BaseConfig"]).($dirName ? "/{$dirName}" : "");
     }
@@ -217,7 +244,7 @@ class Env {
      * 
      * @return string
      */
-    public static function getConfigPath()
+    public static function getConfigDir()
     {
         return self::$paths["Config"];
     }
@@ -227,7 +254,7 @@ class Env {
      * 
      * @param string $rootDir
      */
-    public static function setPublicAssetsPath($rootDir)
+    public static function setPublicAssetsDir($rootDir)
     {
         self::$paths["PublicAssets"] = $rootDir."/assets";
     }
@@ -237,7 +264,7 @@ class Env {
      * 
      * @return string
      */
-    public static function getPublicAssetsPath()
+    public static function getPublicAssetsDir()
     {
         return self::$paths["PublicAssets"];
     }

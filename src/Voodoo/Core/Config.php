@@ -135,7 +135,7 @@ class Config
     {
         $fileName = $fileName ?: $this->namespace;
         $data = self::arrayToINI($this->toArray());
-        file_put_contents(Env::getConfigPath()."/{$fileName}".self::EXT, $data);
+        file_put_contents(Env::getConfigDir()."/{$fileName}".self::EXT, $data);
         return $this;
     }
 
@@ -152,7 +152,7 @@ class Config
         if($ini->getNamespace()["__called"]) {
             return $ini;
         } else {
-            $file = Env::getConfigPath()."/{$name}".self::EXT;
+            $file = Env::getConfigDir()."/{$name}".self::EXT;
             if(file_exists($file)) {
                 $ini->loadFile($file);
                 self::$Config[$ini->namespace]["__called"] = true;

@@ -657,9 +657,9 @@ class View
         // Shared assets starts from the root
         return
             $this->controller->getSiteUrl() . "/" . preg_replace("/^\//", "",
-                    str_replace(Env::getFrontControllerPath(),
+                    str_replace(Env::getFrontControllerDir(),
                                 "",
-                                $path ? : Env::getPublicAssetsPath()));
+                                $path ? : Env::getPublicAssetsDir()));
     }
 
     public function __string()

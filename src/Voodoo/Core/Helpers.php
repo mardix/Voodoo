@@ -1287,4 +1287,13 @@ public function createTagCloud(Array $Tags,$Link="",$cloud_spread=0,$sort="count
             return $data;
         }
     }
+    
+    /**
+     * Check if aray is multi dim
+     * @param array $data
+     * @return bool
+     */
+    public static function isArrayMultiDim(Array $data){
+        return (count($data) != count($data,COUNT_RECURSIVE));
+    }
 }

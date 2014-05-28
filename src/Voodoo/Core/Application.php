@@ -28,7 +28,7 @@ use DirectoryIterator,
 class Application
 {
     CONST NAME = "VoodooPHP";
-    CONST VERSION = "1.20";
+    CONST VERSION = "2.0-dev";
 
 /*******************************************************************************/
 

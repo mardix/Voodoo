@@ -55,10 +55,10 @@ if (LOAD_VOODOO_WITH_COMPOSER) {
 Voodoo\Core\Autoloader::register(APP_ROOT_DIR);
 
 // Set the ENV path
-Env::setAppRootDir(APP_ROOT_DIR);
+Env::setRootDir(APP_ROOT_DIR);
 
 // Set the config name. A sub directory name under /App/_conf/$subdirectory
-Env::setConfigPath(APP_CONFIG_DIRNAME); 
+Env::setConfigDir(APP_CONFIG_DIRNAME); 
 
 // Set the system timezone
 date_default_timezone_set(Config::System()->get("timezone"));

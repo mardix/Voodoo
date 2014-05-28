@@ -19,5 +19,24 @@ use Voodoo,
 abstract class BaseController extends Voodoo\Core\Controller
 {
 
+    /**
+     * To invoke a 404 page from within the controller
+     * 
+     * @param string $errorMessage - The error message
+     */
+    public function error404($errorMessage = null)
+    {
+        $this->view()->setActionError($errorMessage, 404);
+    }
+    
+    /**
+     * To invoke a 500 error page from with the controller
+     * 
+     * @param string $errorMessage - The error message
+     */
+    public function error500($errorMessage = null)
+    {
+        $this->view()->setActionError($errorMessage, 500);
+    }
 
 }

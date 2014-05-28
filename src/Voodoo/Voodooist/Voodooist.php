@@ -59,19 +59,19 @@ class Voodooist
         Core\Autoloader::register($rootDir);
 
         // Set up the environment
-        Core\Env::setAppRootDir($rootDir);
-        Core\Env::setConfigPath($appConfigDirName);
-        Core\Env::setFrontControllerPath($rootDir);
-        Core\Env::setPublicAssetsPath($rootDir);
+        Core\Env::setRootDir($rootDir);
+        Core\Env::setConfigDir($appConfigDirName);
+        Core\Env::setFrontControllerDir($rootDir);
+        Core\Env::setPublicAssetsDir($rootDir);
 
-        $jsonFile = Core\Env::getConfigPath()."/".self::$appJson;
+        $jsonFile = Core\Env::getConfigDir()."/".self::$appJson;
         $Voodooist = new self;
 
         self::e(Core\Application::NAME." ".Core\Application::VERSION." : The Voodooist!");
         self::e("-----------------------------------------------------------------------");
 
         // /VoodooApp
-         if (! file_exists(Core\Env::getConfigPath()."/System".Core\Config::EXT)) {
+         if (! file_exists(Core\Env::getConfigDir()."/System".Core\Config::EXT)) {
             self::e("> creating Dir: ".Core\Env::getAppRootDir());
             $Voodooist->createVoodooApp();
         }
@@ -96,8 +96,8 @@ class Voodooist
 
 
         // /assets
-        if ($schema["createPublicAssets"] === true && !is_dir(Core\Env::getPublicAssetsPath())) {
-            self::e("> creating Assets dir: ".Core\Env::getPublicAssetsPath());
+        if ($schema["createPublicAssets"] === true && !is_dir(Core\Env::getPublicAssetsDir())) {
+            self::e("> creating Assets dir: ".Core\Env::getPublicAssetsDir());
             $Voodooist->createPublicAssets();
         }
 
@@ -163,7 +163,9 @@ class Voodooist
                                 $path = isset($model["path"]) ? $model["path"] : "";
                                 $namespace = isset($model["namespace"]) ? $model["namespace"] : "";
                                 $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"],
-                                                        $model["primaryKey"], $model["foreignKey"]);
+                                                        $model["primaryKey"], $model["foreignKey"], "", "", 
+                                                        $model["_schema"]);
+
                                 self::e(self::t(3)."|");
                                 self::e(self::t(3)."|_{$model["name"]}");
                             }
@@ -184,13 +186,14 @@ class Voodooist
                     $namespace = isset($model["namespace"]) ? $model["namespace"] : "";
                     $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"],
                                             $model["primaryKey"], $model["foreignKey"],
-                                            $path, $namespace);
+                                            $path, $namespace, $model["_schema"]);
                     self::e(self::t(1)."|");
                     self::e(self::t(1)."|_{$model["name"]}");
                 }
             }
         self::e("Done!");
     }
+
 
 /*******************************************************************************/
 /*******************************************************************************/
@@ -232,7 +235,7 @@ class Voodooist
         $tpl = strtolower($templateName);
 
         if (! isset($this->tplContent[$tpl])) {
-            $this->tplContent[$tpl] = file_get_contents(Core\Env::getVoodooistPath()."/files/templates/".strtolower($templateName));
+            $this->tplContent[$tpl] = file_get_contents(Core\Env::getVoodooistDir()."/files/templates/".strtolower($templateName));
         }
 
         $Data = array_merge($this->parseData,$Data);
@@ -343,7 +346,7 @@ class Voodooist
 
             if ($templateDir) {
 
-                $modulesTemplate = Core\Env::getVoodooistPath()."/modules-template/{$templateDir}";
+                $modulesTemplate = Core\Env::getVoodooistDir()."/modules-template/{$templateDir}";
                 $viewsTpl = "{$modulesTemplate}/Views";
                 if (is_dir($viewsTpl) && is_dir($viewsDir)) {
                     Core\Helpers::recursiveCopy($viewsTpl, $viewsDir);
@@ -480,9 +483,14 @@ class Voodooist
      * @param type   $tableName
      * @param type   $primaryKey
      *
+     * @prama Array $schema - The schema
+     * 
      * @TODO Add model template for MongoDb, Redis
+     * @return Array containing path for file created
      */
-    public function createModel($modelName, $alias, $tableName, $primaryKey="", $foreignKey="", $customModelPath = "", $customModelNamespace = "")
+    public function createModel($modelName, $alias, $tableName, $primaryKey="", 
+            $foreignKey="", $customModelPath = "", $customModelNamespace = "",
+            $_schema = null)
     {
         $nsModel = "";
         foreach (explode("/",$modelName) as $model) {
@@ -524,14 +532,31 @@ class Voodooist
         $type = Core\Config::DB()->get("{$alias}.type");
         $rdbms = ["mysql", "pgsql", "sqlite"];
         $this->saveTpl(in_array($type, $rdbms) ? "model_rdbms" : "model_simple", $file, $settings);
+        
+        /**
+         * Create the table SQL
+         */
+        if (strtolower($type) == "mysql" && is_array($_schema)) {
+            include_once $file;
+            $_model = "\\" . $modelNameSpace . "\\" . $modelName;
+            $db = new $_model();
+            if (! $db->__tableExists()) {
+                $ts = new Core\SchemaBuilder($_schema);
+                $sql = $ts->create($tableName);  
+                $db->query($sql);
+            } else {
+                
+            }
+        }
+        
         return $this;
-    }
 
+    }
 
 /*******************************************************************************/
 
     public function createFrontController(){
-        Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup/front-controller", Core\Env::getFrontControllerPath());
+        Core\Helpers::recursiveCopy(Core\Env::getVoodooistDir()."/files/setup/front-controller", Core\Env::getFrontControllerDir());
     }
 
     /**
@@ -539,8 +564,8 @@ class Voodooist
      */
     public function createPublicAssets()
     {
-      $this->mkdir(Core\Env::getPublicAssetsPath());
-      Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup/assets", Core\Env::getPublicAssetsPath());
+      $this->mkdir(Core\Env::getPublicAssetsDir());
+      Core\Helpers::recursiveCopy(Core\Env::getVoodooistDir()."/files/setup/assets", Core\Env::getPublicAssetsDir());
     }
 
     /**
@@ -549,7 +574,7 @@ class Voodooist
     public function createVoodooApp()
     {
       $this->mkdir(Core\Env::getAppRootDir());
-      Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup/App", Core\Env::getAppRootDir());
+      Core\Helpers::recursiveCopy(Core\Env::getVoodooistDir()."/files/setup/App", Core\Env::getAppRootDir());
     }
 
     /**
@@ -557,7 +582,7 @@ class Voodooist
      */
     public function setup()
     {
-        Core\Helpers::recursiveCopy(Core\Env::getVoodooistPath()."/files/setup", Core\Env::getFrontControllerPath());
+        Core\Helpers::recursiveCopy(Core\Env::getVoodooistDir()."/files/setup", Core\Env::getFrontControllerDir());
     }
 /*******************************************************************************/
 /*******************************************************************************/
