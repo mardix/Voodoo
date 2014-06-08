@@ -701,8 +701,6 @@ class View
      * Assign data to _.*
      * For local use only
      *
-     * Also deprecate _app.* in favor of _.*
-     *
      * @param mixed $key
      * @param mixed $value
      * @return \Voodoo\Core\View
