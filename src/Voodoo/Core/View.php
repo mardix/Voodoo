@@ -662,7 +662,9 @@ class View
                 break;
             default:
                 $moduleNamespace = $this->controller->getModuleNamespace();
-                $path = "{$moduleNamespace}/_assets";
+                $appDir = explode("\\", $moduleNamespace);
+                $path = implode("\\",array_splice($appDir,0,-1));
+                $path = "{$path}/_assets";
                 break;
         }
         $url = preg_replace("/\/$/","",$this->controller->getSiteUrl());
