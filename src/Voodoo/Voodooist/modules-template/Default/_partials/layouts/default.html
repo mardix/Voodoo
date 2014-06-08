@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<!--
+default.html
+-->
+<HTML>
+    {{!partial layouts/head-tag}}
+
+    <body>
+
+        {{!partial layouts/header}}
+
+        <div class="container">
+            
+            {{!partial components/flash-message}}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- REQUIRED to show the view's action page -->   
+                    {{!include @action_view}}
+                </div>
+            </div>
+        </div>
+
+        {{!partial layouts/footer}}
+        
+    </body>
+</HTML>
+

@@ -16,7 +16,7 @@
  *          or anywhere that is using Voodoo
  */
 
-CONST REQUIRE_PHP_VERSION = "5.4";
+CONST REQUIRE_PHP_VERSION = "5.5";
 ini_set('display_errors', '0');
 
 // Chek PHP Version

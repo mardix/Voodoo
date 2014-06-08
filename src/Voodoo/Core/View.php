@@ -8,7 +8,7 @@
  * @github      https://github.com/VoodooPHP/Voodoo
  * @package     VoodooPHP
  *
- * @copyright   (c) 2012-2013 Mardix (http://github.com/mardix)
+ * @copyright   (c) 2014 Mardix (http://github.com/mardix)
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
@@ -18,8 +18,8 @@
  * Mustache Extension
  * == New Markups
  *      === LAYOUT ===
- *      - Layout: To change the layout to another one from Views/_layout directory
- *              {{!use_layout default}} will include _layout/default.html
+ *      - Layout: To change the layout to another one
+ *              {{!set_layout default}} will include _partials/layout/default
  *
  *      === INCLUDE ===
  *      {{!include $path}} is added to include file using $this->addTemplate during parsing
@@ -30,17 +30,20 @@
  *                                  directly with $this->addTemplate($name, $src)
  *          {{!include filename}}. Without ../ or / it will include file from the current
  *                                  view directory of the controller
- *          {{!include ../filanem}}. With the ../ it will include file from the
+ *          {{!include ../filename}}. With the ../ it will include file from the
  *                                  /Views of the current module
  *          {{!include /AppName/ModuleName/Views/filename}}. Include a file from
  *                                  a different Appname, with a full path
+ * 
+ *      Including partials
+ *          {{!partial $filename}} will include files from the partials directory
+ *          ** optionally {{!include $partials/filename}} can be used
  *
  */
 
 namespace Voodoo\Core;
 
-use Handlebars\Handlebars;
-use Handlebars\Loader\FilesystemLoader;
+use Handlebars;
 
 class View
 {
@@ -68,6 +71,7 @@ class View
 
     protected $templates =  [];
     protected $templateDir = "";
+    protected $partialsDir = "";
     protected $parsed = false;
     protected $definedRaws = [];
 
@@ -81,9 +85,9 @@ class View
         "layout"    => "page_layout"
     ];
 
-    private $path = [
-        "components" => "_components",
-        "layouts"  => "_layouts"
+    private $partialsPath = [
+        "components" => "components",
+        "layouts"  => "layouts"
     ];
 
     private $engine = null;
@@ -98,6 +102,7 @@ class View
     {
         $this->controller = $controller;
         $this->templateDir = $this->controller->getModuleDir() . "/Views";
+        $this->partialsDir = $this->controller->getApplicationDir() . "/_partials";
         $this->controllersViewPath = $this->templateDir . "/";
         $this->controllersViewPath .= $this->controller->getControllerName();
         $this->appRootDir = Env::getAppRootDir();
@@ -105,9 +110,10 @@ class View
         /**
          * Handlebars
          */
+        print $this->partialsDir;
         $hbOptions = ["extension" => $this->ext];
-        $partialsLoader = new FilesystemLoader($this->templateDir, $hbOptions);
-        $this->engine = new Handlebars(["partials_loader" => $partialsLoader]);
+        $partialsLoader = new Handlebars\Loader\FilesystemLoader($this->partialsDir, $hbOptions);
+        $this->engine = new Handlebars\Handlebars(["partials_loader" => $partialsLoader]);
 
         /**
          * FlashMessage
@@ -242,15 +248,18 @@ class View
     /**
      * Set the view layout to use. By default it will user the contain set in config.
      *
-     * @param  string $filename - The name of the layout under _layouts/
-     * @return Voodoo\Core\View
+     * @param   string $filename - The name of the layout under $partials/layouts/
+     * @param   boot $isAbsolute - When filename is the full path the layout, otherwise it will fallback in the partial layout 
+     * @return  Voodoo\Core\View
      */
-    public function useLayout($filename, $isAbsolute = false)
+    public function setLayout($filename, $isAbsolute = false)
     {
         $this->isLayoutAbsolute = $isAbsolute;
         $this->layout = $filename;
         if (! $this->isLayoutAbsolute) {
-            $this->layout = $this->path["layouts"] . "/" . $filename;
+            $this->layout = $this->partialsDir . "/";
+            $this->layout .= $this->partialsPath["layouts"] . "/" . $filename;
+            $this->isLayoutAbsolute = true;
         }
         return $this;
     }
@@ -270,13 +279,12 @@ class View
      * Set the view body  to use. By default it will use the the action view => $action.html
      *
      * @param  string $filename
-     * @param  bool $absolute - true, it will use the full path of filename, or it will look in the current Views
      * @return Voodoo\Core\View
      */
-    public function setActionView($filename, $absolute = false)
+    public function setActionView($filename)
     {
-        $this->actionView = $filename;
-        $this->isActionViewAbsolute = $absolute;
+        $this->actionView = $this->formatTemplatePath($filename);
+        $this->isActionViewAbsolute = true;
         return $this;
     }
 
@@ -314,9 +322,9 @@ class View
     public function setActionError($errorMessage = "", $errorCode = 500 )
     {
         if($errorMessage) {
-            $this->setError($errorMessage);
+            $this->setError($errorMessage, "error", $errorCode);
         }
-        $this->setActionView($this->path["components"]."/error_".$errorCode);
+        $this->setActionView('$partials/error/'.$errorCode);
         return $this;
     }
 
@@ -352,9 +360,6 @@ class View
 
             $this->unassign("_");
 
-            //@deprecated _app.* in favor of _.*
-            $this->unassign("_app");
-
             return json_encode($this->getAssigned());
 
         } else {// RENDER AS HTML
@@ -372,16 +377,13 @@ class View
             $flashMessage = $this->getFlashMessage();
             if ($flashMessage) {
                 $this->assign_("flash_message", $flashMessage);
-
-                //@deprecated for naming convetion. Use flash_message
-                $this->assign_("flashMessage", $flashMessage);
-
                 $this->clearFlashMessage();
             }
 
             // _.error
             if ($this->hasError()) {
                 $this->assign_("error", $this->getMessage("error"));
+                
             }
 
             // _.*
@@ -460,20 +462,18 @@ class View
     {
         if (! $absolutePath) {
             $controllerName = $this->controller->getControllerName();
-            $src = (preg_match("/^({$controllerName}\/|_[\w]+)/", $src))
-                                ? $src : "{$controllerName}/{$src}";
-            $src = $this->addExt($this->templateDir . "/" . $src);
+            $src = $this->templateDir . "/{$controllerName}/{$src}";
         }
         $content = $this->loadFile($src, true);
 
         /**
-         * {{!use_layout layout_name}}
+         * {{!set_layout layout_name}}
          * Only @action_view checks for the layout
          * It parses the template first to make sure it doesn't contain any raw tags
          */
         if ($name == $this->templateKeys["view"]) {
             $content = $this->parseTemplate($content);
-            if(preg_match("/{{!use_layout\s+(.*?)\s*}}/i", $content, $matches)){
+            if(preg_match("/{{!set_layout\s+(.*?)\s*}}/i", $content, $matches)){
                $content = str_replace($matches[0], "", $content);
                $this->useLayout($matches[1]);
            }
@@ -539,13 +539,35 @@ class View
      */
     protected function loadFile($src)
     {
-         if (! file_exists($src)) {
-             throw new Exception\View("File '{$src}' doesn't exist");
-         } else {
-             return file_get_contents($src);
-         }
+        $src = $this->addExt($src);
+        if (! file_exists($src)) {
+            throw new Exception\View("File '{$src}' doesn't exist");
+        } else {
+            return file_get_contents($src);
+        }
     }
 
+    /**
+     * Convert the file template file to full path
+     * 
+     * @param string $src
+     * @return string
+     */
+    private function formatTemplatePath($src)
+    {
+        if (preg_match("/^\//", $src)) { // {{!include /outOfScopePath}}
+            $src = $this->appRootDir . $this->addExt($src);
+        } else if (preg_match("/^\.\.\//", $src)) { // {{!include ../pathFromViewsRoot}}
+            $src = str_replace("..", "", $src);
+            $src = $this->templateDir . $this->addExt($src);
+        } else if (preg_match('/^\$partials/', $src)) { // {{!include $partials/path}}
+            $src = $this->addExt(str_replace('$partials', $this->partialsDir, $src));
+        } else { // {{!include pathOfCurrentControllersViewPath}}
+            $src = $this->controllersViewPath. "/" . $this->addExt($src);
+        }    
+        return $src;
+    }
+    
     /**
      * Parse the template and catch any {{!include }} expression
      *
@@ -557,14 +579,7 @@ class View
         if (preg_match_all("/{{!include\s+(.*?)\s*}}/i", $template, $matches)) {
             foreach ($matches[1] as $k => $src) {
                 if (! preg_match("/^@/",$src)) {
-                    if (preg_match("/^\//", $src)) { // {{!include /outOfScopePath}}
-                        $src = $this->appRootDir . $this->addExt($src);
-                    } else if (preg_match("/^\.\.\//", $src)) { // {{!include ../pathFromViewsRoot}}
-                        $src = str_replace("..", "", $src);
-                        $src = $this->templateDir . $this->addExt($src);
-                    } else { // {{!include pathOfCurrentControllersViewPath}}
-                        $src = $this->controllersViewPath. "/" . $this->addExt($src);
-                    }
+                    $src = $this->formatTemplatePath($src);
                     $tkey = md5($src);
                     if(!isset($this->templates[$tkey])) {
                         $this->addTemplate($tkey, $src, true);
@@ -577,6 +592,22 @@ class View
                                     )
                                 );
                 }
+            }
+        } 
+        if (preg_match_all("/{{!partial\s+(.*?)\s*}}/i", $template, $matches)) {
+            foreach ($matches[1] as $k => $src) {
+                $src = $this->addExt($this->partialsDir . "/" .$src);
+                $tkey = md5($src);
+                if(!isset($this->templates[$tkey])) {
+                    $this->addTemplate($tkey, $src, true);
+                }
+                $template = $this->parseTemplate(
+                                str_replace(
+                                        $matches[0][$k],
+                                        $this->templates[$tkey],
+                                        $template
+                                )
+                            );                
             }
         }
         return $template;
@@ -621,18 +652,17 @@ class View
     {
         $path = $this->controller->getConfig("views.moduleAssetsDir");
         switch (true) {
-            // Assets in current Module
-            case preg_match("/^(_[\w]+)/", $path):
-                $moduleNamespace = $this->controller->getModuleNamespace();
-                $path = "{$moduleNamespace}/Views/{$path}";
+            // Full url
+            case preg_match("/^http(s)?:\/\//", $path):
+                return $path;
                 break;
             // Assets anywhere with current page. ie: /ModuleName/Views/_assets
             case preg_match("/^\/\/?/", $path):
                 $path = preg_replace("/^\/\/?/", "", $path);
                 break;
-            // Usually if a URL is provided, and the content will delivered from a different place
             default:
-                return $path;
+                $moduleNamespace = $this->controller->getModuleNamespace();
+                $path = "{$moduleNamespace}/_assets";
                 break;
         }
         $url = preg_replace("/\/$/","",$this->controller->getSiteUrl());
@@ -685,9 +715,6 @@ class View
             $data = [$key => $value];
         }
         $this->assign("_", $data);
-
-        //@deprecated _app.* in favor of _.*
-        $this->assign("_app", $data);
 
         return $this;
     }

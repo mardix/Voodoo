@@ -25,7 +25,7 @@ use Voodoo\Core;
 
 class FlashMessage 
 {
-    const TYPE_ERROR = "danger";
+    const TYPE_ERROR = "error";
     const TYPE_DANGER = "danger";
     const TYPE_SUCCESS = "success";
     const TYPE_WARNING = "warning";

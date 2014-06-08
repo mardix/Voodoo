@@ -106,7 +106,9 @@ class Voodooist
             $created = " [CREATED] ";
             foreach ($schema["applications"] as $app) {
 
-                $Voodooist->setApplication($app["name"]);
+                $isRest = (isset($app["isRest"]) && $app["isRest"] === true) ? true : false;
+                $template = isset($app["template"]) ? $app["template"] : "Default";                
+                $Voodooist->setApplication($app["name"], $template, $isRest);
                 self::e("| {$app["name"]}");
 
                 if (isset($app["modules"])) {
@@ -114,7 +116,8 @@ class Voodooist
                         $moduleAction = "";
                         $isRest = (isset($module["isRest"]) && $module["isRest"] === true) ? true : false;
                         $omitViews = (isset($module["omitViews"]) && $module["omitViews"] === true) ? true : false;
-                        if ($Voodooist->createModule($module["name"], $module["template"], $isRest, $omitViews) ){
+                        $template = isset($module["template"]) ? $module["template"] : "";
+                        if ($Voodooist->createModule($module["name"], $template, $isRest, $omitViews) ){
                             $moduleAction = $created;
                         }
                         self::e(self::t()."|");
@@ -164,7 +167,7 @@ class Voodooist
                                 $namespace = isset($model["namespace"]) ? $model["namespace"] : "";
                                 $Voodooist->createModel($model["name"], $model["dbAlias"], $model["table"],
                                                         $model["primaryKey"], $model["foreignKey"], "", "", 
-                                                        $model["_schema"]);
+                                                        (isset($model["_schema"])) ? $model["_schema"] : "");
 
                                 self::e(self::t(3)."|");
                                 self::e(self::t(3)."|_{$model["name"]}");
@@ -174,7 +177,7 @@ class Voodooist
                 }
             }
             // Create detached models. Models that are placed outside of modules
-            if ($schema["models"]) {
+            if (isset($schema["models"])) {
                 self::e("|");
                 self::e("| Creating models..");
                 foreach ($schema["models"] as $model) {
@@ -298,7 +301,7 @@ class Voodooist
 
 /*******************************************************************************/
 
-    public function setApplication($name)
+    public function setApplication($name, $templateDir = "Default", $isRest = false)
     {
         $this->applicationName = Core\Application::formatName($name);
         $this->applicationPath = Core\Env::getAppRootDir()."/{$this->applicationName}";
@@ -308,6 +311,32 @@ class Voodooist
         $routes = $this->applicationPath."/Routes".Core\Config::EXT;
         $this->saveTpl("application_config",$config,["APPLICATIONNAME"=>$this->applicationName]);
         $this->saveTpl("application_routes",$routes,["APPLICATIONNAME"=>$this->applicationName]);
+        
+        if (! $isRest) {
+            $assetsDir = $this->applicationPath."/_assets";
+            $partialsDir = $this->applicationPath."/_partials";
+                
+            $this->mkdir($partialsDir);
+            $this->mkdir($assetsDir);
+            $this->mkdir($partialsDir."/components");
+            $this->mkdir($partialsDir."/layouts");
+            $this->mkdir($partialsDir."/error");
+
+            if ($templateDir) {
+                $modulesTemplate = Core\Env::getVoodooistDir()."/modules-template/{$templateDir}";
+                
+                $assetsTpl = "{$modulesTemplate}/_assets";
+                if (is_dir($assetsDir) && is_dir($assetsTpl)) {
+                    Core\Helpers::recursiveCopy($assetsTpl, $assetsDir);
+                }
+                
+                $partialsTpl = "{$modulesTemplate}/_partials";
+                if (is_dir($partialsDir) && is_dir($partialsTpl)) {
+                    Core\Helpers::recursiveCopy($partialsTpl, $partialsDir);
+                }
+            }
+        }        
+        
     }
 
 
@@ -330,25 +359,22 @@ class Voodooist
 
         $this->mkdir($appControllerDir);
 
-
         $exception =  $this->applicationPath."/{$this->moduleName}"."/Exception.php";
         $this->saveTpl("exception", $exception,["MODULENAMESPACE" => $this->moduleNamespace]);
 
         if (! $isRest) {
-
+            $viewsDir = $this->applicationPath."/".$module."/Views";
+                
             if (! $omitViews) {
-                $viewsDir = $this->applicationPath."/".$module."/Views";
                 $this->mkdir($viewsDir);
-                $this->mkdir($viewsDir."/_assets");
-                $this->mkdir($viewsDir."/_components");
-                $this->mkdir($viewsDir."/_layouts");
             }
 
             if ($templateDir) {
 
                 $modulesTemplate = Core\Env::getVoodooistDir()."/modules-template/{$templateDir}";
+                
                 $viewsTpl = "{$modulesTemplate}/Views";
-                if (is_dir($viewsTpl) && is_dir($viewsDir)) {
+                if (is_dir($viewsDir) && is_dir($viewsTpl)) {
                     Core\Helpers::recursiveCopy($viewsTpl, $viewsDir);
                 }
 

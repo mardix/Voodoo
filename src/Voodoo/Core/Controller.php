@@ -401,7 +401,7 @@ abstract class Controller
     {
         return strtolower(Helpers::dasherize($str));
     }
-    /*     * **************************************************************************** */
+    /****************************************************************************** */
 
 // CONTROLLER
     /**
@@ -459,14 +459,14 @@ abstract class Controller
      * actions make use of the annotations
      *
      *  @action_view
-     *  @use_layout
+     *  @set_layout
      *  @request
      *  @format
      */
     public function getAction($action = "Index")
     {
         $executeAction = true;
-        $use_layout = "";
+        $set_layout = "";
         $format = "";
         $this->setActionName($action);
 
@@ -480,9 +480,9 @@ abstract class Controller
                 if($this->getActionAnnotation("action_view")) {
                    $actionView =  $this->getActionAnnotation("action_view");
                 }
-                // @use_layout $layout-file-name (_layout/main): to change the layout
-                if($this->getActionAnnotation("use_layout")) {
-                   $use_layout =  $this->getActionAnnotation("use_layout");
+                // @set_layout $layout-file-name ($partials/layout/main): to change the layout
+                if($this->getActionAnnotation("set_layout")) {
+                   $set_layout =  $this->getActionAnnotation("set_layout");
                 }
                 // @format (JSON|HTML) : By default it will render HTML, set to JSON the view will be rendered as JSON
                 if($this->getActionAnnotation("format")) {
@@ -497,9 +497,9 @@ abstract class Controller
                  * - arguments
                  *      method (POST|GET|PUT|DELETE) - The request method to accept
                  *      response - a message to display if the request method fails
-                 *      action_view -  a view to display instead of the _includes/error/405
+                 *      action_view -  a view to display instead of the $partials/error/405
                  * - example:
-                 *      @request [method=POST, response="This is an error message", action_view="_includes/error/405"]
+                 *      @request [method=POST, response="This is an error message", action_view="$partials/error/405"]
                  */
                 $request = $this->getActionAnnotation("request");
                 if(is_array($request) && $request["method"]) {
@@ -528,8 +528,8 @@ abstract class Controller
 
             if ($this->view() instanceof View) {
                 $this->view()->setActionView($actionView);
-                if ($use_layout) {
-                   $this->view()->useLayout($use_layout);
+                if ($set_layout) {
+                   $this->view()->setLayout($set_layout);
                 }
                 if ($format) {
                     $this->view()->setFormat(strtoupper($format));
@@ -537,11 +537,8 @@ abstract class Controller
             }
 
             if ($executeAction) {
-
                 $this->beforeAction();
-
                     $this->{$actionName}();
-
                 $this->afterAction();
             }
 
@@ -639,7 +636,7 @@ abstract class Controller
             if (! $this->view()->issetLayout()) {
                 $layout = $this->getConfig("views.layout");
                 if($layout) {
-                    $this->view()->useLayout($layout);
+                    $this->view()->setLayout($layout);
                 }
             }
 

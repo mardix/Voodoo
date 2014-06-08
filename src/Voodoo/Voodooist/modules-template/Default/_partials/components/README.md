@@ -1,0 +1,1 @@
+Components contains shared partials such as pagination, flash-message etc

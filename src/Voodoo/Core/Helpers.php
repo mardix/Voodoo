@@ -363,8 +363,6 @@ Class Helpers{
      */
     public static function recursiveCopy($src,$dest)
     {
-      // recursive function to delete
-      // all subdirectories and contents:
       if(is_dir($src))$dir_handle=opendir($src);
           while ($file=readdir($dir_handle)) {
             if ($file!="." && $file!="..") {

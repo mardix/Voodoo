@@ -3,18 +3,18 @@
     "applications" : [
         {
             "name" : "www",
+            "template" : "Default",
+            "isRest" : false,
+           
             "modules" : [
                 {
                     "name" : "Main",
                     "template" : "Default",
-                    "isRest" : false,
-                    "omitViews" : false,
-                    
                     "controllers" : [
                         {
                             "name" : "Index",
                             "actions" : ["index"]
-                        }               
+                        }              
                     ],
                 
                     "models" : [
