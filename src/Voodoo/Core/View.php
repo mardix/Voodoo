@@ -110,7 +110,6 @@ class View
         /**
          * Handlebars
          */
-        print $this->partialsDir;
         $hbOptions = ["extension" => $this->ext];
         $partialsLoader = new Handlebars\Loader\FilesystemLoader($this->partialsDir, $hbOptions);
         $this->engine = new Handlebars\Handlebars(["partials_loader" => $partialsLoader]);
@@ -475,7 +474,7 @@ class View
             $content = $this->parseTemplate($content);
             if(preg_match("/{{!set_layout\s+(.*?)\s*}}/i", $content, $matches)){
                $content = str_replace($matches[0], "", $content);
-               $this->useLayout($matches[1]);
+               $this->setLayout($matches[1]);
            }
         }
         $this->addTemplateString($name, $content);
