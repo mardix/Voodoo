@@ -58,6 +58,7 @@ abstract class Controller
      * @var string
      */
     protected $actionName = "";
+    
     // The action view to use
     protected $actionView = "";
 
@@ -608,7 +609,8 @@ abstract class Controller
     protected function view(Array $dataModel = null)
     {
         if (! $this->view){
-            $this->view = new View($this);
+            $flashStorage = new View\FlashSession;
+            $this->view = new View($this, $flashStorage);
         }
         if ($dataModel) {
             $this->view->assign($dataModel);

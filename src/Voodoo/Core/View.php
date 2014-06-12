@@ -97,8 +97,9 @@ class View
      * The constructor
      *
      * @param Controller $controller
+     * @param View\IFlashStorage $flashMessageStorage - Instance to store flash message
      */
-    public function __construct(Controller $controller)
+    public function __construct(Controller $controller, View\IFlashStorage $flashMessageStorage = null)
     {
         $this->controller = $controller;
         $this->templateDir = $this->controller->getModuleDir() . "/Views";
@@ -117,7 +118,7 @@ class View
         /**
          * FlashMessage
          */
-        $this->flashMessage = new View\FlashMessage;
+        $this->flashMessage = new View\FlashMessage($flashMessageStorage ?: new View\FlashSession);
     }
 
     /**
@@ -200,7 +201,66 @@ class View
         $this->flashMessage->set($message, $type, $data);
         return $this;
     }
+    
+    /**
+     * Set a flash error message
+     * 
+     * @alias setFlashMessage
+     * @param type $message
+     * @param array $data
+     * @return \Voodoo\Core\View
+     */
+    public function setFlashError($message, Array $data = [])
+    {
+        $this->setFlashMessage($message, View\FlashMessage::TYPE_ERROR, $data);
+        return $this;
+    }
 
+    /**
+     * Set a flash success message
+     * 
+     * @alias setFlashMessage
+     * @param type $message
+     * @param array $data
+     * @return \Voodoo\Core\View
+     */
+    public function setFlashSuccess($message, Array $data = [])
+    {
+        $this->setFlashMessage($message, View\FlashMessage::TYPE_SUCCESS, $data);
+        return $this;
+    }
+    
+    
+    /**
+     * Set a flash notice message
+     * 
+     * @alias setFlashMessage
+     * @param type $message
+     * @param array $data
+     * @return \Voodoo\Core\View
+     */
+    public function setFlashNotice($message, Array $data = [])
+    {
+        $this->setFlashMessage($message, View\FlashMessage::TYPE_NOTICE, $data);
+        return $this;
+    }
+    
+    
+    /**
+     * Set a flash warning message
+     * 
+     * @alias setFlashMessage
+     * @param type $message
+     * @param array $data
+     * @return \Voodoo\Core\View
+     */
+    public function setFlashWarning($message, Array $data = [])
+    {
+        $this->setFlashMessage($message, View\FlashMessage::TYPE_WARNING, $data);
+        return $this;
+    }
+    
+    
     /**
      * Get flash message
      *

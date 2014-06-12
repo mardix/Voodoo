@@ -7,15 +7,15 @@
  * @github      https://github.com/mardix/Voodoo
  * @package     VoodooPHP
  *
- * @copyright   (c) 2013 Mardix (http://github.com/mardix)
+ * @copyright   (c) 2014 Mardix (http://github.com/mardix)
  * @license     MIT
  * -----------------------------------------------------------------------------
  *
- * Flash are temporary data passed from on request to another
+ * Flash are temporary data retained in a session from one request to another
  * Data should be deleted in the next request
  * 
  * @name        Core\View\FlashMessage
- * @desc        Trait for Views
+ * @desc        Flash Message
  *
  */
 
@@ -25,48 +25,48 @@ use Voodoo\Core;
 
 class FlashMessage 
 {
-    const TYPE_ERROR = "error";
-    const TYPE_DANGER = "danger";
-    const TYPE_SUCCESS = "success";
-    const TYPE_WARNING = "warning";
-    const TYPE_NOTICE = "notice";
-    const TYPE_HELP = "help";
-       
-    private $key = "flashMessage";
+    const TYPE_ERROR    = "error";
+    const TYPE_SUCCESS  = "success";
+    const TYPE_WARNING  = "warning";
+    const TYPE_NOTICE   = "info";
+    const TYPE_HELP     = "help";
     
-    public function __construct() {
-        Core\Env::sessionStart();
-        if (!isset($_SESSION[$this->key])){
-            $_SESSION[$this->key] = [];
-        }
+    private $storage    = null;
+
+    /**
+     * 
+     * @param \Voodoo\Core\View\IFlashStorage $storage
+     */
+    public function __construct(IFlashStorage $storage) 
+    {
+        $this->storage = $storage;
     }
+    
     /**
      * Set the flash
      * 
      * @param string $message
      * @param string $type
      * @param array $data
-     * @return TView
+     * 
+     * @return FlashMessage
      */
     public function set($message, $type = self::TYPE_NOTICE, Array $data = [])
     {
-        $_SESSION[$this->key][] = [
+        $this->storage->set([
             "message" => $message,
             "type" => $type,
             "data" => $data
-        ];      
+        ]);
         return $this;
     }
 
     /**
      * Clear flash
-     * 
-     * @return TView
      */
     public function clear()
     {
-        unset($_SESSION[$this->key]);
-        return $this;
+        $this->storage->clear();
     }
     
     /**
@@ -76,7 +76,7 @@ class FlashMessage
      */
     public function get($type = null)
     {
-        $flash = $_SESSION[$this->key];
+        $flash = $this->storage->get();
         if ($flash) {
             if (! $type) {
                 return $flash;
@@ -94,3 +94,4 @@ class FlashMessage
         }
     }
 }
+
