@@ -113,7 +113,7 @@
  * If the table doesn't exist and a schema is found, it will attempt to create it
  * 
  * 
- * protected $__table___ = [
+ * protected $__table__ = [
  *      // The table engin
  *      self::TABLE_KEY_ENGINE => "InnoDB",
  *  
@@ -212,7 +212,7 @@ abstract class Model extends VoodOrm
     * keys: SCHEMA, ENGINE, TIMESTAMPABLE
     * @var Array
     */
-    protected $__table__ = null;
+    protected $__table__ = [];
   
     
     private $callbacks = [
@@ -368,10 +368,10 @@ abstract class Model extends VoodOrm
     
     private function getTimestampableProperty($key)
     {
-        if (isset($this->__table___[self::TABLE_KEY_TIMESTAMPABLE])
-            && isset($this->__table___[self::TABLE_KEY_TIMESTAMPABLE][$key])) {
+        if (isset($this->__table__[self::TABLE_KEY_TIMESTAMPABLE])
+            && isset($this->__table__[self::TABLE_KEY_TIMESTAMPABLE][$key])) {
             
-            return $this->__table___[self::TABLE_KEY_TIMESTAMPABLE][$key];
+            return $this->__table__[self::TABLE_KEY_TIMESTAMPABLE][$key];
         }
         return null;
     }
@@ -395,9 +395,9 @@ abstract class Model extends VoodOrm
                 }
                 $data = $nData;
             } else {
-                $data = array_merge($_data, $data);                
-            }            
-        }  
+                $data = array_merge($_data, $data);
+            }    
+        } 
         return parent::insert($this->onCallable("onInsert", $data));
     }
     
@@ -561,14 +561,14 @@ abstract class Model extends VoodOrm
      */
     public function __createTable()
     {
-        if (is_array($this->__table___[self::TABLE_KEY_SCHEMA])) {
+        if (is_array($this->__table__[self::TABLE_KEY_SCHEMA])) {
             $schema = [];
             
-            $engine = isset($this->__table___[self::TABLE_KEY_ENGINE]) 
-                        ? $this->__table___[self::TABLE_KEY_ENGINE] 
+            $engine = isset($this->__table__[self::TABLE_KEY_ENGINE]) 
+                        ? $this->__table__[self::TABLE_KEY_ENGINE] 
                         : self::TABLE_DEFAULT_ENGINE;
 
-            foreach($this->__table___[self::TABLE_KEY_SCHEMA] as $name => $properties) {
+            foreach($this->__table__[self::TABLE_KEY_SCHEMA] as $name => $properties) {
                 $schema[] = array_merge(["name" => $name], $properties);
             }
             
@@ -599,8 +599,8 @@ abstract class Model extends VoodOrm
         } catch (PDOException $pdoex) {
             // Table doesn't exist but schema is available
             if ($pdoex->getCode() === self::TABLE_DOESNT_EXIST_PDO_EX_CODE 
-                    && isset($this->__table___[self::TABLE_KEY_SCHEMA]) 
-                    && is_array($this->__table___[self::TABLE_KEY_SCHEMA])) {
+                    && isset($this->__table__[self::TABLE_KEY_SCHEMA]) 
+                    && is_array($this->__table__[self::TABLE_KEY_SCHEMA])) {
                 $this->__createTable();
                 return parent::query($query, $parameters, $return_as_pdo_stmt);
             } else {
