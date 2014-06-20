@@ -87,8 +87,7 @@ class SchemaBuilder
         ],
          "ts" => [ // timestamp
             "type" => "datetime",
-            "extra" => "ON UPDATE CURRENT_TIMESTAMP",
-            "default" => "CURRENT_TIMESTAMP"
+            "extra" => "ON UPDATE CURRENT_TIMESTAMP"
         ],
     ];
     
