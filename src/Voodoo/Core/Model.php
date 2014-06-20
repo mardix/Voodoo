@@ -106,6 +106,39 @@
  *          echo "Publisher: " . $book->publisher()->name . "\n";   
  *      }
  * }
+ * 
+ * 
+ **** Table Properties
+ * The model may contain the schema, timestampable names, and table engine
+ * If the table doesn't exist and a schema is found, it will attempt to create it
+ * 
+ * 
+ * protected $__table___ = [
+ *      // The table engin
+ *      self::TABLE_KEY_ENGINE => "InnoDB",
+ *  
+ *      // Timestampable: To automatically update the time
+ *      self::TABLE_KEY_TIMESTAMPABLE => [
+ *          "onInsert" => ["updated_at", "created_at"],
+ *          "onUpdate" => ["updated_at"], 
+ *      ],
+ * 
+ *      // Define the table schema to be created when the table doesn't exist
+ *      self::TABLE_KEY_SCHEMA => [
+ *          "field_name" => [
+ *              "type" => "id",
+ *              "length => 3,
+ *              ... more properties
+ *          ],
+ *          "another_field_name" => [
+ *              "type" => "id",
+ *              "length => 3,
+ *              ... more properties
+ *          ]
+ *      ] ...
+  * ];
+ * 
+ * 
  */
 
 namespace Voodoo\Core;
@@ -113,46 +146,80 @@ namespace Voodoo\Core;
 use Voodoo\VoodOrm,
     Closure,
     PDO,
+    PDOException,
     ReflectionClass;
 
 abstract class Model extends VoodOrm
 {
-  /**
-   * The table name
-   * @var type
-   */
-  protected $tableName = null;
+    /**
+     * PDOException code for table that doesn't exist
+     */
+    const TABLE_DOESNT_EXIST_PDO_EX_CODE = "42S02";
 
-  /**
-   * The primary ke name
-   * @var string
-   */
-  protected $primaryKeyName = "id";
+    /**
+     * Default DB engine
+     */
+    const TABLE_DEFAULT_ENGINE = "InnoDB";
+    
+    /**
+     * The key name of the
+     */
+    const TABLE_KEY_SCHEMA = "SCHEMA";
+    
+    const TABLE_KEY_ENGINE = "ENGINE";
+    
+    const TABLE_KEY_TIMESTAMPABLE = "TIMESTAMPABLE";
+    //--------------------------------------------------------------------------    
+    /**
+    * The table name
+    * @var type
+    */
+    protected $tableName = null;
 
-  /**
-   * The foreign key name for one to many
-   * @var string
-   */
-  protected $foreignKeyName = "%s_id";
+    /**
+    * The primary ke name
+    * @var string
+    */
+    protected $primaryKeyName = "id";
 
-  /**
-   * The DB Alias to use. It is saved in App/Config/DB.ini
-   * @var string
-   */
-  protected $dbAlias = "";
+    /**
+    * The foreign key name for one to many
+    * @var string
+    */
+    protected $foreignKeyName = "%s_id";
 
-  /**
-   * Hold the table prefix
-   * @var string
-   */
-  protected $tablePrefix = "";
+    /**
+    * The DB Alias to use. It is saved in App/Config/DB.ini
+    * @var string
+    */
+    protected $dbAlias = "";
+
+    /**
+    * Hold the table prefix
+    * @var string
+    */
+    protected $tablePrefix = "";
+
+    /**
+    * Holds the association definitions
+    * @var Array
+    */
+    private static $associations = [];
+
+
+    /**
+    * Hold the table properties
+    * keys: SCHEMA, ENGINE, TIMESTAMPABLE
+    * @var Array
+    */
+    protected $__table__ = null;
   
-  /**
-   * Holds the association definitions
-   * @var Array
-   */
-  private static $associations = [];
-  
+    
+    private $callbacks = [
+        "onInsert" => null,
+        "onUpdate" => null,
+        "onDelete" => null
+    ];    
  /*******************************************************************************/
 
   /**
@@ -205,6 +272,7 @@ abstract class Model extends VoodOrm
 
     /**
      * To setup logic upon initialization of the model
+     * Normally this is where you would set up onInsert, onUpdate, onDelete
      */
     protected function setup()
     { }
@@ -249,6 +317,134 @@ abstract class Model extends VoodOrm
     {
         return preg_replace("/^{$this->tablePrefix}/", "", $this->getTablename());
     }   
+    
+    /**
+     * Return the array representation of the single result for views.  
+     * 
+     * return Array
+     */
+    public function getViewModel()
+    {
+        if ($this->isSingleRow()) {
+            return $this->toArray();
+        } else {
+            throw new \Exception("Can't get a valid ViewModel on non SingleRow");
+        }
+    }    
+    
+//------------------------------------------------------------------------------    
+    /**
+     * Setup a callback to execute on Insert
+     * @param \Closure $callback
+     * @return \Voodoo\Core\Model
+     */
+    protected function onInsert(Closure $callback = null)
+    {
+        $this->callbacks["onInsert"] = $callback;
+        return $this;
+    }
+
+    /**
+     * Setup a callback to execute on Update
+     * @param \Closure $callback
+     * @return \Voodoo\Core\Model
+     */
+    protected function onUpdate(Closure $callback = null)
+    {
+        $this->callbacks["onUpdate"] = $callback;
+        return $this;
+    }
+
+    /**
+     * Setup a callback to execute on Delete
+     * @param \Closure $callback
+     * @return \Voodoo\Core\Model
+     */
+    protected function onDelete(Closure $callback = null)
+    {
+        $this->callbacks["onDelete"] = $callback;
+        return $this;
+    }   
+    
+    private function getTimestampableProperty($key)
+    {
+        if (isset($this->__table___[self::TABLE_KEY_TIMESTAMPABLE])
+            && isset($this->__table___[self::TABLE_KEY_TIMESTAMPABLE][$key])) {
+            
+            return $this->__table___[self::TABLE_KEY_TIMESTAMPABLE][$key];
+        }
+        return null;
+    }
+    /**
+     * To insert
+     * @param array $data
+     * @return Model
+     */
+    public function insert(array $data) 
+    {
+        $ts = $this->getTimestampableProperty("onInsert");
+        if (is_array($ts)) {
+            $_data = [];
+            foreach ($ts as $key) {
+                $_data[$key] = $this->getDateTime();
+            }
+            if ($this->isArrayMultiDim($data)) {
+                $nData = [];
+                foreach($data as $dd) {
+                    $nData[] = array_merge($_data, $dd);
+                }
+                $data = $nData;
+            } else {
+                $data = array_merge($_data, $data);                
+            }            
+        }  
+        return parent::insert($this->onCallable("onInsert", $data));
+    }
+    
+    /**
+     * To update
+     * @param array $data
+     * @return int
+     */
+    public function update(array $data = null) 
+    {
+        $ts = $this->getTimestampableProperty("onUpdate");
+        if (is_array($ts)) {
+            foreach($ts as $key) {
+                $this->set($key, $this->getDateTime());
+            }
+        }
+        return parent::update($this->onCallable("onUpdate", $data));
+    }
+    
+    /**
+     * To delete
+     * @param $deleteAll bool
+     * @return int
+     */
+    public function delete($deleteAll = false) 
+    {
+        $this->onCallable("onDelete");
+        return parent::delete($deleteAll);
+    }    
+    
+    /**
+     * To execute the callback
+     * 
+     * @param string $fn - The callback key
+     * @param mixed $data
+     * @return mixed
+     */
+    private function onCallable($fn, $data = null)
+    {
+        if (is_callable($this->callbacks[$fn])) {
+            return $this->callbacks[$fn]($data);
+        } else {
+            return $data;
+        }
+    }
+    
+//------------------------------------------------------------------------------     
     
     /**
      * Override the __call to call associations
@@ -359,4 +555,58 @@ abstract class Model extends VoodOrm
         $this->reset();
         return $res;
     }
+    
+    /**
+     * Create a schema based on the
+     */
+    public function __createTable()
+    {
+        if (is_array($this->__table___[self::TABLE_KEY_SCHEMA])) {
+            $schema = [];
+            
+            $engine = isset($this->__table___[self::TABLE_KEY_ENGINE]) 
+                        ? $this->__table___[self::TABLE_KEY_ENGINE] 
+                        : self::TABLE_DEFAULT_ENGINE;
+
+            foreach($this->__table___[self::TABLE_KEY_SCHEMA] as $name => $properties) {
+                $schema[] = array_merge(["name" => $name], $properties);
+            }
+            
+            if (! $this->__tableExists()) {
+                $sql = (new SchemaBuilder($schema, $engine))->create($this->getTableName());
+                $this->query($sql);
+                $this->reset();
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * To execute a raw query. 
+     * The option to allow the creation of the table if it doesn't exist was added
+     * 
+     * @param string    $query
+     * @param Array     $parameters
+     * @param bool      $return_as_pdo_stmt - true, it will return the PDOStatement
+     *                                       false, it will return $this, which can be used for chaining
+     *                                              or access the properties of the results
+     * @return VoodOrm | PDOStatement
+     */    
+    public function query($query, Array $parameters = array(), $return_as_pdo_stmt = false) {
+        try {
+            return parent::query($query, $parameters, $return_as_pdo_stmt);
+        } catch (PDOException $pdoex) {
+            // Table doesn't exist but schema is available
+            if ($pdoex->getCode() === self::TABLE_DOESNT_EXIST_PDO_EX_CODE 
+                    && isset($this->__table___[self::TABLE_KEY_SCHEMA]) 
+                    && is_array($this->__table___[self::TABLE_KEY_SCHEMA])) {
+                $this->__createTable();
+                return parent::query($query, $parameters, $return_as_pdo_stmt);
+            } else {
+                throw $pdoex;
+            }
+        } 
+    }
+    
 }
