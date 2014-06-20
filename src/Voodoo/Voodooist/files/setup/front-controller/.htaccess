@@ -23,9 +23,6 @@ IndexIgnore .htaccess * */.??* *~ *# */HEADER*  */README* */_vti*
 # Block access to .git folder if exists
 RedirectMatch 404 /\\.git(/.*|$)
 
-# Prevent  all .ini file from being accessed
-RedirectMatch 404 /*\\.ini(/.*|$)
-
 # If your web host doesn't allow the +FollowSymlinks option, comment it out and use `Options +SymLinksOfOwnerMatch`
 #Options +FollowSymlinks
 Options +SymLinksIfOwnerMatch
@@ -37,10 +34,16 @@ RewriteEngine on
 # change the RewriteBase below to RewriteBase /MyVoodooDir
 RewriteBase /
 
-# Route everything to index.php
+# Route everything to index.php except:
+# Static files
+RewriteCond %{REQUEST_URI} !\.(js|css|gif|jpg|jpeg|png|ico|swf|pdf)$
+# Existing file
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !\.(js|css|gif|jpg|jpeg|png|ico|swf|pdf)$
+# Existing Dir
 RewriteCond %{REQUEST_FILENAME} !-d
+# Existing Link
+RewriteCond %{REQUEST_FILENAME} !-l
+
 RewriteRule ^(.*)$ index.php?/$1 [L,NC]
 
 #
