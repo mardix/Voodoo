@@ -1,4 +1,11 @@
 {
-  "collections": [],
+  "collections": [
+    {
+      "id": "t2x",
+      "name": "T2X",
+      "route": "/src",
+      "template": ""
+    }
+  ],
   "templates": []
 }
